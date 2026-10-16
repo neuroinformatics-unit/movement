@@ -281,19 +281,17 @@ def compute_angular_time_derivative(
 ) -> xr.DataArray:
     r"""Compute the time-derivative of a 2D orientation.
 
-    The orientation may be given either as 2D vectors or as angles in
-    radians. Its rate of change is estimated from the signed angles
-    between nearby orientations, which avoids the spurious jumps that
-    occur when angles wrap around at :math:`\pm\pi` (see Notes).
+    The orientation is given as 2D vectors. Its rate of change is
+    estimated from the signed angles between nearby orientation vectors,
+    which avoids the spurious jumps that occur when angles wrap around at
+    :math:`\pm\pi` (see Notes).
 
     Parameters
     ----------
     data
-        The input orientation data, containing ``time`` as a dimension.
-        If it contains a ``space`` dimension, it must have exactly the
-        coordinates ``["x", "y"]`` and is interpreted as 2D vectors, which
-        need not be of unit length. Otherwise, it is interpreted as angles
-        in radians.
+        The input orientation vectors, containing ``time`` and ``space``
+        as dimensions. ``space`` must have exactly the coordinates
+        ``["x", "y"]``. The vectors need not be of unit length.
     order
         The order of the time-derivative. Use 1 for angular velocity and
         2 for angular acceleration. Must be a positive integer.
@@ -315,40 +313,38 @@ def compute_angular_time_derivative(
     Notes
     -----
     **Wrap-around.** Differentiating angles directly produces spurious
-    spikes wherever they wrap around at :math:`\pm\pi`. Instead, we use
-    the :func:`signed angles<movement.utils.vector.compute_signed_angle_2d>`
-    between nearby orientations: for ``order=1`` without ``window``, the
-    angle from the previous to the next frame, divided by the time
-    between them. Higher orders differentiate that result further with
-    :func:`~movement.kinematics.compute_time_derivative`. This assumes
-    rotations of less than :math:`\pi` across two frames (or half a
-    ``window``). Undefined orientations (NaNs or zero-length vectors) are
-    treated as NaN.
+    spikes wherever they wrap around at :math:`\pm\pi`.
+    Instead, this function uses the
+    :func:`signed angles<movement.utils.vector.compute_signed_angle_2d>`
+    between nearby orientations vectors. Without
+    ``window``, ``order=1`` is the angle from the previous to the next
+    frame, divided by the time between them; higher orders differentiate
+    that result further with
+    :func:`~movement.kinematics.compute_time_derivative`. With ``window``,
+    the angles are measured from the window's centre frame (see
+    *Windowed estimate*). This assumes rotations of less than :math:`\pi`
+    across two frames (or half a ``window``). Undefined orientations
+    (NaNs or zero-length vectors) are treated as NaN.
 
     **Sign.** Positive values are rotations from the positive x-axis
     towards the positive y-axis. In image coordinates (y pointing down)
-    with a top-down camera, this is clockwise on screen, i.e. a right
-    turn.
+    with a top-down camera, this is clockwise on screen.
 
     **Windowed estimate.** With ``window``, the angles of the
     orientations in the window, relative to its centre frame, are
     differentiated with Savitzky-Golay coefficients
     (:func:`scipy.signal.savgol_coeffs`). For ``order=1``, this is the
     slope of a least-squares line over the ``window`` frames centred on
-    each time point. It uses every frame in the window, unlike a rolling
-    mean of the raw angular velocity, which roughly takes the difference
-    between the window's end points. The first and last ``window // 2``
-    values are NaN, as are all outputs whose window contains a NaN. For
-    a window *ending* on each time point, shift the result by
+    each time point. It uses every frame in the window. The first and last
+    ``window // 2`` values are NaN, as are all outputs whose window contains
+    a NaN. For a window *ending* on each time point, shift the result by
     ``window // 2`` frames.
 
     **Preprocessing.** Smooth, interpolate, or resample the orientation
-    as *vectors*, not angles, since angle averages are wrong near
-    :math:`\pm\pi`. For example, a rolling mean of the vector components
-    (:func:`~movement.filtering.rolling_filter`) is a circular mean.
-    Windowed estimates require uniform sampling, so make sure to resample
-    irregularly sampled data onto a uniform ``time`` grid first, e.g. with
-    :meth:`xarray.DataArray.interp` on the vectors.
+    *vectors*, not their angles, since angle averages are wrong near
+    :math:`\pm\pi`. Windowed estimates require uniform sampling, so make sure
+    to resample irregularly sampled data onto a uniform ``time`` grid first,
+    e.g. with :meth:`xarray.DataArray.interp` on the vectors.
 
     See Also
     --------
@@ -370,17 +366,18 @@ def compute_angular_time_derivative(
                 f"({order}), but got {window}."
             )
         )
-    validate_dims_coords(data, {"time": []})
-    vectors = _to_vectors(data)
+    validate_dims_coords(
+        data, {"time": [], "space": ["x", "y"]}, exact_coords=True
+    )
     if window is None:
         # Edge padding gives one-sided differences at the first/last frame
-        padded = vectors.drop_vars("time").pad(time=1, mode="edge")
-        time = np.pad(vectors["time"].values, 1, mode="edge")
+        padded = data.drop_vars("time").pad(time=1, mode="edge")
+        time = np.pad(data["time"].values, 1, mode="edge")
         angle = compute_signed_angle_2d(
             padded.isel(time=slice(None, -2)), padded.isel(time=slice(2, None))
         )
         result = (angle / (time[2:] - time[:-2])).assign_coords(
-            time=vectors["time"]
+            time=data["time"]
         )
         # The result is a rate, not an angle, so it doesn't wrap around;
         # higher orders can use the ordinary time derivative.
@@ -391,14 +388,12 @@ def compute_angular_time_derivative(
             window,
             order,
             deriv=order,
-            delta=_uniform_time_step(vectors),
+            delta=_uniform_time_step(data),
             use="dot",
         )
         # Out-of-range neighbours are NaN, so the edge outputs are NaN
-        neighbours = vectors.rolling(time=window, center=True).construct(
-            "offset"
-        )
-        relative_angle = compute_signed_angle_2d(vectors, neighbours)
+        neighbours = data.rolling(time=window, center=True).construct("offset")
+        relative_angle = compute_signed_angle_2d(data, neighbours)
         result = (relative_angle * xr.DataArray(coeffs, dims="offset")).sum(
             "offset", skipna=False
         )
@@ -414,17 +409,15 @@ def compute_angular_velocity(
 ) -> xr.DataArray:
     r"""Compute the angular velocity of a 2D orientation.
 
-    The orientation may be given either as 2D vectors (e.g. the output of
-    :func:`compute_forward_vector`) or as angles in radians
-    (e.g. the output of :func:`compute_forward_vector_angle`).
+    The orientation is given as 2D vectors, e.g. the output of
+    :func:`compute_forward_vector`.
 
     Parameters
     ----------
     data
-        The input orientation data, containing ``time`` as a dimension.
-        If it contains a ``space`` dimension, it must have exactly the
-        coordinates ``["x", "y"]`` and is interpreted as 2D vectors.
-        Otherwise, it is interpreted as angles in radians.
+        The input orientation vectors, containing ``time`` and ``space``
+        as dimensions. ``space`` must have exactly the coordinates
+        ``["x", "y"]``. The vectors need not be of unit length.
     window
         If ``None`` (default), the unsmoothed angular velocity is
         computed with central differences. If an odd integer greater
@@ -487,17 +480,15 @@ def compute_angular_acceleration(
 ) -> xr.DataArray:
     r"""Compute the angular acceleration of a 2D orientation.
 
-    The orientation may be given either as 2D vectors (e.g. the output of
-    :func:`compute_forward_vector`) or as angles in radians
-    (e.g. the output of :func:`compute_forward_vector_angle`).
+    The orientation is given as 2D vectors, e.g. the output of
+    :func:`compute_forward_vector`.
 
     Parameters
     ----------
     data
-        The input orientation data, containing ``time`` as a dimension.
-        If it contains a ``space`` dimension, it must have exactly the
-        coordinates ``["x", "y"]`` and is interpreted as 2D vectors.
-        Otherwise, it is interpreted as angles in radians.
+        The input orientation vectors, containing ``time`` and ``space``
+        as dimensions. ``space`` must have exactly the coordinates
+        ``["x", "y"]``. The vectors need not be of unit length.
     window
         If ``None`` (default), the unsmoothed angular acceleration is
         computed by differentiating the central-difference angular
@@ -543,17 +534,6 @@ def compute_angular_acceleration(
         result = cast("xr.DataArray", np.rad2deg(result))
     result.name = "angular_acceleration"
     return result
-
-
-def _to_vectors(data: xr.DataArray) -> xr.DataArray:
-    """Return orientation vectors, converting angles to vectors if needed."""
-    if "space" in data.dims:
-        validate_dims_coords(data, {"space": ["x", "y"]}, exact_coords=True)
-        return data
-    return xr.concat(
-        [cast("xr.DataArray", f(data)) for f in (np.cos, np.sin)],
-        dim="space",
-    ).assign_coords(space=["x", "y"])
 
 
 def _uniform_time_step(data: xr.DataArray) -> float:
