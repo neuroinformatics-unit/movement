@@ -463,6 +463,7 @@ def _rotating_vector(scale=1.0, **kwargs):
     return _angle_to_vector(_rotating_angle(**kwargs), scale=scale)
 
 
+@pytest.mark.parametrize("in_degrees", [False, True], ids=["rad", "deg"])
 @pytest.mark.parametrize(
     "time_in_frames, expected",
     [
@@ -470,21 +471,17 @@ def _rotating_vector(scale=1.0, **kwargs):
         pytest.param(True, 10.0 / 40, id="time_in_frames"),
     ],
 )
-def test_angular_velocity_constant_rotation(time_in_frames, expected):
+def test_angular_velocity_constant_rotation(
+    time_in_frames, expected, in_degrees
+):
     """A constant rotation crossing +-pi yields a constant velocity."""
     data = _rotating_vector(scale=3.0, time_in_frames=time_in_frames)
-    result = kinematics.compute_angular_velocity(data)
+    result = kinematics.compute_angular_velocity(data, in_degrees=in_degrees)
     assert result.name == "angular_velocity"
     assert result.dims == ("time",)
+    if in_degrees:
+        expected = np.rad2deg(expected)
     np.testing.assert_allclose(result, expected, atol=1e-9)
-
-
-def test_angular_velocity_in_degrees():
-    """``in_degrees=True`` converts the output to degrees."""
-    result = kinematics.compute_angular_velocity(
-        _rotating_vector(), in_degrees=True
-    )
-    np.testing.assert_allclose(result, np.rad2deg(10.0), atol=1e-6)
 
 
 def test_angular_velocity_sign_convention():
