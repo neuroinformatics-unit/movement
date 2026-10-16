@@ -127,9 +127,9 @@ ahv_deg
 
 # %%
 # Let's look at a histogram of angular head velocities.
-# We expect most values to be small and distributed symmetrically around zero,
-# with a few extreme values in the tails. To make the tails more visible,
-# we also look at the histogram with a logarithmic y-axis.
+# We expect to see a symmetric, zero-centered, heavy-tailed distribution.
+# To make the tails more visible, we also look at the histogram with a
+# logarithmic y-axis.
 
 N_BINS = 100
 
@@ -226,8 +226,6 @@ plt.show()
 # Let's look at the distribution of angular head velocities after smoothing,
 # and compare it to the raw distribution.
 
-# sphinx_gallery_thumbnail_number = 3
-
 raw_range = (ahv_deg.min().item(), ahv_deg.max().item())  # same bins for all
 
 fig, axes = plt.subplots(1, 4, figsize=(8, 3), sharex=True, sharey=True)
@@ -246,8 +244,7 @@ plt.show()
 # Some extreme values beyond :math:`\pm` 2000 deg/s have survived the
 # pre-smoothing approach (A), but the least-squares approach (B) and its
 # combination with pre-smoothing (A + B) have removed them.
-
-# %%
+#
 # .. admonition:: Centred vs trailing window estimate
 #   :class: note
 #
@@ -259,6 +256,48 @@ plt.show()
 #   .. code-block:: python
 #
 #       ahv_lsq_trailing = ahv_lsq.shift(time=WINDOW_LSQ // 2)
+
+# %%
+# Compare to published values
+# ---------------------------
+# `Hennestad et al. (2021) <https://doi.org/10.1016/j.celrep.2021.110134>`_
+# analysed published data of freely moving mice
+# (`Laurens et al., 2019 <https://doi.org/10.1101/684464>`_) and found
+# that about 90% of all head rotations are slower than 180 deg/s.
+# As a sanity check, let's compute the same fraction for the A + B
+# estimate, ignoring missing values.
+#
+# .. note::
+#   The experimental setups differ, so we only expect a rough match.
+#   In Laurens et al., mice foraged in a circular arena (50 cm diameter),
+#   and head direction was tracked from two LEDs mounted on the headstage.
+#   Here, a mouse explores an elevated plus maze, and head direction is
+#   derived from ear keypoints estimated by DeepLabCut and prepocessed
+#   with ``movement``.
+
+abs_ahv = abs(ahv_presmoothed_lsq)
+frac_below_180 = (abs_ahv < 180).sum() / abs_ahv.notnull().sum()
+print(f"AHV below 180 deg/s: {frac_below_180.item():.1%}")
+
+# %%
+# This closely matches the published value, which suggests that the
+# smoothed estimate is physiologically plausible. Let's visualise this
+# on a histogram of the A + B estimate, this time with a linear y-axis.
+# To focus on the bulk of the distribution, we only plot values within
+# :math:`\pm` 500 deg/s.
+
+# sphinx_gallery_thumbnail_number = 4
+
+fig, ax = plt.subplots(figsize=(5, 3))
+ahv_presmoothed_lsq.plot.hist(
+    ax=ax, bins=N_BINS, range=(-500, 500), color=colors[3]
+)
+for x in (-180, 180):
+    ax.axvline(x, color="black", linestyle="--")
+ax.set_title(f"A + B: {frac_below_180.item():.1%} within ±180 deg/s")
+ax.set_xlabel(ahv_deg.attrs["units"])
+fig.tight_layout()
+plt.show()
 
 # %%
 # Compute angular acceleration
