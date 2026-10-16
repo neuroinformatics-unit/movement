@@ -21,7 +21,9 @@ def compute_norm(data: xr.DataArray) -> xr.DataArray:
     ----------
     data
         The input data array containing either ``space`` or ``space_pol``
-        as a dimension.
+        as a dimension. The ``space`` dimension may be 2D (``x``, ``y``)
+        or 3D (``x``, ``y``, ``z``), whereas ``space_pol`` must be 2D
+        (``rho``, ``phi``).
 
     Returns
     -------
@@ -39,10 +41,14 @@ def compute_norm(data: xr.DataArray) -> xr.DataArray:
     vectors (i.e., the diagonal of the bounding box),
     for every individual and at every timestep.
 
+    For 3D Cartesian input, the norm is the full Euclidean magnitude
+    ``sqrt(x**2 + y**2 + z**2)``. Cylindrical input (a 3D ``space_pol``
+    dimension) is rejected, because there the radial coordinate ``rho``
+    only spans the x-y plane and is therefore not the vector's norm.
 
     """
     if "space" in data.dims:
-        validate_dims_coords(data, {"space": ["x", "y"]})
+        _validate_spatial_dim(data, "space", ["x", "y"])
         return xr.apply_ufunc(
             np.linalg.norm,
             data,
@@ -50,7 +56,8 @@ def compute_norm(data: xr.DataArray) -> xr.DataArray:
             kwargs={"axis": -1},
         )
     elif "space_pol" in data.dims:
-        validate_dims_coords(data, {"space_pol": ["rho", "phi"]})
+        if _validate_spatial_dim(data, "space_pol", ["rho", "phi"]) == 3:
+            _raise_error_for_cylindrical_input()
         return data.sel(space_pol="rho", drop=True)
     else:
         _raise_error_for_missing_spatial_dim()
@@ -66,7 +73,9 @@ def convert_to_unit(data: xr.DataArray) -> xr.DataArray:
     ----------
     data
         The input data array containing either ``space`` or ``space_pol``
-        as a dimension.
+        as a dimension. The ``space`` dimension may be 2D (``x``, ``y``)
+        or 3D (``x``, ``y``, ``z``), whereas ``space_pol`` must be 2D
+        (``rho``, ``phi``).
 
     Returns
     -------
@@ -79,12 +88,16 @@ def convert_to_unit(data: xr.DataArray) -> xr.DataArray:
     Note that the unit vector for the null vector is undefined, since the null
     vector has 0 norm and no direction associated with it.
 
+    Cylindrical input (a 3D ``space_pol`` dimension) is rejected, for the
+    same reason as in :func:`compute_norm`.
+
     """
     if "space" in data.dims:
-        validate_dims_coords(data, {"space": ["x", "y"]})
+        _validate_spatial_dim(data, "space", ["x", "y"])
         return data / compute_norm(data)
     elif "space_pol" in data.dims:
-        validate_dims_coords(data, {"space_pol": ["rho", "phi"]})
+        if _validate_spatial_dim(data, "space_pol", ["rho", "phi"]) == 3:
+            _raise_error_for_cylindrical_input()
         # Set both rho and phi values to NaN at null vectors (where rho = 0)
         new_data = xr.where(data.sel(space_pol="rho") == 0, np.nan, data)
         # Set the rho values to 1 for non-null vectors (phi is preserved)
@@ -97,30 +110,37 @@ def convert_to_unit(data: xr.DataArray) -> xr.DataArray:
 
 
 def cart2pol(data: xr.DataArray) -> xr.DataArray:
-    """Transform Cartesian coordinates to polar.
+    """Transform Cartesian coordinates to polar or cylindrical.
 
     Parameters
     ----------
     data
         The input data containing ``space`` as a dimension,
-        with ``x`` and ``y`` in the dimension coordinate.
+        with ``x`` and ``y`` (and optionally ``z``) in the
+        dimension coordinate.
 
     Returns
     -------
     xarray.DataArray
         An xarray DataArray containing the polar coordinates
         stored in the ``space_pol`` dimension, with ``rho``
-        and ``phi`` in the dimension coordinate. The angles
-        ``phi`` returned are in radians, in the range ``[-pi, pi]``.
+        and ``phi`` (plus ``z``, for 3D input) in the dimension
+        coordinate. The angles ``phi`` returned are in radians,
+        in the range ``[-pi, pi]``.
 
     Notes
     -----
+    For 3D input the transformation is to cylindrical coordinates:
+    ``rho`` is the radial distance in the x-y plane, i.e.
+    ``sqrt(x**2 + y**2)``, ``phi`` is the angle in the x-y plane, as in
+    the 2D case, and ``z`` is passed through unchanged.
+
     To compute the angle ``phi`` we rely on the :obj:`numpy.arctan2`
     function, which follows the C standard [1]_. The C standard considers
     the case in which the inputs to the ``arctan2`` [2]_ function are signed
     zeros [3]_. For simplicity and interpretability, in ``movement`` we
     only consider the case of unsigned (positive) zeros. We implement it
-    by setting the angle ``phi`` to 0 when the norm ``rho`` of the vector is 0.
+    by setting the angle ``phi`` to 0 when the radial distance ``rho`` is 0.
 
     References
     ----------
@@ -133,8 +153,10 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
     :obj:`numpy.arctan2`
 
     """
-    validate_dims_coords(data, {"space": ["x", "y"]})
-    rho = compute_norm(data)
+    n_space = _validate_spatial_dim(data, "space", ["x", "y"])
+    # rho is the radial distance in the x-y plane, so in the 3D
+    # (cylindrical) case z must be excluded from the norm
+    rho = compute_norm(data.sel(space=["x", "y"]))
     phi = xr.apply_ufunc(
         np.arctan2,
         data.sel(space="y"),
@@ -149,33 +171,42 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
     # Replace space dim with space_pol
     dims = list(data.dims)
     dims[dims.index("space")] = "space_pol"
-    return xr.concat(
-        [
-            rho.assign_coords({"space_pol": "rho"}),
-            phi.assign_coords({"space_pol": "phi"}),
-        ],
-        dim="space_pol",
-    ).transpose(*dims)
+    pol_coords = [
+        rho.assign_coords({"space_pol": "rho"}),
+        phi.assign_coords({"space_pol": "phi"}),
+    ]
+    if n_space == 3:  # z passthrough
+        pol_coords.append(
+            data.sel(space="z", drop=True).assign_coords({"space_pol": "z"})
+        )
+    return xr.concat(pol_coords, dim="space_pol").transpose(*dims)
 
 
 def pol2cart(data: xr.DataArray) -> xr.DataArray:
-    """Transform polar coordinates to Cartesian.
+    """Transform polar or cylindrical coordinates to Cartesian.
 
     Parameters
     ----------
     data
         The input data containing ``space_pol`` as a dimension,
-        with ``rho`` and ``phi`` in the dimension coordinate.
+        with ``rho`` and ``phi`` (and optionally ``z``) in the
+        dimension coordinate.
 
     Returns
     -------
     xarray.DataArray
         An xarray DataArray containing the Cartesian coordinates
         stored in the ``space`` dimension, with ``x`` and ``y``
-        in the dimension coordinate.
+        (plus ``z``, for 3D input) in the dimension coordinate.
+
+    Notes
+    -----
+    For 3D (cylindrical) input, ``x`` and ``y`` are computed from ``rho``
+    and ``phi`` as in the 2D case, and ``z`` is passed through unchanged.
+    This is the inverse of :func:`cart2pol`.
 
     """
-    validate_dims_coords(data, {"space_pol": ["rho", "phi"]})
+    n_space_pol = _validate_spatial_dim(data, "space_pol", ["rho", "phi"])
     rho = data.sel(space_pol="rho")
     phi = data.sel(space_pol="phi")
     x = rho * np.cos(phi)
@@ -184,13 +215,15 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
     # Replace space_pol dim with space
     dims = list(data.dims)
     dims[dims.index("space_pol")] = "space"
-    return xr.concat(
-        [
-            x.assign_coords({"space": "x"}),
-            y.assign_coords({"space": "y"}),
-        ],
-        dim="space",
-    ).transpose(*dims)
+    cart_coords = [
+        x.assign_coords({"space": "x"}),
+        y.assign_coords({"space": "y"}),
+    ]
+    if n_space_pol == 3:  # z passthrough
+        cart_coords.append(
+            data.sel(space_pol="z", drop=True).assign_coords({"space": "z"})
+        )
+    return xr.concat(cart_coords, dim="space").transpose(*dims)
 
 
 def compute_signed_angle_2d(
@@ -305,6 +338,68 @@ def compute_signed_angle_2d(
     angles.values[angles <= -np.pi] = np.pi
     angles.name = "signed_angle"
     return angles
+
+
+def _validate_spatial_dim(
+    data: xr.DataArray, dim: str, base_coords: list[str]
+) -> int:
+    """Validate that ``dim`` holds 2D or 3D spatial coordinates.
+
+    The dimension ``dim`` must hold either ``base_coords`` (2D), or
+    ``base_coords`` plus ``z`` (3D).
+
+    Parameters
+    ----------
+    data
+        The input data array to validate.
+    dim
+        The name of the spatial dimension to validate, e.g. ``"space"``.
+    base_coords
+        The coordinates required along ``dim`` in the 2D case,
+        e.g. ``["x", "y"]``.
+
+    Returns
+    -------
+    int
+        The length of the spatial dimension, i.e. 2 or 3.
+
+    Raises
+    ------
+    ValueError
+        If ``dim`` or the required coordinates are missing, or if ``dim``
+        has a length other than 2 or 3.
+
+    """
+    validate_dims_coords(data, {dim: base_coords})  # at least 2D
+    n_coords = len(data.coords[dim])
+    if n_coords == 3:
+        validate_dims_coords(data, {dim: [*base_coords, "z"]})  # 3rd is z
+    elif n_coords != 2:
+        _raise_error_for_invalid_spatial_dim_length(dim, n_coords)
+    return n_coords
+
+
+def _raise_error_for_cylindrical_input() -> NoReturn:
+    raise logger.error(
+        ValueError(
+            "This function does not support 3D cylindrical input, i.e. a "
+            "'space_pol' dimension holding 'rho', 'phi' and 'z', because "
+            "there 'rho' only spans the x-y plane and is therefore not the "
+            "norm of the vector. Convert the data to Cartesian coordinates "
+            "with pol2cart() first."
+        )
+    )
+
+
+def _raise_error_for_invalid_spatial_dim_length(
+    dim: str, length: int
+) -> NoReturn:
+    raise logger.error(
+        ValueError(
+            f"Input data array must contain 2 (2D) or 3 (3D) coordinates "
+            f"in the '{dim}' dimension, but got {length}."
+        )
+    )
 
 
 def _raise_error_for_missing_spatial_dim() -> NoReturn:
