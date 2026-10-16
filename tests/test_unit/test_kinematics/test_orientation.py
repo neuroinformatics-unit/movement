@@ -463,6 +463,14 @@ def _rotating_vector(scale=1.0, **kwargs):
     return _angle_to_vector(_rotating_angle(**kwargs), scale=scale)
 
 
+@pytest.fixture
+def noisy_angle():
+    """Return wrapped angles of a rotation crossing +-pi, plus noise."""
+    angle = _rotating_angle()
+    noise = np.random.default_rng(seed=42).normal(0, 0.05, angle.size)
+    return angle.copy(data=np.angle(np.exp(1j * (angle.values + noise))))
+
+
 @pytest.mark.parametrize("in_degrees", [False, True], ids=["rad", "deg"])
 @pytest.mark.parametrize(
     "time_in_frames, expected",
@@ -504,12 +512,140 @@ def test_angular_velocity_sign_convention(step, expected_sign, window):
     assert (np.sign(result) == expected_sign).all()
 
 
+def test_raw_irregular_time():
+    """Without ``window``, irregular time steps are handled exactly."""
+    time = np.cumsum(np.random.default_rng(seed=0).uniform(0.5, 1.5, 50))
+    angle = xr.DataArray(
+        np.angle(np.exp(0.4j * time)), dims="time", coords={"time": time}
+    )
+    result = kinematics.compute_angular_velocity(_angle_to_vector(angle))
+    np.testing.assert_allclose(result, 0.4, atol=1e-9)
+
+
+@pytest.mark.parametrize(
+    "time_in_frames, expected",
+    [
+        pytest.param(False, 10.0, id="time_in_seconds"),
+        pytest.param(True, 10.0 / 40, id="time_in_frames"),
+    ],
+)
+def test_angular_velocity_window_constant_rotation(time_in_frames, expected):
+    """A windowed estimate of a constant rotation is exact, except for
+    the first and last ``window // 2`` frames, which are NaN.
+    """
+    window = 7
+    data = _rotating_vector(time_in_frames=time_in_frames)
+    result = kinematics.compute_angular_velocity(data, window=window)
+    h = window // 2
+    np.testing.assert_allclose(
+        result.isel(time=slice(h, -h)), expected, atol=1e-6
+    )
+    assert result.isel(time=slice(None, h)).isnull().all()
+    assert result.isel(time=slice(-h, None)).isnull().all()
+
+
+def test_angular_velocity_window_matches_polyfit(noisy_angle):
+    """The windowed estimate equals the slope of a least-squares line
+    over the centred window, and the trailing-window recipe equals the
+    slope over the window ending at each time point.
+    """
+    window = 7
+    half = window // 2
+    i = 100  # any frame far enough from the edges
+
+    # Reference: slope of a straight line fitted to the unwrapped angle
+    t = noisy_angle.time.values
+    unwrapped = np.unwrap(noisy_angle.values)
+
+    def fitted_slope(frames):
+        return np.polyfit(t[frames], unwrapped[frames], deg=1)[0]
+
+    result = kinematics.compute_angular_velocity(
+        _angle_to_vector(noisy_angle), window=window
+    )
+
+    # Centred window: frames i - half, ..., i + half
+    centred_frames = slice(i - half, i + half + 1)
+    assert np.isclose(result.values[i], fitted_slope(centred_frames))
+
+    # Trailing window (as in the example): frames i - window + 1, ..., i
+    trailing = result.shift(time=half)
+    trailing_frames = slice(i - window + 1, i + 1)
+    assert np.isclose(trailing.values[i], fitted_slope(trailing_frames))
+
+
+def test_angular_velocity_window_reduces_noise(noisy_angle):
+    """The windowed estimate is less noisy than the raw one."""
+    vector = _angle_to_vector(noisy_angle)
+    raw = kinematics.compute_angular_velocity(vector)
+    windowed = kinematics.compute_angular_velocity(vector, window=7)
+    assert windowed.std() < raw.std()
+
+
+@pytest.mark.parametrize("window", [None, 9], ids=["raw", "window"])
+@pytest.mark.parametrize(
+    "in_degrees, expected",
+    [
+        pytest.param(False, 4.0, id="rad"),
+        pytest.param(True, np.rad2deg(4.0), id="deg"),
+    ],
+)
+def test_angular_acceleration(window, in_degrees, expected):
+    """A constant angular acceleration is recovered, away from the edges."""
+    data = _rotating_vector(angular_velocity=1.0, angular_acceleration=4.0)
+    result = kinematics.compute_angular_acceleration(
+        data, window=window, in_degrees=in_degrees
+    )
+    np.testing.assert_allclose(
+        result.isel(time=slice(5, -5)), expected, atol=1e-4
+    )
+
+
+@pytest.mark.parametrize(
+    "window, max_nans_per_gap",
+    [pytest.param(None, 3, id="raw"), pytest.param(5, 5, id="window")],
+)
+@pytest.mark.parametrize(
+    "nan_frames",
+    [
+        pytest.param([50, 51, 120], id="interior_gaps"),
+        pytest.param([0, 1, 2, 197, 198, 199], id="leading_trailing"),
+    ],
+)
+def test_nans_stay_local(window, max_nans_per_gap, nan_frames):
+    """NaNs (including at the edges) do not raise, and stay local."""
+    vector = _rotating_vector()
+    vector[nan_frames] = np.nan
+    result = kinematics.compute_angular_velocity(vector, window=window)
+    assert result.isnull().sum() <= max_nans_per_gap * len(nan_frames)
+    interior = result.isel(time=slice(5, -5)).dropna("time")
+    np.testing.assert_allclose(interior, 10.0, atol=1e-6)
+
+
 def test_zero_length_vector_treated_as_nan():
     """A null orientation vector is undefined and is treated as NaN."""
     vector = _rotating_vector()
     vector[60] = 0.0
     result = kinematics.compute_angular_velocity(vector)
     np.testing.assert_allclose(result.dropna("time"), 10.0, atol=1e-9)
+
+
+@pytest.mark.parametrize("window", [None, 7], ids=["raw", "window"])
+def test_keypoint_swap_stays_local(window):
+    """A one-frame 180-degree flip (e.g. a left/right ear swap) during a
+    turn does not turn into a spurious full revolution.
+    """
+    vector = _rotating_vector(angular_velocity=0.1, fps=1, n_frames=40)
+    vector[10] = -vector[10]
+    result = kinematics.compute_angular_velocity(vector, window=window)
+    if window is None:
+        # Neighbours of the flip are corrupted, the flipped frame is not
+        np.testing.assert_allclose(result[10], 0.1, atol=1e-9)
+    else:
+        # Frames whose window contains the flip off-centre stay close
+        np.testing.assert_allclose(result[[9, 11]], 0.1, atol=0.2)
+    unaffected = result.drop_isel(time=range(7, 14)).dropna("time")
+    np.testing.assert_allclose(unaffected, 0.1, atol=1e-9)
 
 
 @pytest.mark.parametrize(
@@ -535,23 +671,27 @@ def test_extra_dims_and_dim_order(window, dims):
     )
 
 
-@pytest.mark.parametrize("window", [None, 9], ids=["raw", "window"])
-@pytest.mark.parametrize(
-    "in_degrees, expected",
-    [
-        pytest.param(False, 4.0, id="rad"),
-        pytest.param(True, np.rad2deg(4.0), id="deg"),
-    ],
-)
-def test_angular_acceleration(window, in_degrees, expected):
-    """A constant angular acceleration is recovered, away from the edges."""
-    data = _rotating_vector(angular_velocity=1.0, angular_acceleration=4.0)
-    result = kinematics.compute_angular_acceleration(
-        data, window=window, in_degrees=in_degrees
+@pytest.mark.parametrize("in_degrees", [False, True], ids=["rad", "deg"])
+@pytest.mark.parametrize("window", [None, 5], ids=["raw", "window"])
+def test_output_name_and_attrs(window, in_degrees):
+    """Every path drops the input's attrs, like ``compute_velocity``,
+    and names the output after the computed quantity.
+    """
+    vector = _rotating_vector()
+    vector.attrs["log"] = '[{"operation": "upstream"}]'
+    velocity = kinematics.compute_angular_velocity(
+        vector, window=window, in_degrees=in_degrees
     )
-    np.testing.assert_allclose(
-        result.isel(time=slice(5, -5)), expected, atol=1e-4
+    acceleration = kinematics.compute_angular_acceleration(
+        vector, window=window, in_degrees=in_degrees
     )
+    derivative = kinematics.compute_angular_time_derivative(
+        vector, order=1, window=window
+    )
+    assert velocity.name == "angular_velocity"
+    assert acceleration.name == "angular_acceleration"
+    assert derivative.name == "angular_time_derivative"
+    assert velocity.attrs == acceleration.attrs == derivative.attrs == {}
 
 
 @pytest.mark.parametrize(
@@ -593,146 +733,6 @@ def test_angular_time_derivative_invalid_inputs(
         kinematics.compute_angular_time_derivative(
             data, **{"order": 1, **kwargs}
         )
-
-
-@pytest.mark.parametrize(
-    "time_in_frames, expected",
-    [
-        pytest.param(False, 10.0, id="time_in_seconds"),
-        pytest.param(True, 10.0 / 40, id="time_in_frames"),
-    ],
-)
-def test_angular_velocity_window_constant_rotation(time_in_frames, expected):
-    """A windowed estimate of a constant rotation is exact, except for
-    the first and last ``window // 2`` frames, which are NaN.
-    """
-    window = 7
-    data = _rotating_vector(time_in_frames=time_in_frames)
-    result = kinematics.compute_angular_velocity(data, window=window)
-    h = window // 2
-    np.testing.assert_allclose(
-        result.isel(time=slice(h, -h)), expected, atol=1e-6
-    )
-    assert result.isel(time=slice(None, h)).isnull().all()
-    assert result.isel(time=slice(-h, None)).isnull().all()
-
-
-@pytest.fixture
-def noisy_angle():
-    """Return wrapped angles of a rotation crossing +-pi, plus noise."""
-    angle = _rotating_angle()
-    noise = np.random.default_rng(seed=42).normal(0, 0.05, angle.size)
-    return angle.copy(data=np.angle(np.exp(1j * (angle.values + noise))))
-
-
-def test_angular_velocity_window_matches_polyfit(noisy_angle):
-    """The windowed estimate equals the slope of a least-squares line
-    over the centred window, and the trailing-window recipe equals the
-    slope over the window ending at each time point.
-    """
-    window = 7
-    half = window // 2
-    i = 100  # any frame far enough from the edges
-
-    # Reference: slope of a straight line fitted to the unwrapped angle
-    t = noisy_angle.time.values
-    unwrapped = np.unwrap(noisy_angle.values)
-
-    def fitted_slope(frames):
-        return np.polyfit(t[frames], unwrapped[frames], deg=1)[0]
-
-    result = kinematics.compute_angular_velocity(
-        _angle_to_vector(noisy_angle), window=window
-    )
-
-    # Centred window: frames i - half, ..., i + half
-    centred_frames = slice(i - half, i + half + 1)
-    assert np.isclose(result.values[i], fitted_slope(centred_frames))
-
-    # Trailing window (as in the example): frames i - window + 1, ..., i
-    trailing = result.shift(time=half)
-    trailing_frames = slice(i - window + 1, i + 1)
-    assert np.isclose(trailing.values[i], fitted_slope(trailing_frames))
-
-
-def test_angular_velocity_window_reduces_noise(noisy_angle):
-    """The windowed estimate is less noisy than the raw one."""
-    vector = _angle_to_vector(noisy_angle)
-    raw = kinematics.compute_angular_velocity(vector)
-    windowed = kinematics.compute_angular_velocity(vector, window=7)
-    assert windowed.std() < raw.std()
-
-
-@pytest.mark.parametrize(
-    "window, max_nans_per_gap",
-    [pytest.param(None, 3, id="raw"), pytest.param(5, 5, id="window")],
-)
-@pytest.mark.parametrize(
-    "nan_frames",
-    [
-        pytest.param([50, 51, 120], id="interior_gaps"),
-        pytest.param([0, 1, 2, 197, 198, 199], id="leading_trailing"),
-    ],
-)
-def test_nans_stay_local(window, max_nans_per_gap, nan_frames):
-    """NaNs (including at the edges) do not raise, and stay local."""
-    vector = _rotating_vector()
-    vector[nan_frames] = np.nan
-    result = kinematics.compute_angular_velocity(vector, window=window)
-    assert result.isnull().sum() <= max_nans_per_gap * len(nan_frames)
-    interior = result.isel(time=slice(5, -5)).dropna("time")
-    np.testing.assert_allclose(interior, 10.0, atol=1e-6)
-
-
-@pytest.mark.parametrize("in_degrees", [False, True], ids=["rad", "deg"])
-@pytest.mark.parametrize("window", [None, 5], ids=["raw", "window"])
-def test_output_name_and_attrs(window, in_degrees):
-    """Every path drops the input's attrs, like ``compute_velocity``,
-    and names the output after the computed quantity.
-    """
-    vector = _rotating_vector()
-    vector.attrs["log"] = '[{"operation": "upstream"}]'
-    velocity = kinematics.compute_angular_velocity(
-        vector, window=window, in_degrees=in_degrees
-    )
-    acceleration = kinematics.compute_angular_acceleration(
-        vector, window=window, in_degrees=in_degrees
-    )
-    derivative = kinematics.compute_angular_time_derivative(
-        vector, order=1, window=window
-    )
-    assert velocity.name == "angular_velocity"
-    assert acceleration.name == "angular_acceleration"
-    assert derivative.name == "angular_time_derivative"
-    assert velocity.attrs == acceleration.attrs == derivative.attrs == {}
-
-
-def test_raw_irregular_time():
-    """Without ``window``, irregular time steps are handled exactly."""
-    time = np.cumsum(np.random.default_rng(seed=0).uniform(0.5, 1.5, 50))
-    angle = xr.DataArray(
-        np.angle(np.exp(0.4j * time)), dims="time", coords={"time": time}
-    )
-    result = kinematics.compute_angular_velocity(_angle_to_vector(angle))
-    np.testing.assert_allclose(result, 0.4, atol=1e-9)
-
-
-@pytest.mark.parametrize("window", [None, 7], ids=["raw", "window"])
-def test_keypoint_swap_stays_local(window):
-    """A one-frame 180-degree flip (e.g. a left/right ear swap) during a
-    turn does not turn into a spurious full revolution.
-    """
-    vector = _rotating_vector(angular_velocity=0.1, fps=1, n_frames=40)
-    vector[10] = -vector[10]
-    result = kinematics.compute_angular_velocity(vector, window=window)
-    if window is None:
-        # Neighbours of the flip are corrupted, the flipped frame is not
-        np.testing.assert_allclose(result[10], 0.1, atol=1e-9)
-    else:
-        # Frames whose window contains the flip off-centre stay close
-        np.testing.assert_allclose(result[[9, 11]], 0.1, atol=0.2)
-    unaffected = result.drop_isel(time=range(7, 14)).dropna("time")
-    np.testing.assert_allclose(unaffected, 0.1, atol=1e-9)
 
 
 @pytest.mark.parametrize(
