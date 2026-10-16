@@ -506,17 +506,6 @@ def test_angular_velocity_sign_convention(step, expected_sign, window):
     assert (np.sign(result) == expected_sign).all()
 
 
-def test_angular_velocity_nans_stay_local():
-    """NaNs only affect neighbouring frames; values after a gap stay
-    correct (unlike ``np.unwrap``, which poisons the rest of the series).
-    """
-    vector = _rotating_vector()
-    vector[[50, 51, 120]] = np.nan
-    result = kinematics.compute_angular_velocity(vector)
-    assert result.isnull().sum() <= 9
-    np.testing.assert_allclose(result.dropna("time"), 10.0, atol=1e-9)
-
-
 def test_zero_length_vector_treated_as_nan():
     """A null orientation vector is undefined and is treated as NaN."""
     vector = _rotating_vector()
@@ -669,18 +658,22 @@ def test_angular_velocity_window_matches_polyfit():
 
 
 @pytest.mark.parametrize(
+    "window, max_nans_per_gap",
+    [pytest.param(None, 3, id="raw"), pytest.param(5, 5, id="window")],
+)
+@pytest.mark.parametrize(
     "nan_frames",
     [
         pytest.param([50, 51, 120], id="interior_gaps"),
         pytest.param([0, 1, 2, 197, 198, 199], id="leading_trailing"),
     ],
 )
-def test_window_with_nans(nan_frames):
+def test_nans_stay_local(window, max_nans_per_gap, nan_frames):
     """NaNs (including at the edges) do not raise, and stay local."""
     vector = _rotating_vector()
     vector[nan_frames] = np.nan
-    result = kinematics.compute_angular_velocity(vector, window=5)
-    assert result.isnull().sum() <= 5 * len(nan_frames)
+    result = kinematics.compute_angular_velocity(vector, window=window)
+    assert result.isnull().sum() <= max_nans_per_gap * len(nan_frames)
     interior = result.isel(time=slice(5, -5)).dropna("time")
     np.testing.assert_allclose(interior, 10.0, atol=1e-6)
 
