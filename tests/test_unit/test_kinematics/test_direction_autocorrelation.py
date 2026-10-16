@@ -32,6 +32,17 @@ def test_straight_path_and_spatial_lag():
     assert np.isnan(result.values[5])
 
 
+def test_default_lags_preserve_spatial_units():
+    track = position(np.arange(9))
+    track.attrs["units"] = "mm"
+
+    result = compute_direction_autocorrelation(track)
+
+    np.testing.assert_array_equal(result.lag, [1, 2])
+    np.testing.assert_allclose(result.values, [1, 1])
+    assert result.lag.attrs["units"] == "mm"
+
+
 def test_alternating_directions():
     track = position([0, 1, 0, 1, 0, 1])
 
@@ -69,6 +80,16 @@ def test_missing_positions_split_segments():
 
     assert result.sel(lag=1).item() == 1
     assert np.isnan(result.sel(lag=2).item())
+
+
+def test_segments_with_no_heading_pairs():
+    track = position([0, 1, np.nan, 10, 11])
+
+    result = compute_direction_autocorrelation(
+        track, step_length=1, delta_s_max=2
+    )
+
+    assert np.isnan(result).all()
 
 
 def test_stationary_positions_have_no_heading():
