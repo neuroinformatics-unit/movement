@@ -18,7 +18,11 @@
     
     active_movement_points_layer
     
+    add_edits_reset_event
+    
     connect_viewer_callbacks
+    
+    drop_internal_properties
     
     frame_axis_is_sliced
     
@@ -27,6 +31,8 @@
     on_points_data_changed
     
     remove_from_tracks_layer
+    
+    reset_edits
     
     set_point_symbol_by_edited
     

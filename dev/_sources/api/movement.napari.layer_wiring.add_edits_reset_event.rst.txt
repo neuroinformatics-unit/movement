@@ -1,0 +1,9 @@
+add\_edits\_reset\_event
+========================
+
+.. currentmodule:: movement.napari.layer_wiring
+
+.. autofunction:: add_edits_reset_event
+
+.. minigallery:: movement.napari.layer_wiring.add_edits_reset_event
+   :add-heading: Examples using ``add_edits_reset_event``

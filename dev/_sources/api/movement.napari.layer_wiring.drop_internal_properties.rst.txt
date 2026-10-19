@@ -1,0 +1,9 @@
+drop\_internal\_properties
+==========================
+
+.. currentmodule:: movement.napari.layer_wiring
+
+.. autofunction:: drop_internal_properties
+
+.. minigallery:: movement.napari.layer_wiring.drop_internal_properties
+   :add-heading: Examples using ``drop_internal_properties``
