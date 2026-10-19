@@ -30,6 +30,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=634eab24" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=c83e6b79" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
@@ -42,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=27ee1c67"></script>
+    <script src="../../../_static/documentation_options.js?v=8396987e"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +142,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev62</p>
+    <p class="title logo__title">movement v0.17.1.dev63</p>
   
 </a></div>
     
@@ -534,6 +535,12 @@
 <span class="sd">        dimensions matching the input data array, but without the</span>
 <span class="sd">        ``keypoint`` dimension.</span>
 
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``camera_view`` is not one of ``"top_down"`` or</span>
+<span class="sd">        ``"bottom_up"``.</span>
+
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    To determine the forward direction of the animal, we need to specify</span>
@@ -555,6 +562,14 @@
 <span class="sd">    is set to NaN.</span>
 
 <span class="sd">    """</span>
+    <span class="c1"># Validate camera view</span>
+    <span class="k">if</span> <span class="n">camera_view</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"top_down"</span><span class="p">,</span> <span class="s2">"bottom_up"</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">"camera_view must be 'top_down' or 'bottom_up', "</span>
+                <span class="sa">f</span><span class="s2">"but got </span><span class="si">{</span><span class="n">camera_view</span><span class="si">!r}</span><span class="s2">."</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
     <span class="c1"># Validate input data</span>
     <span class="n">_validate_type_data_array</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="n">validate_dims_coords</span><span class="p">(</span>

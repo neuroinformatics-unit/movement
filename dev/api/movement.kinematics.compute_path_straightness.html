@@ -31,6 +31,7 @@
 
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=634eab24" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=c83e6b79" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
@@ -43,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=27ee1c67"></script>
+    <script src="../_static/documentation_options.js?v=8396987e"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -146,7 +147,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev62</p>
+    <p class="title logo__title">movement v0.17.1.dev63</p>
   
 </a></div>
     
@@ -708,7 +709,7 @@ returned to its starting point. Returns NaN if the path length is zero.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.9.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span>) – The input data containing position information, with <code class="docutils literal notranslate"><span class="pre">time</span></code>
 and <code class="docutils literal notranslate"><span class="pre">space</span></code> (in Cartesian coordinates) as required dimensions.</p></li>
-<li><p><strong>nan_policy</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'interpolate'</span></code>, <code class="docutils literal notranslate"><span class="pre">'omit'</span></code>]</span>) – Policy for handling NaN (missing) values when computing <span class="math notranslate nohighlight">\(L\)</span>. By
+<li><p><strong>nan_policy</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<span class="highlight sphinx_autodoc_typehints-value"><code class="docutils literal notranslate"><span class="s1"><span class="pre">'interpolate'</span></span></code></span>, <span class="highlight sphinx_autodoc_typehints-value"><code class="docutils literal notranslate"><span class="s1"><span class="pre">'omit'</span></span></code></span>]</span>) – Policy for handling NaN (missing) values when computing <span class="math notranslate nohighlight">\(L\)</span>. By
 default (<code class="docutils literal notranslate"><span class="pre">&quot;interpolate&quot;</span></code>), a missing segment is assumed to be
 travelled in a straight line between the two valid positions flanking
 it. If <code class="docutils literal notranslate"><span class="pre">&quot;omit&quot;</span></code>, missing segments are instead skipped entirely.
