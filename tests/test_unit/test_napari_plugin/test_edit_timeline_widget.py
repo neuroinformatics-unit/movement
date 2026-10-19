@@ -549,3 +549,52 @@ def test_bar_color_lookup_falls_back_without_individual_property(
     color_of = edit_timeline_widget._bar_color_lookup()
 
     assert color_of("id_0") == edit_timeline_widget._edit_bar_color
+
+
+def test_timeline_catches_up_on_layers_changed_while_hidden(
+    make_napari_viewer_proxy, add_movement_points
+):
+    """A re-shown timeline latches onto the layer selected while hidden.
+
+    The timeline stops listening to the viewer while hidden (e.g. with
+    the "Edit tracked data" section collapsed), so when shown again it
+    must switch to whatever movement Points layer is active by then and
+    flag its edited frames.
+    """
+    viewer = make_napari_viewer_proxy()
+    first = add_movement_points(viewer, name="first")
+    viewer.layers.selection.active = first
+    edit_timeline_widget = EditTimelineWidget(viewer)
+    edit_timeline_widget.show()
+    assert edit_timeline_widget.active_layer.name == "first"
+
+    edit_timeline_widget.hide()
+    second = add_movement_points(viewer, edited=[True], name="second")
+    viewer.layers.selection.active = second
+    assert edit_timeline_widget.active_layer.name == "first"  # not listening
+
+    edit_timeline_widget.show()
+
+    assert edit_timeline_widget.active_layer.name == "second"
+    assert len(edit_timeline_widget._bars) == 1
+
+
+def test_timeline_forgets_active_layer_removed_while_hidden(
+    make_napari_viewer_proxy, add_movement_points
+):
+    """A re-shown timeline clears a layer that was removed while hidden."""
+    viewer = make_napari_viewer_proxy()
+    layer = add_movement_points(viewer, edited=[True])
+    viewer.layers.selection.active = layer
+    edit_timeline_widget = EditTimelineWidget(viewer)
+    edit_timeline_widget.show()
+    assert len(edit_timeline_widget._bars) == 1
+
+    edit_timeline_widget.hide()
+    viewer.layers.remove(layer)
+    assert edit_timeline_widget.active_layer is not None  # not listening
+
+    edit_timeline_widget.show()
+
+    assert edit_timeline_widget.active_layer is None
+    assert len(edit_timeline_widget._bars) == 0

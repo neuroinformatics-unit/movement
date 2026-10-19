@@ -282,3 +282,39 @@ def test_editing_points_expands_edit_section(
 
     edit()  # A repeat edit should not re-expand the collapsible
     assert expand.call_count == (1 if expect_expanded else 0)
+
+
+def test_meta_widget_catches_up_on_layer_added_while_hidden(
+    make_napari_viewer_proxy, add_movement_points, mocker
+):
+    """Edits on a layer added while the panel was hidden open the section.
+
+    The meta widget stops listening to the viewer while hidden, so on
+    show it must hook up any movement Points layer added in the
+    meantime, and refresh the "Display individuals" checkbox.
+    """
+    mocker.patch(
+        "movement.napari.meta_widget.QTimer.singleShot",
+        side_effect=lambda _ms, cb: cb(),
+    )
+    viewer = make_napari_viewer_proxy()
+    meta_widget = MovementMetaWidget(viewer)
+    edit_timeline_collapsible = meta_widget.collapsible_widgets[1]
+    checkbox = meta_widget.edit_controls.show_individuals_checkbox
+    meta_widget.show()
+    meta_widget.hide()
+
+    layer = add_movement_points(viewer, ["id_0", "id_1"])
+    viewer.layers.selection.active = layer
+    assert not checkbox.isEnabled()  # not listening while hidden
+
+    meta_widget.show()
+    assert checkbox.isEnabled()
+
+    layer.events.data(
+        value=layer.data,
+        action=ActionType.CHANGED,
+        data_indices=(0,),
+        vertex_indices=((),),
+    )
+    assert edit_timeline_collapsible.isExpanded()
