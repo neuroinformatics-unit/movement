@@ -16,13 +16,24 @@ from napari.layers.base import ActionType
 from napari.utils.theme import get_theme
 from napari.viewer import Viewer
 from qtpy.QtCore import QTimer, Signal
-from qtpy.QtWidgets import QCheckBox, QLabel, QVBoxLayout, QWidget
+from qtpy.QtWidgets import (
+    QCheckBox,
+    QLabel,
+    QMessageBox,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 from movement.napari.layer_wiring import (
     MAX_FRAME_IDX_KEY,
+    POINTS_POSITION_KEY,
     POINTS_PROPERTIES_KEY,
+    TRACKS_LAYER_KEY,
     active_movement_points_layer,
+    frame_axis_is_sliced,
     is_movement_points_layer,
+    reset_edits,
 )
 
 if TYPE_CHECKING:
@@ -51,9 +62,10 @@ class EditControlsWidget(QWidget):
 
     show_individuals_toggled = Signal(bool)
 
-    def __init__(self, parent=None):
+    def __init__(self, napari_viewer: Viewer, parent=None):
         """Initialise the instructions label and display checkbox."""
         super().__init__(parent=parent)
+        self.viewer = napari_viewer
         instructions = QLabel(
             "Use the points layer controls to move or delete keypoints. "
             "Frames with edited points are flagged as coloured bars on the "
@@ -73,7 +85,81 @@ class EditControlsWidget(QWidget):
         layout = QVBoxLayout()
         layout.addWidget(instructions)
         layout.addWidget(self.show_individuals_checkbox)
+        self.reset_frame_button = QPushButton("Reset current frame")
+        self.reset_all_button = QPushButton("Reset all frames")
+        self.reset_frame_button.setToolTip(
+            "Restore edited points in the current frame to how "
+            "they were when the dataset was loaded."
+        )
+        self.reset_all_button.setToolTip(
+            "Restore edited points in all frames to how "
+            "they were when the dataset was loaded."
+        )
+        for button in (self.reset_frame_button, self.reset_all_button):
+            layout.addWidget(button)
+        self.reset_frame_button.clicked.connect(self._on_reset_frame_clicked)
+        self.reset_all_button.clicked.connect(self._on_reset_all_clicked)
+        for event in (
+            self.viewer.layers.events.inserted,
+            self.viewer.layers.events.removed,
+            self.viewer.layers.selection.events.active,
+            self.viewer.dims.events.order,
+            self.viewer.dims.events.ndisplay,
+        ):
+            event.connect(self._schedule_reset_enabled)
+        self._update_reset_enabled()
         self.setLayout(layout)
+
+    def _resettable_layer(self):
+        """Find a loaded pose layer with its companion still in the viewer."""
+        layer = active_movement_points_layer(self.viewer)
+        if (
+            layer is not None
+            and POINTS_POSITION_KEY in layer.metadata
+            and layer.metadata.get(TRACKS_LAYER_KEY) in self.viewer.layers
+        ):
+            return layer
+        return None
+
+    def _schedule_reset_enabled(self, event=None):
+        """Wait until loading both layers has finished."""
+        QTimer.singleShot(0, self._update_reset_enabled)
+
+    def _update_reset_enabled(self):
+        """Disable restoration when no supported pose layer is loaded."""
+        enabled = self._resettable_layer() is not None
+        self.reset_all_button.setEnabled(enabled)
+        self.reset_frame_button.setEnabled(
+            enabled and frame_axis_is_sliced(self.viewer)
+        )
+
+    def _on_reset_frame_clicked(self):
+        """Reset only the current frame, leaving other frames unchanged."""
+        layer = self._resettable_layer()
+        if layer is not None and frame_axis_is_sliced(self.viewer):
+            reset_edits(layer, self.viewer.dims.current_step[0])
+
+    def _on_reset_all_clicked(self):
+        """Reset all frames in the active pose layer."""
+        layer = self._resettable_layer()
+        if layer is not None and self._confirm_reset_all():
+            reset_edits(layer)
+
+    def _confirm_reset_all(self) -> bool:
+        """Ask the user to confirm discarding all edits."""
+        box = QMessageBox(
+            QMessageBox.Icon.Warning,
+            "Are you sure?",
+            "Discard all corrections made since this dataset was loaded? "
+            "This reset cannot be undone.",
+            parent=self,
+        )
+        reset = box.addButton(
+            "Reset all frames", QMessageBox.ButtonRole.DestructiveRole
+        )
+        box.setDefaultButton(box.addButton(QMessageBox.StandardButton.Cancel))
+        box.exec()
+        return box.clickedButton() is reset
 
 
 class EditTimelineWidget(QWidget):
@@ -176,9 +262,11 @@ class EditTimelineWidget(QWidget):
         self.canvas.draw_idle()
 
     def _track_layer(self, layer):
-        """Connect to a movement Points layer's data-change event."""
+        """Connect to a movement Points layer's data and reset events."""
         if is_movement_points_layer(layer):
             layer.events.data.connect(self._on_layer_data_changed)
+            if hasattr(layer.events, "edits_reset"):
+                layer.events.edits_reset.connect(self._on_edits_reset)
 
     def _on_layer_inserted(self, event):
         """Track newly added movement Points layers."""
@@ -288,6 +376,26 @@ class EditTimelineWidget(QWidget):
             self._redraw_bars()
         elif event.action == ActionType.CHANGED:
             QTimer.singleShot(0, self._redraw_bars)
+
+    def _on_edits_reset(self, event):
+        """Drop the removed-point bars of the reset frame(s).
+
+        Restored points are live rows again, so only the points removed
+        and saved in an earlier session remain flagged as removed.
+        """
+        if event.source is not self.active_layer:
+            return
+        frame = event.frame
+        previous = self._reconstruct_previously_removed_points(
+            self.active_layer
+        )
+        if frame is None:
+            self._removed_points = previous
+        else:
+            self._removed_points = [
+                point for point in self._removed_points if point[0] != frame
+            ] + [point for point in previous if point[0] == frame]
+        self._redraw_bars()
 
     def _capture_removed_points(self, event):
         """Snapshot the identity of points about to be removed."""
