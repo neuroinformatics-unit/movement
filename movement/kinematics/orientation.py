@@ -53,6 +53,12 @@ def compute_forward_vector(
         dimensions matching the input data array, but without the
         ``keypoint`` dimension.
 
+    Raises
+    ------
+    ValueError
+        If ``camera_view`` is not one of ``"top_down"`` or
+        ``"bottom_up"``.
+
     Notes
     -----
     To determine the forward direction of the animal, we need to specify
