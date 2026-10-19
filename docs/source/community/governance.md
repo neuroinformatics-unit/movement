@@ -101,7 +101,7 @@ For these more consequential decisions, we discuss publicly on our
 [community channels](target-connect-with-us), and consult all **team members**
 and the wider community for input. We aim to reach a
 [consensus](https://community.apache.org/committers/decisionMaking.html#consensus)
-among **core developers**. In the rare cases we can't,
+among **maintainers**. In the rare cases we can't,
 the [head of the NIU](https://neuroinformatics.dev/people.html)
 has the final say and responsibility to decide for the project.
 

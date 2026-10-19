@@ -199,7 +199,7 @@ fontawesome_included = True
 # The default is the URL of the GitHub pages
 # https://www.sphinx-doc.org/en/master/usage/extensions/githubpages.html
 github_user = "neuroinformatics-unit"
-html_baseurl = "https://movement.neuroinformatics.dev"
+html_baseurl = "https://movement.neuroinformatics.dev/"
 sitemap_url_scheme = "{link}"
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -223,6 +223,7 @@ linkcheck_retries = 3  # default is 1
 linkcheck_anchors_ignore_for_url = [
     "https://neuroinformatics.zulipchat.com/",
     "https://github.com/talmolab/sleap/blob/v1.3.3/sleap/info/write_tracking_h5.py",
+    "https://cocodataset.org/",
 ]
 # A list of regular expressions that match URIs that should not be checked
 linkcheck_ignore = [
@@ -290,6 +291,7 @@ myst_url_schemes = {
     "attrs": "https://www.attrs.org/en/stable/{{path}}#{{fragment}}",
     "pytest-benchmark": "https://pytest-benchmark.readthedocs.io/en/latest/{{path}}#{{fragment}}",
     "qt6": "https://doc.qt.io/qt-6/{{path}}#{{fragment}}",
+    "coco": "https://cocodataset.org/#{{path}}",
 }
 
 intersphinx_mapping = {
