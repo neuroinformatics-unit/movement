@@ -138,6 +138,8 @@ def compute_forward_vector(
     )  # keep only the first 2 spatal dimensions of the result
     # Return unit vector
     result = convert_to_unit(forward_vector)
+    result.attrs = data.attrs.copy()
+    result.attrs.pop("units", None)  # A unit vector is dimensionless.
     result.name = "forward_vector"
     return result
 
@@ -268,6 +270,8 @@ def compute_forward_vector_angle(
     if in_degrees:
         heading_array = cast("xr.DataArray", np.rad2deg(heading_array))
 
+    heading_array.attrs = data.attrs.copy()
+    heading_array.attrs["units"] = "degrees" if in_degrees else "radians"
     heading_array.name = "forward_vector_angle"
     return heading_array
 

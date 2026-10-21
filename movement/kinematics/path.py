@@ -22,6 +22,7 @@ from typing import Literal
 import numpy as np
 import xarray as xr
 
+from movement.kinematics._units import _get_time_unit, _get_unit
 from movement.kinematics.kinematics import compute_backward_displacement
 from movement.utils.logging import logger
 from movement.utils.reports import report_nan_values
@@ -195,8 +196,10 @@ def compute_path_straightness(
     path_length = _path_length(data, nan_policy, nan_warn_threshold)
     # Compute D/L ratio, avoiding division by zero
     result = _path_distance(data) / path_length.where(path_length > 0)
+    result.attrs = data.attrs.copy()
     result.name = "straightness_index"
     result.attrs["long_name"] = "Path Straightness Index"
+    result.attrs.pop("units", None)  # D/L is dimensionless.
     return result
 
 
@@ -305,13 +308,13 @@ def compute_turning_angle(
     invalid_steps = (step_lengths <= min_step_length) | (
         step_lengths.shift(time=1) <= min_step_length
     )
-    turning = xr.where(invalid_steps, np.nan, turning)
-
-    turning.attrs["units"] = "radians"
+    turning = turning.where(~invalid_steps)
 
     if in_degrees:
         turning = np.rad2deg(turning)
-        turning.attrs["units"] = "degrees"
+
+    turning.attrs = data.attrs.copy()
+    turning.attrs["units"] = "degrees" if in_degrees else "radians"
 
     turning.name = "turning_angle"
 
@@ -383,6 +386,10 @@ def compute_path_sinuosity(
     numerical value depends on the position units of the input data.
     Values are not directly comparable across datasets recorded in
     different spatial units.
+    For supported simple spatial labels (see :func:`compute_time_derivative`),
+    the ``units`` attribute is ``unit^(-1/2)``. Other labels are not parsed
+    and ``units`` is removed. ``space_unit`` is used if ``units`` is absent;
+    conflicting declarations also cause ``units`` to be removed.
 
     References
     ----------
@@ -428,7 +435,12 @@ def compute_path_sinuosity(
     )
 
     result.name = "sinuosity"
+    result.attrs = data.attrs.copy()
     result.attrs["long_name"] = "Path Sinuosity"
+    result.attrs.pop("units", None)
+    unit = _get_unit(data, spatial=True)
+    if unit is not None:
+        result.attrs["units"] = f"{unit}^(-1/2)"
 
     return result
 
@@ -475,6 +487,10 @@ def compute_directional_change(
         input, except ``space`` is removed. Values are in radians per
         ``time`` unit (e.g. radians/second if ``time`` is in seconds),
         or degrees per ``time`` unit if ``in_degrees`` is ``True``.
+        With explicit numeric time units (see :func:`compute_time_derivative`),
+        ``units`` is ``radians/s``, ``degrees/s``, ``radians/frame`` or
+        ``degrees/frame``. Missing, unsupported or conflicting time metadata
+        causes ``units`` to be removed.
 
     Notes
     -----
@@ -528,7 +544,13 @@ def compute_directional_change(
 
     dc = abs(theta) / dt
     dc.name = "directional_change"
+    dc.attrs = data.attrs.copy()
     dc.attrs["long_name"] = "Directional Change"
+    dc.attrs.pop("units", None)
+    time_unit = _get_time_unit(data)
+    if time_unit is not None:
+        angle_unit = "degrees" if in_degrees else "radians"
+        dc.attrs["units"] = f"{angle_unit}/{time_unit}"
     return dc
 
 
@@ -652,9 +674,12 @@ def compute_path_emax(
     mean_cosine = xr.apply_ufunc(np.cos, theta).mean(dim="time", skipna=True)
 
     emax = mean_cosine / (1 - mean_cosine)
-
     if in_spatial_units:
         emax = emax * _segment_lengths(data).mean(dim="time", skipna=True)
+    # Restore metadata after arithmetic, independently of xarray settings.
+    emax.attrs = data.attrs.copy()
+    if not in_spatial_units:
+        emax.attrs.pop("units", None)
 
     emax.name = "maximum_expected_displacement"
     emax.attrs["long_name"] = "Maximum Expected Displacement"
@@ -773,6 +798,7 @@ def compute_path_deviation(
     rejection = p_minus_a - vector_proj
 
     deviation = compute_norm(rejection)
+    deviation.attrs = data.attrs.copy()
     deviation.name = "path_deviation"
     deviation.attrs["long_name"] = "Path Deviation"
     return deviation
@@ -869,6 +895,7 @@ def _path_length(
             )
         )
     result.name = "path_length"
+    result.attrs = data.attrs.copy()
     result.attrs["long_name"] = "Path Length"
     return result
 
