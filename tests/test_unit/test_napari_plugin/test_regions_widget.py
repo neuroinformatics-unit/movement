@@ -22,9 +22,11 @@ from movement.napari.regions_widget import (
     _unique_name,
 )
 
-pytestmark = pytest.mark.filterwarnings(
-    "ignore:.*Previous color_by key.*:UserWarning"
-)
+pytestmark = [
+    pytest.mark.filterwarnings("ignore:.*Previous color_by key.*:UserWarning"),
+    # Widgets need a QApplication, which the headless viewer doesn't create
+    pytest.mark.usefixtures("qapp"),
+]
 
 
 # ------------------- Helpers ------------------------------------------------#
@@ -49,9 +51,9 @@ def two_polygons():
 
 
 @pytest.fixture
-def regions_widget(make_napari_viewer_proxy):
+def regions_widget(headless_napari_viewer):
     """Return a viewer with a Regions widget."""
-    viewer = make_napari_viewer_proxy()
+    viewer = headless_napari_viewer
     return RegionsWidget(viewer)
 
 
@@ -76,9 +78,9 @@ def regions_widget_with_duplicate_names(regions_widget, two_polygons):
 
 
 # ------------------- Tests for widget instantiation -------------------------#
-def test_widget_has_expected_attributes(make_napari_viewer_proxy):
+def test_widget_has_expected_attributes(headless_napari_viewer):
     """Test that the Regions widget is properly instantiated."""
-    viewer = make_napari_viewer_proxy()
+    viewer = headless_napari_viewer
     widget = RegionsWidget(viewer)
     assert widget.viewer == viewer
     assert widget.region_table_model is None
@@ -119,14 +121,14 @@ def test_save_load_button_tooltips(
     assert button.toolTip() == expected_tooltip
 
 
-def test_color_assignment_is_sequential_and_stable(make_napari_viewer_proxy):
+def test_color_assignment_is_sequential_and_stable(headless_napari_viewer):
     """Test that palette colors are assigned sequentially and stay stable.
 
     Each layer receives the next palette color on first link (stored in
     metadata). Re-linking an already-colored layer must not change its index
     or consume a new palette slot.
     """
-    viewer = make_napari_viewer_proxy()
+    viewer = headless_napari_viewer
     layer_a = add_regions_layer(viewer, name="Regions-A")
     layer_b = add_regions_layer(viewer, name="Regions-B")
     widget = RegionsWidget(viewer)
@@ -151,10 +153,10 @@ def test_dropdown_shows_placeholder_when_no_layers(regions_widget):
 
 
 def test_dropdown_populated_with_existing_region_layer(
-    make_napari_viewer_proxy,
+    headless_napari_viewer,
 ):
     """Test dropdown is populated when region layer exists at init."""
-    viewer = make_napari_viewer_proxy()
+    viewer = headless_napari_viewer
     add_regions_layer(viewer)
     widget = RegionsWidget(viewer)
     assert widget.layer_dropdown.count() == 1
@@ -162,10 +164,10 @@ def test_dropdown_populated_with_existing_region_layer(
 
 
 def test_auto_assign_names_pads_missing_name_property(
-    make_napari_viewer_proxy, two_polygons
+    headless_napari_viewer, two_polygons
 ):
     """Test that missing region name property gets created and filled."""
-    viewer = make_napari_viewer_proxy()
+    viewer = headless_napari_viewer
     # Create layer with shapes but no "name" assigned to each shape
     # (Note that "regions" is the name of the layer)
     layer = add_regions_layer(viewer, two_polygons)
@@ -180,51 +182,49 @@ def test_auto_assign_names_pads_missing_name_property(
 
 
 # ------------------- Tests for signal/event connections ---------------------#
-def test_add_layer_button_connected_to_handler(
-    make_napari_viewer_proxy, mocker
-):
+def test_add_layer_button_connected_to_handler(headless_napari_viewer, mocker):
     """Test that clicking Add new layer button calls the handler."""
     mock_method = mocker.patch(
         "movement.napari.regions_widget.RegionsWidget._add_new_layer"
     )
-    widget = RegionsWidget(make_napari_viewer_proxy())
+    widget = RegionsWidget(headless_napari_viewer)
     widget.add_layer_button.click()
     mock_method.assert_called_once()
 
 
 def test_save_layer_button_connected_to_handler(
-    make_napari_viewer_proxy, mocker
+    headless_napari_viewer, mocker
 ):
     """Test that clicking Save layer button calls the handler."""
     mock_method = mocker.patch(
         "movement.napari.regions_widget.RegionsWidget._save_region_layer"
     )
-    widget = RegionsWidget(make_napari_viewer_proxy())
+    widget = RegionsWidget(headless_napari_viewer)
     widget.save_layer_button.setEnabled(True)
     widget.save_layer_button.click()
     mock_method.assert_called_once()
 
 
 def test_load_layer_button_connected_to_handler(
-    make_napari_viewer_proxy, mocker
+    headless_napari_viewer, mocker
 ):
     """Test that clicking Load layer button calls the handler."""
     mock_method = mocker.patch(
         "movement.napari.regions_widget.RegionsWidget._load_region_layer"
     )
-    widget = RegionsWidget(make_napari_viewer_proxy())
+    widget = RegionsWidget(headless_napari_viewer)
     widget.load_layer_button.click()
     mock_method.assert_called_once()
 
 
 def test_dropdown_connected_to_layer_selection_handler(
-    make_napari_viewer_proxy, mocker
+    headless_napari_viewer, mocker
 ):
     """Test that changing dropdown selection calls the handler."""
     mock_method = mocker.patch(
         "movement.napari.regions_widget.RegionsWidget._on_layer_selected"
     )
-    viewer = make_napari_viewer_proxy()
+    viewer = headless_napari_viewer
     add_regions_layer(viewer)
 
     # Create second layer to switch to
@@ -239,14 +239,12 @@ def test_dropdown_connected_to_layer_selection_handler(
     mock_method.assert_called_once()
 
 
-def test_layer_added_triggers_dropdown_update(
-    make_napari_viewer_proxy, mocker
-):
+def test_layer_added_triggers_dropdown_update(headless_napari_viewer, mocker):
     """Test that adding a layer triggers dropdown update."""
     mock_method = mocker.patch(
         "movement.napari.regions_widget.RegionsWidget._update_layer_dropdown"
     )
-    viewer = make_napari_viewer_proxy()
+    viewer = headless_napari_viewer
     RegionsWidget(viewer)
 
     mock_method.reset_mock()
@@ -255,13 +253,13 @@ def test_layer_added_triggers_dropdown_update(
 
 
 def test_layer_removed_triggers_dropdown_update(
-    make_napari_viewer_proxy, mocker
+    headless_napari_viewer, mocker
 ):
     """Test that removing a layer triggers dropdown update."""
     mock_method = mocker.patch(
         "movement.napari.regions_widget.RegionsWidget._update_layer_dropdown"
     )
-    viewer = make_napari_viewer_proxy()
+    viewer = headless_napari_viewer
     layer = viewer.add_shapes(name="regions")
 
     # _ to avoid it being gc (must stay alive to receive signal)
@@ -525,9 +523,9 @@ def test_update_layer_dropdown_on_layer_removed(regions_widget_with_layer):
     assert widget.layer_dropdown.currentText() == DROPDOWN_PLACEHOLDER
 
 
-def test_dropdown_ignores_non_region_layers(make_napari_viewer_proxy):
+def test_dropdown_ignores_non_region_layers(headless_napari_viewer):
     """Test dropdown ignores non-region shapes layers."""
-    viewer = make_napari_viewer_proxy()
+    viewer = headless_napari_viewer
     viewer.add_shapes(name="Other shapes")
     widget = RegionsWidget(viewer)
     assert widget.layer_dropdown.currentText() == DROPDOWN_PLACEHOLDER
@@ -536,10 +534,10 @@ def test_dropdown_ignores_non_region_layers(make_napari_viewer_proxy):
 
 
 def test_dropdown_includes_layer_with_region_metadata(
-    make_napari_viewer_proxy,
+    headless_napari_viewer,
 ):
     """Test dropdown includes layers marked with region metadata."""
-    viewer = make_napari_viewer_proxy()
+    viewer = headless_napari_viewer
     layer = viewer.add_shapes(name="Custom name")
     layer.metadata[REGIONS_LAYER_KEY] = True
     widget = RegionsWidget(viewer)
@@ -548,14 +546,14 @@ def test_dropdown_includes_layer_with_region_metadata(
 
 
 def test_dropdown_follows_napari_when_new_region_layer_added(
-    make_napari_viewer_proxy,
+    headless_napari_viewer,
 ):
     """Test dropdown follows napari's active layer when a new region is added.
 
     When napari adds a new region layer, it becomes the active layer, so
     the dropdown syncs to it (bidirectional layer selection).
     """
-    viewer = make_napari_viewer_proxy()
+    viewer = headless_napari_viewer
     add_regions_layer(viewer)
     widget = RegionsWidget(viewer)
     widget.layer_dropdown.setCurrentText("regions")
@@ -622,10 +620,10 @@ def test_unique_name(base, existing, expected):
 # ------------------- Tests for region auto-naming ---------------------------#
 @pytest.mark.parametrize("empty_value", ["", None])
 def test_fills_empty_or_none_names(
-    make_napari_viewer_proxy, two_polygons, empty_value
+    headless_napari_viewer, two_polygons, empty_value
 ):
     """Test that empty/None names are filled with default name."""
-    viewer = make_napari_viewer_proxy()
+    viewer = headless_napari_viewer
     layer = add_regions_layer(viewer, two_polygons[:1], shape_type="polygon")
     layer.properties = {"name": [empty_value]}
 
@@ -633,9 +631,9 @@ def test_fills_empty_or_none_names(
     assert layer.properties["name"][0] == DEFAULT_REGION_NAME
 
 
-def test_preserves_user_names(make_napari_viewer_proxy, two_polygons):
+def test_preserves_user_names(headless_napari_viewer, two_polygons):
     """Test that user-assigned names are preserved."""
-    viewer = make_napari_viewer_proxy()
+    viewer = headless_napari_viewer
     layer = add_regions_layer(viewer, two_polygons, shape_type="polygon")
     layer.properties = {"name": ["Arena", ""]}
 
@@ -1020,7 +1018,7 @@ def test_table_allows_name_editing(regions_widget_with_layer):
     ],
 )
 def test_table_tooltip_and_save_button_reflect_state(
-    make_napari_viewer_proxy,
+    headless_napari_viewer,
     add_shapes_kwargs,
     expected_tooltip_text,
     expected_save_enabled,
@@ -1037,7 +1035,7 @@ def test_table_tooltip_and_save_button_reflect_state(
     - When a region layer with shapes exists, tooltip should prompt user with
       possible table interactions, and Save should be enabled.
     """
-    viewer = make_napari_viewer_proxy()
+    viewer = headless_napari_viewer
     if add_shapes_kwargs is not None:
         add_regions_layer(viewer, **add_shapes_kwargs)
     widget = RegionsWidget(viewer)
@@ -1092,9 +1090,9 @@ def test_text_label_deferred_until_first_shape_drawn(
     assert "{name}" in str(layer.text.string)
 
 
-def test_empty_shapes_layer(make_napari_viewer_proxy):
+def test_empty_shapes_layer(headless_napari_viewer):
     """Test table handles empty shapes layer."""
-    viewer = make_napari_viewer_proxy()
+    viewer = headless_napari_viewer
     add_regions_layer(viewer)
     with does_not_raise():
         widget = RegionsWidget(viewer)
