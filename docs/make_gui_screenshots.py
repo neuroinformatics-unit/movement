@@ -55,6 +55,10 @@ OCTAGON = "SLEAP_two-mice_octagon.analysis.h5"
 CRAB = "VIA_single-crab_MOCA-crab-1_linear-interp.csv"
 EPM = "SLEAP_single-mouse_EPM.analysis.h5"
 
+# Titles of the movement widget sections
+LOAD_SECTION = "Load tracked data"
+REGIONS_SECTION = "Define regions of interest"
+
 
 # ----------------------------------------------------------------------
 # Labels
@@ -169,7 +173,8 @@ def draw_labels(
     ``ratio`` converts window coordinates to pixels of the drawing,
     and ``window`` is the window's region in window coordinates.
     """
-    font = ImageFont.load_default(size=round(FONT_SIZE * ratio))
+    # Size passed by position: Pillow >= 10.1 accepts it either way
+    font = ImageFont.load_default(round(FONT_SIZE * ratio))
     width = round(LINE_WIDTH * ratio)
 
     def scaled(rect: QRect) -> tuple[float, float, float, float]:
@@ -275,7 +280,7 @@ def draw_tooltip(
     )
 
     # Tooltip box, offset below-right of the pointer like Qt does
-    font = ImageFont.load_default(size=round(13 * ratio))
+    font = ImageFont.load_default(round(13 * ratio))
     bbox = draw.multiline_textbbox((0, 0), tooltip.text, font=font, spacing=4)
     pad = 6 * ratio
     left, top = x + 16 * s, y + 22 * s
@@ -309,6 +314,10 @@ class GUI:
         self.window.resize(*size)
         self.widget = MovementMetaWidget(self.viewer)
         self.viewer.window.add_dock_widget(self.widget, name="movement")
+        # Open and close widget sections instantly, so screenshots never
+        # catch a section halfway through its animation
+        for section in self.widget.collapsible_widgets:
+            section.setDuration(0)
         settle()
 
     # -- setup ---------------------------------------------------------
@@ -324,7 +333,7 @@ class GUI:
         """Load a sample dataset through the movement loader widget."""
         paths = sample_data.fetch_dataset_paths(dataset)
         file_path = paths.get("poses") or paths.get("bboxes")
-        loader = self.section("Load tracked data").content()
+        loader = self.section(LOAD_SECTION).content()
         loader.source_software_combo.setCurrentText(source_software)
         loader.fps_spinbox.setValue(fps)
         loader.file_path_edit.setText(str(file_path))
@@ -333,12 +342,15 @@ class GUI:
 
     def expand_only(self, title: str) -> None:
         """Expand one movement widget section and collapse the others."""
-        for section in self.widget.collapsible_widgets:
-            if section.text() == title:
-                section.expand(animate=False)
-            else:
-                section.collapse(animate=False)
-        settle()
+        # Applied twice: an animation started before (e.g. when the
+        # widget first opens) could otherwise undo the first pass
+        for _ in range(2):
+            for section in self.widget.collapsible_widgets:
+                if section.text() == title:
+                    section.expand(animate=False)
+                else:
+                    section.collapse(animate=False)
+            settle()
 
     def layer(self, prefix: str):
         """Return the first layer whose name starts with ``prefix``."""
@@ -515,7 +527,7 @@ def poses_layers(out: Path) -> Path:
     gui.viewer.dims.set_current_step(0, 223)
     labels = [
         Label(
-            gui.rect(gui.section("Load tracked data")),
+            gui.rect(gui.section(LOAD_SECTION)),
             "Widget for loading tracked data",
             side="left",
             shift=-60,
@@ -535,7 +547,7 @@ def bboxes_layers(out: Path) -> Path:
     gui.viewer.dims.set_current_step(0, 38)
     labels = [
         Label(
-            gui.rect(gui.section("Load tracked data")),
+            gui.rect(gui.section(LOAD_SECTION)),
             "Widget for loading tracked data",
             side="left",
             shift=-60,
@@ -625,8 +637,8 @@ def new_region_layer(out: Path) -> Path:
     gui = GUI()
     video = gui.open_video(EPM)
     gui.viewer.dims.set_current_step(0, 8557)
-    gui.expand_only("Define regions of interest")
-    regions = gui.section("Define regions of interest").content()
+    gui.expand_only(REGIONS_SECTION)
+    regions = gui.section(REGIONS_SECTION).content()
     regions.add_layer_button.click()
     settle()
     labels = [
@@ -638,7 +650,7 @@ def new_region_layer(out: Path) -> Path:
             shift=30,
         ),
         Label(
-            gui.rect(gui.section("Define regions of interest")),
+            gui.rect(gui.section(REGIONS_SECTION)),
             "2. Expand regions of\ninterest widget",
             side="left",
             gap=40,
@@ -667,8 +679,8 @@ def drawing_regions(out: Path) -> Path:
     gui = GUI()
     video = gui.open_video(EPM)
     gui.viewer.dims.set_current_step(0, 8557)
-    gui.expand_only("Define regions of interest")
-    regions = gui.section("Define regions of interest").content()
+    gui.expand_only(REGIONS_SECTION)
+    regions = gui.section(REGIONS_SECTION).content()
     regions.add_layer_button.click()
     settle()
 
