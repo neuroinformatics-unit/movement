@@ -20,7 +20,7 @@ from matplotlib import pyplot as plt
 
 from movement import sample_data
 from movement.filtering import interpolate_over_time
-from movement.io import load_bboxes, save_bboxes
+from movement.io import load_dataset, save_dataset
 
 # %%
 # Load sample dataset
@@ -40,8 +40,8 @@ dataset_dict = sample_data.fetch_dataset_paths(
 file_path = dataset_dict["bboxes"]
 print(file_path)
 
-ds = load_bboxes.from_via_tracks_file(
-    file_path, use_frame_numbers_from_file=True
+ds = load_dataset(
+    file_path, source_software="VIA-tracks", use_frame_numbers_from_file=True
 )
 
 # %%
@@ -369,7 +369,7 @@ fig.tight_layout()
 # software.
 
 via_tracks_filepath = "tracking_output_via_tracks.csv"
-save_bboxes.to_via_tracks_file(ds_ff, via_tracks_filepath)
+save_dataset(ds_ff, via_tracks_filepath, target_software="VIA-tracks")
 
 # %%
 # Alternatively, we can save the bounding boxes’ trajectories to a
