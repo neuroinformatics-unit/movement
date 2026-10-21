@@ -650,6 +650,9 @@ and is structured as follows:
   datasets into the NumPy arrays and properties DataFrames
   that `napari` layer constructors expect.
 
+If your changes affect how the GUI looks, remember to also
+[update the GUI screenshots](target-gui-screenshots) in the user guide.
+
 #### Where should a layer callback live?
 
 The layers created by a widget stay in the viewer even after closing the widget.
@@ -1040,6 +1043,137 @@ Subtitle (one-line summary).
 #   a {ROLE} at the `{AFFILIATION} <{AFFILIATION_URL}>`_
 #   studying {SUBJECT}.
 ```
+
+(target-gui-screenshots)=
+### Updating GUI screenshots
+
+Most screenshots in the [GUI guide](target-gui) are made by the
+`docs/make_gui_screenshots.py` script, rather than taken by hand.
+The script opens `napari` with the `movement` widget, loads
+[sample data](#sample-data), sets up the GUI, takes a screenshot,
+and draws labels (boxes, arrows and text) on it.
+Labels are placed based on where the widgets they point at are,
+so they follow the widgets if the layout changes.
+
+The script saves the screenshots as PNG files in `docs/source/_static/`.
+These files are committed to the repository and referenced from the
+GUI guide like any other image. The script does not run during the
+documentation build.
+
+Each screenshot opens and closes a `napari` window,
+so you need a display to run the script.
+
+#### Adding a new screenshot
+
+1. **Write a function** in `docs/make_gui_screenshots.py` that sets up
+   the GUI and says what to label. For example, for the save button:
+
+    ```python
+    def save_widget(out: Path) -> Path:
+        """Make the screenshot of the save widget."""
+        gui = GUI()  # open napari with the movement widget
+        gui.open_video(OCTAGON)  # background video
+        gui.load_tracks(OCTAGON, "SLEAP", fps=50)  # load sample data
+        gui.expand_only("Save tracked data")  # open that section
+        saver = gui.section("Save tracked data").content()
+        labels = [
+            Label(
+                gui.rect(saver.save_button), "Save the edited data", side="left"
+            ),
+        ]
+        return gui.save(out / "napari_save_widget.png", labels)
+    ```
+
+2. **Register it** in the `SCREENSHOTS` dictionary at the bottom of the script:
+
+    ```python
+    SCREENSHOTS = {
+        ...,
+        "save_widget": save_widget,
+    }
+    ```
+
+3. **Run it** from the repository root:
+
+    ```sh
+    python docs/make_gui_screenshots.py save_widget
+    ```
+
+    This creates `docs/source/_static/napari_save_widget.png`.
+
+4. **Check the image.** If a label covers something, adjust the
+   `side`, `gap` or `shift` of that `Label` (see below) and run step 3 again.
+
+5. **Reference it** in `docs/source/user_guide/gui.md`, as with any image:
+
+    ```markdown
+    ![napari save widget](../_static/napari_save_widget.png)
+    ```
+
+6. **Commit** the script change and the PNG file together.
+
+#### When the GUI changes
+
+If your PR changes how the GUI looks (e.g. a new button moves other
+widgets around), regenerate all screenshots:
+
+```sh
+python docs/make_gui_screenshots.py
+```
+
+You do not need to edit any labels: they are placed again based on
+where the widgets are now. Check the updated images, then commit them.
+Use `git diff --stat` to see which images changed, and
+`git restore <file>` to bring back the committed version of an image.
+
+To see the images in place, [build the documentation](#building-the-documentation-locally):
+
+```sh
+cd docs
+make html SPHINXOPTS="-D plot_gallery=0"
+```
+
+The `plot_gallery=0` option skips running the [examples](#updating-the-examples),
+which makes the build much faster.
+
+#### Reference
+
+To find what a label should point at, use the `movement` widgets' own
+attributes (e.g. `saver.save_button`, `loader.load_button`), or these
+helpers:
+
+| Helper | What it points at |
+|---|---|
+| `gui.rect(widget, ...)` | One or more Qt widgets (or layouts), e.g. a button |
+| `gui.section(title)` | A section of the `movement` widget, e.g. `"Load tracked data"` (wrap it in `gui.rect()`) |
+| `gui.layer_row(name)` | A layer's row in the layer list, matched by the start of its name |
+| `gui.controls_rect(layer, *names)` | Rows of `napari`'s layer controls, e.g. `"_tail_length_slider_control"` |
+| `gui.canvas` | The main canvas |
+| `gui.frame_slider` | The frame slider below the canvas |
+
+A `Label` takes what to point at and the text, plus these options:
+
+| Option | What it does |
+|---|---|
+| `side` | Where the text goes: `"left"`, `"right"` (default), `"above"`, `"below"`, or `"inside"` (top-left corner, no arrow) |
+| `box` | Whether to draw a box around the target (default `True`) |
+| `gap` | Distance between the text and the target |
+| `shift` | Moves the text along its side, to avoid covering other widgets |
+| `callout` | Draws the text in a white bubble instead of white text on a dark background |
+
+Hover tooltips are shown in a separate popup that screenshots
+do not capture. For those, use `gui.tooltip_at()` to get the text
+`napari` would show and pass a `Tooltip` to `gui.save()`.
+See the `points_tooltip` function for an example.
+
+:::{note}
+The layer control names (e.g. `_tail_length_slider_control`) are
+private to `napari` and may change between versions. If one does,
+the script stops with an error naming the missing control.
+:::
+
+Modal dialogs (e.g. `napari_video_reader.png`) and videos (`.mp4` files)
+cannot be made with the script, so they are still made by hand.
 
 ### Cross-referencing Python objects
 
