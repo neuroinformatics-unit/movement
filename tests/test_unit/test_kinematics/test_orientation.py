@@ -163,6 +163,37 @@ def test_compute_forward_vector_with_invalid_input(
         )
 
 
+@pytest.mark.parametrize(
+    "invalid_camera_view",
+    ["topdown", "Top_down", "sideways", "", None],
+)
+@pytest.mark.parametrize(
+    "function_name",
+    [
+        "compute_forward_vector",
+        "compute_head_direction_vector",
+        "compute_forward_vector_angle",
+    ],
+)
+def test_orientation_functions_reject_invalid_camera_view(
+    valid_data_array_for_forward_vector, invalid_camera_view, function_name
+):
+    """Test that orientation functions reject an invalid camera_view.
+
+    Any value other than ``"top_down"`` or ``"bottom_up"`` (e.g. a typo
+    such as ``"topdown"``) must raise a ValueError instead of silently
+    using the ``"bottom_up"`` convention (see #1133).
+    """
+    function = getattr(kinematics, function_name)
+    with pytest.raises(ValueError, match=re.escape("camera_view must be")):
+        function(
+            valid_data_array_for_forward_vector,
+            "left_ear",
+            "right_ear",
+            camera_view=invalid_camera_view,
+        )
+
+
 def test_nan_behavior_forward_vector(
     valid_data_array_for_forward_vector_with_nan,
 ):

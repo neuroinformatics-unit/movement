@@ -33,6 +33,7 @@ Use {func}`~movement.io.load.get_supported_source_software` and {func}`~movement
 | [SLEAP](sleap:)                                                             | SLEAP        | [analysis](sleap-docs:tutorial/exporting-the-results/#analysis-hdf5) .h5 or .slp file                                     | Pose                 | Load & Save          |
 | [LightningPose](lp:)                                                        | LP           | DLC-style .csv file, or corresponding pandas DataFrame                                                                    | Pose                 | Load & Save          |
 | [Anipose](anipose:)                                                         |              | triangulation .csv file, or corresponding pandas DataFrame                                                                | Pose                 | Load                 |
+| [COCO](coco:) | COCO | COCO keypoint detection [results](coco:format-results) `.json` file, optionally with a COCO [annotations](coco:format-data) `.json` file | Pose | Load |
 | [VGG Image Annotator](via:)                                                 | VIA          | .csv file for [tracks annotation](via:docs/face_track_annotation.html)                                                    | Bounding box         | Load & Save          |
 | [Neurodata Without Borders](https://nwb-overview.readthedocs.io/en/latest/) | NWB          | .nwb file or NWBFile object with the [ndx-pose extension](https://github.com/rly/ndx-pose)                                | Pose                 | Load & Save          |
 | Any                                                                         |              | Numpy arrays                                                                                                              | Pose or Bounding box | Load & Save\*        |
@@ -186,6 +187,28 @@ You can also directly load any pandas DataFrame `df` that's formatted in the Ani
 ```python
 ds = load_poses.from_anipose_style_df(df, fps=30, individual_name="id_0")
 ```
+::::
+
+::::{tab-item} COCO
+To load [COCO keypoint detection results files](coco:format-results) in .json format:
+```python
+ds = load_poses.from_coco_file("/path/to/results.json", fps=30)
+```
+
+COCO results files store keypoints as unnamed coordinate lists, so keypoints are assigned default names `keypoint_0`, `keypoint_1`, etc. in the resulting dataset.
+To use the keypoint names defined for each category instead, you can also provide the corresponding [COCO annotations file](coco:format-data) in .json format:
+```python
+ds = load_poses.from_coco_file(
+    "/path/to/results.json",
+    fps=30,
+    annotations_file="/path/to/annotations.json",
+)
+```
+
+:::{note}
+COCO keypoint results do not contain track identities, so when there are multiple animals per frame, individuals may not correspond to the same animal across frames.
+See {func}`~movement.io.load_poses.from_coco_file` for ways to handle this, and for further options such as using image IDs as frame numbers.
+:::
 ::::
 
 ::::{tab-item} NWB

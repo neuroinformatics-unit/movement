@@ -53,6 +53,12 @@ def compute_forward_vector(
         dimensions matching the input data array, but without the
         ``keypoint`` dimension.
 
+    Raises
+    ------
+    ValueError
+        If ``camera_view`` is not one of ``"top_down"`` or
+        ``"bottom_up"``.
+
     Notes
     -----
     To determine the forward direction of the animal, we need to specify
@@ -74,6 +80,14 @@ def compute_forward_vector(
     is set to NaN.
 
     """
+    # Validate camera view
+    if camera_view not in ("top_down", "bottom_up"):
+        raise logger.error(
+            ValueError(
+                "camera_view must be 'top_down' or 'bottom_up', "
+                f"but got {camera_view!r}."
+            )
+        )
     # Validate input data
     _validate_type_data_array(data)
     validate_dims_coords(

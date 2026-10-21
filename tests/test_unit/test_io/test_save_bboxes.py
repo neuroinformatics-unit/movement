@@ -92,20 +92,6 @@ def valid_bboxes_dataset_confidence_some_nans(valid_bboxes_dataset):
     return valid_bboxes_dataset
 
 
-def _get_min_required_digits_in_ds(ds):
-    """Return the minimum number of digits required to represent the
-    largest frame number in the input dataset.
-    """
-    # Compute the maximum frame number
-    max_frame_number = max(ds.time.values)
-    if "seconds" in ds.time_unit:
-        max_frame_number = int(max_frame_number * ds.fps)
-
-    # Return the minimum number of digits required to represent the
-    # largest frame number
-    return len(str(max_frame_number))
-
-
 @pytest.mark.parametrize(
     "valid_dataset",
     [
@@ -414,13 +400,13 @@ def test_get_image_filename_template(
 
 
 @pytest.mark.parametrize(
-    "valid_dataset_str",
+    "valid_dataset_str, min_required_digits",
     [
-        ("valid_bboxes_dataset"),
-        ("valid_bboxes_dataset_in_seconds"),
-        ("valid_bboxes_dataset_min_frame_number_modified"),
+        ("valid_bboxes_dataset", 1),
+        ("valid_bboxes_dataset_in_seconds", 1),
+        ("valid_bboxes_dataset_min_frame_number_modified", 3),
     ],
-    ids=["min_2_digits", "min_2_digits_in_seconds", "min_3_digits"],
+    ids=["min_1_digit", "min_1_digit_in_seconds", "min_3_digits"],
 )
 @pytest.mark.parametrize(
     "frame_n_digits",
@@ -429,6 +415,7 @@ def test_get_image_filename_template(
 )
 def test_get_min_required_digits_in_ds(
     valid_dataset_str,
+    min_required_digits,
     frame_n_digits,
     request,
 ):
@@ -436,7 +423,6 @@ def test_get_min_required_digits_in_ds(
     computed as expected.
     """
     ds = request.getfixturevalue(valid_dataset_str)
-    min_required_digits = _get_min_required_digits_in_ds(ds)
 
     # Compute expected number of digits in output
     if frame_n_digits is None:
@@ -454,21 +440,20 @@ def test_get_min_required_digits_in_ds(
 
 
 @pytest.mark.parametrize(
-    "valid_dataset_str, requested_n_digits",
+    "valid_dataset_str, requested_n_digits, min_required_digits",
     [
-        ("valid_bboxes_dataset", 0),
-        ("valid_bboxes_dataset_min_frame_number_modified", 2),
+        ("valid_bboxes_dataset", 0, 1),
+        ("valid_bboxes_dataset_min_frame_number_modified", 2, 3),
     ],
-    ids=["min_2_digits", "min_3_digits"],
+    ids=["min_1_digit", "min_3_digits"],
 )
 def test_get_min_required_digits_in_ds_error(
-    valid_dataset_str, requested_n_digits, request
+    valid_dataset_str, requested_n_digits, min_required_digits, request
 ):
     """Test that an error is raised if the requested number of digits is
     not enough to represent all the frame numbers.
     """
     ds = request.getfixturevalue(valid_dataset_str)
-    min_required_digits = _get_min_required_digits_in_ds(ds)
 
     with pytest.raises(ValueError) as error:
         save_bboxes._check_frame_required_digits(

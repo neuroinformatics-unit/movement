@@ -307,6 +307,7 @@ Implementing a new loader to support additional [file formats](target-supported-
 1. Create validator classes for the file format (recommended).
 2. Implement the loader function.
 3. Update the `SourceSoftware` type alias.
+4. Update the [](target-io) guide.
 
 #### Create file validators
 
@@ -517,6 +518,10 @@ type SourceSoftware = Literal[
 ]
 ```
 
+#### Update the Input/Output guide
+
+Finally, update the [](target-io) guide by adding the new format to the [](target-supported-formats) table and documenting it in the [](target-loading-pose-tracks) and/or [](target-loading-bbox-tracks) section(s) with usage examples.
+
 ### Implementing new writers
 
 Implementing a new writer to support additional [file formats](target-supported-formats) in `movement` involves the following steps:
@@ -601,7 +606,7 @@ type TargetSoftware = Literal[
 
 #### Update the Input/Output guide
 
-Finally, update the [](target-io) guide  by adding the new format to the [](target-supported-formats) table and documenting it in the [](target-saving-pose-tracks) and/or [](target-saving-bboxes-tracks) section(s) with usage examples.
+Finally, update the [](target-io) guide by adding the new format to the [](target-supported-formats) table and documenting it in the [](target-saving-pose-tracks) and/or [](target-saving-bboxes-tracks) section(s) with usage examples.
 
 ### Developing the CLI
 
@@ -736,6 +741,21 @@ A GitHub actions workflow (`.github/workflows/test_and_deploy.yml`) has been set
 - Linting checks (pre-commit).
 - Testing (only if linting checks pass)
 - Release to PyPI using [trusted publishing](https://docs.pypi.org/trusted-publishers/) (only if a git tag is present and if tests pass).
+
+When adding or updating actions in a workflow, please follow our pinning policy:
+
+- **Third-party actions** must be pinned to a full commit SHA, followed by a
+  comment with the corresponding version tag, e.g.
+  `uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1`.
+  This protects our workflows against a compromised or retagged upstream release.
+- **Our own shared actions** from
+  [neuroinformatics-unit/actions](https://github.com/neuroinformatics-unit/actions)
+  are pinned to their major version tag, e.g.
+  `uses: neuroinformatics-unit/actions/test@v3`. They are maintained by the
+  same team, and they pin their own third-party dependencies internally.
+
+[Dependabot](github-docs:code-security/how-tos/secure-your-supply-chain/secure-your-dependencies/auto-update-actions) keeps the pinned SHAs
+(and their version comments) up to date via monthly PRs.
 
 ### Versioning
 

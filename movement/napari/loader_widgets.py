@@ -28,9 +28,12 @@ from movement.napari.layer_wiring import (
     DATASET_ATTRS_KEY,
     MAX_FRAME_IDX_KEY,
     POINTS_LAYER_KEY,
+    POINTS_POSITION_KEY,
     POINTS_PROPERTIES_KEY,
     TRACKS_LAYER_KEY,
+    add_edits_reset_event,
     connect_viewer_callbacks,
+    drop_internal_properties,
     frame_axis_is_sliced,
     on_points_data_changed,
     set_point_symbol_by_edited,
@@ -339,30 +342,34 @@ class DataLoader(QWidget):
             properties_df=self.properties,
         )
 
-        # Filter out columns used internally (for Tracks/Shapes coloring,
-        # or for reconstructing the dataset on save) but not needed in
-        # Points layer tooltips: _factorized columns and position_is_nan.
-        points_properties = self.properties.loc[
-            :,
-            ~self.properties.columns.str.endswith("_factorized")
-            & (self.properties.columns != "position_is_nan"),
-        ]
-        self.points_layer = self.viewer.add_points(
+        points_properties = drop_internal_properties(self.properties)
+        metadata = {
+            MAX_FRAME_IDX_KEY: max(self.data[:, 1]),
+            POINTS_LAYER_KEY: True,
+            POINTS_PROPERTIES_KEY: self.properties,
+            DATASET_ATTRS_KEY: self.ds_attrs,
+        }
+        # Keep the loaded positions so edits can be reset (poses only)
+        if self.data_bboxes is None:
+            metadata[POINTS_POSITION_KEY] = self.data
+        self.points_layer = Points(
             self.data[self.data_not_nan, 1:],
             properties=points_properties.iloc[self.data_not_nan, :],
-            metadata={
-                MAX_FRAME_IDX_KEY: max(self.data[:, 1]),
-                POINTS_LAYER_KEY: True,
-                POINTS_PROPERTIES_KEY: self.properties,
-                DATASET_ATTRS_KEY: self.ds_attrs,
-            },
+            metadata=metadata,
             **points_style.as_kwargs(),
         )
+        # Register before adding to the viewer, so widgets tracking
+        # inserted layers can connect to it
+        if self.data_bboxes is None:
+            add_edits_reset_event(self.points_layer)
+        self.viewer.add_layer(self.points_layer)
         self.points_layer.events.data.connect(on_points_data_changed)
-        # Re-pad the frame slider range (if needed) after each point layer edit
-        self.points_layer.events.data.connect(
-            partial(update_frame_slider_range, self.viewer)
-        )
+        # Re-pad the frame slider range (if needed) after each point layer
+        # edit or reset
+        update_range = partial(update_frame_slider_range, self.viewer)
+        self.points_layer.events.data.connect(update_range)
+        if self.data_bboxes is None:
+            self.points_layer.events.edits_reset.connect(update_range)
         self.points_layer.editable = frame_axis_is_sliced(self.viewer)
 
         # If the loaded dataset already has an `edited` property
