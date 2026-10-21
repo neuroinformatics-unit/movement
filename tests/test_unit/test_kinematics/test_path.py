@@ -488,6 +488,21 @@ def test_path_length_nan_warn_threshold(
         assert result.name == "path_length"
 
 
+def test_path_length_nan_warning_single_track():
+    """Test that data with only ``time`` and ``space`` dimensions (a single
+    track) and missing values gives the NaN warning and a result, instead
+    of failing while the warning is built.
+    """
+    position = xr.DataArray(
+        np.array([[0, 0], [1, 0], [np.nan, np.nan], [3, 0], [4, 0]]),
+        dims=("time", "space"),
+        coords={"time": np.arange(5), "space": ["x", "y"]},
+    )
+    with pytest.warns(UserWarning, match="many missing values"):
+        result = compute_path_length(position)
+    assert result.item() == pytest.approx(4.0)
+
+
 # ─────────────────────────────────────────────
 # Path straightness tests
 # ─────────────────────────────────────────────
