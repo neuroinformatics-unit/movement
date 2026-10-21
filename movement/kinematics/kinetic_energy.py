@@ -47,6 +47,8 @@ def compute_kinetic_energy(
         ``keypoint`` dimensions.
         If ``decompose=True`` an extra ``energy`` dimension is added,
         with coordinates ``translational`` and ``internal``.
+        Input attributes are preserved, except ``units``: mass units are
+        unspecified, even when the position and time units are known.
 
     Notes
     -----
@@ -174,6 +176,8 @@ def compute_kinetic_energy(
     # Compute total KE
     weighted_ke = 0.5 * weights * (compute_norm(velocity) ** 2)
     ke_total = weighted_ke.sum(dim="keypoint")
+    ke_total.attrs = position.attrs.copy()
+    ke_total.attrs.pop("units", None)
 
     if not decompose:
         return ke_total
@@ -191,4 +195,5 @@ def compute_kinetic_energy(
         ke = xr.concat([ke_trans, ke_int], dim="energy")
         ke = ke.assign_coords(energy=["translational", "internal"])
         ke = ke.transpose("time", ..., "energy")
+        ke.attrs = ke_total.attrs.copy()
         return ke
