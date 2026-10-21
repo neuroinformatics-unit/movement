@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=ec678caa"></script>
+    <script src="../../../_static/documentation_options.js?v=db9f06c0"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -142,7 +142,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev65</p>
+    <p class="title logo__title">movement v0.17.1.dev66</p>
   
 </a></div>
     
@@ -1403,9 +1403,12 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">exceeds_threshold</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
         <span class="k">return</span>
     <span class="n">track_dims</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span> <span class="k">if</span> <span class="n">d</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"space"</span><span class="p">)]</span>
-    <span class="n">stacked</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">tracks</span><span class="o">=</span><span class="n">track_dims</span><span class="p">)</span>
-    <span class="n">mask</span> <span class="o">=</span> <span class="n">exceeds_threshold</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">tracks</span><span class="o">=</span><span class="n">track_dims</span><span class="p">)</span>
-    <span class="n">data_to_warn_about</span> <span class="o">=</span> <span class="n">stacked</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">tracks</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="s2">"tracks"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">track_dims</span><span class="p">:</span>
+        <span class="n">stacked</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">tracks</span><span class="o">=</span><span class="n">track_dims</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">exceeds_threshold</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">tracks</span><span class="o">=</span><span class="n">track_dims</span><span class="p">)</span>
+        <span class="n">data_to_warn_about</span> <span class="o">=</span> <span class="n">stacked</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">tracks</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="s2">"tracks"</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># a single track, e.g. one individual's centroid: nothing to stack</span>
+        <span class="n">data_to_warn_about</span> <span class="o">=</span> <span class="n">data</span>
     <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
         <span class="s2">"The result may be unreliable for point tracks with many "</span>
         <span class="s2">"missing values. The following tracks have at least "</span>
@@ -1455,7 +1458,7 @@
     <div class="footer-items__start">
       
         <div class="footer-item"><p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
     <br/>
     </p>
     <p class="theme-version">
