@@ -27,6 +27,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
+import matplotlib
 import napari
 from PIL import Image, ImageDraw, ImageFont
 from qtpy.QtCore import QPoint, QRect, Qt
@@ -47,6 +48,12 @@ PADDING = 6
 ARROW_GAP = 12
 # Labels are drawn this many times larger, then shrunk for smooth edges
 SMOOTHING = 4
+
+# Font for labels: DejaVu Sans, which ships with matplotlib, so everyone
+# who runs the script gets the same font
+FONT_PATH = (
+    Path(matplotlib.get_data_path()) / "fonts" / "ttf" / "DejaVuSans.ttf"
+)
 
 # Images are saved next to the other docs images
 STATIC_PATH = Path(__file__).resolve().parent / "source" / "_static"
@@ -173,8 +180,7 @@ def draw_labels(
     ``ratio`` converts window coordinates to pixels of the drawing,
     and ``window`` is the window's region in window coordinates.
     """
-    # Size passed by position: Pillow >= 10.1 accepts it either way
-    font = ImageFont.load_default(round(FONT_SIZE * ratio))
+    font = ImageFont.truetype(FONT_PATH, round(FONT_SIZE * ratio))
     width = round(LINE_WIDTH * ratio)
 
     def scaled(rect: QRect) -> tuple[float, float, float, float]:
@@ -280,7 +286,7 @@ def draw_tooltip(
     )
 
     # Tooltip box, offset below-right of the pointer like Qt does
-    font = ImageFont.load_default(round(13 * ratio))
+    font = ImageFont.truetype(FONT_PATH, round(13 * ratio))
     bbox = draw.multiline_textbbox((0, 0), tooltip.text, font=font, spacing=4)
     pad = 6 * ratio
     left, top = x + 16 * s, y + 22 * s
