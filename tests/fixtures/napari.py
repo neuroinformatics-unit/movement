@@ -4,11 +4,18 @@ from unittest.mock import Mock
 import numpy as np
 import pandas as pd
 import pytest
+from napari.components import ViewerModel
 from napari.layers.base import ActionType
 
 from movement.io import save_poses
 from movement.napari.layer_wiring import on_points_data_changed
 from movement.napari.loader_widgets import POINTS_LAYER_KEY, DataLoader
+
+
+@pytest.fixture
+def headless_napari_viewer():
+    """Return a headless napari viewer model."""
+    return ViewerModel()
 
 
 @pytest.fixture
