@@ -243,6 +243,35 @@ def test_vector_outputs(
             assert len(output[d]) == len(mock_data_array[d])
 
 
+def test_classmethod_with_default_data_argument() -> None:
+    """A class method can omit its data argument when it has a default.
+
+    Regression test: the broadcastable wrapper used to unpack the positional
+    arguments unconditionally, so calling such a method without the data
+    argument raised ``ValueError`` instead of using the default value.
+    """
+
+    class DummyClass:
+        @broadcastable_method(only_broadcastable_along="space")
+        def first_value(self, values=(0.0, 1.0)) -> float:
+            return values[0]
+
+    d = DummyClass()
+    # Omitted data argument falls back to the default value.
+    assert d.first_value() == 0.0
+    # Explicit values still work.
+    assert d.first_value((2.0, 3.0)) == 2.0
+    # Broadcasting over a DataArray still works.
+    data_array = xr.DataArray(
+        np.array([[0.0, 1.0], [2.0, 3.0]]),
+        dims=["time", "space"],
+        coords={"time": [0, 1], "space": ["x", "y"]},
+    )
+    output = d.first_value(data_array)
+    assert isinstance(output, xr.DataArray)
+    assert np.allclose(output.values, [0.0, 2.0])
+
+
 def test_retain_underlying_function() -> None:
     value_for_arg = 5.0
     value_for_kwarg = 7.0

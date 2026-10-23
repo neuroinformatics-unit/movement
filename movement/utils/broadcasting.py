@@ -252,6 +252,12 @@ def make_broadcastable(
     def decorator(f):
         @wraps(f)
         def wrapper(*args: P.args, **kwargs: P.kwargs) -> xr.DataArray:
+            # Fall back to the wrapped function if the data argument
+            # (the first positional argument after ``self``) was omitted.
+            min_args = 2 if is_classmethod else 1
+            if len(args) < min_args:
+                return f(*args, **kwargs)
+
             if is_classmethod:
                 self, data, *rest = args
 
