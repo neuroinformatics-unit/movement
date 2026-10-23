@@ -37,6 +37,17 @@ def compute_region_occupancy(
     xarray.DataArray
         A boolean ``DataArray`` providing occupancy information.
 
+    Notes
+    -----
+    When RoIs in ``regions`` have identical names, a suffix
+    will be appended to their name in the form of "_X", where "X" is a number
+    starting from 0. These numbers are zero-padded depending on the maximum
+    number of regions with identical names (e.g. if there are 100 RoIs with the
+    same name, "00" will be appended to the first of them)
+
+    Regions with unique names will retain their original name as their
+    corresponding coordinate name.
+
     Examples
     --------
     >>> import numpy as np
@@ -58,17 +69,6 @@ def compute_region_occupancy(
     np.array([True, True])
     >>> occupancies.sel(region="triangle").values
     np.array([True, False])
-
-    Notes
-    -----
-    When RoIs in ``regions`` have identical names, a suffix
-    will be appended to their name in the form of "_X", where "X" is a number
-    starting from 0. These numbers are zero-padded depending on the maximum
-    number of regions with identical names (e.g. if there are 100 RoIs with the
-    same name, "00" will be appended to the first of them)
-
-    Regions with unique names will retain their original name as their
-    corresponding coordinate name.
 
     """
     number_of_times_name_appears: defaultdict[str, int] = defaultdict(int)
