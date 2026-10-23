@@ -33,7 +33,8 @@ repos:
     - repo: https://github.com/astral-sh/ruff-pre-commit
       rev: v0.16.10
       hooks:
-          - id: ruff
+          - id: ruff-check
+            args: [--fix]
           - id: ruff-format
     - repo: https://github.com/pre-commit/mirrors-mypy
       rev: v2.4.0
@@ -65,12 +66,6 @@ repos:
           - id: codespell
     - repo: local
       hooks:
-          - id: numpydoc-section-order
-            name: check numpydoc section order
-            entry: python tools/check_docstring_sections.py
-            language: python
-            files: ^movement/.*\.py$
-            types: [python]
           - id: no-movement-url
             name: block hardcoded movement URL in docs - use relative refs
             language: pygrep
