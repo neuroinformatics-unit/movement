@@ -351,6 +351,57 @@ def valid_dlc_3d_poses_df(valid_dlc_poses_df):
     return valid_dlc_poses_df
 
 
+def _with_extra_coords(df: pd.DataFrame, extra_coords: list) -> pd.DataFrame:
+    """Return a copy of ``df`` with extra diagnostic coords appended.
+
+    Each (scorer, bodypart) combination gains one new column per entry
+    in ``extra_coords``, carrying a sentinel value that would corrupt
+    the loaded positions if it were not ignored. This mirrors how eks
+    output CSVs place uncertainty columns beside x, y and likelihood,
+    i.e. as further values of the "coords" level.
+    """
+    extra_cols = {
+        (*column[:2], extra): 99.0
+        for column in df.columns.to_list()
+        for extra in extra_coords
+    }
+    extra_df = pd.DataFrame(extra_cols, index=df.index)
+    extra_df.columns = pd.MultiIndex.from_tuples(
+        extra_df.columns.to_list(), names=df.columns.names
+    )
+    return pd.concat([df, extra_df], axis=1)
+
+
+@pytest.fixture
+def valid_dlc_eks_style_poses_df(valid_dlc_poses_df):
+    """Return a 2D DLC-style DataFrame with eks diagnostic coords.
+
+    The coords level holds, per bodypart, x, y and likelihood as in
+    DeepLabCut output, plus the uncertainty columns eks appends to
+    its 2D result CSVs.
+    """
+    return _with_extra_coords(
+        valid_dlc_poses_df,
+        [
+            "x_ens_median",
+            "y_ens_median",
+            "x_ens_var",
+            "y_ens_var",
+            "x_posterior_var",
+            "y_posterior_var",
+        ],
+    )
+
+
+@pytest.fixture
+def valid_dlc_3d_eks_style_poses_df(valid_dlc_3d_poses_df):
+    """Return a 3D DLC-style DataFrame with eks posterior-variance cols."""
+    return _with_extra_coords(
+        valid_dlc_3d_poses_df,
+        ["x_posterior_var", "y_posterior_var", "z_posterior_var"],
+    )
+
+
 # -------------------- Invalid bboxes datasets --------------------
 @pytest.fixture
 def missing_var_bboxes_dataset(valid_bboxes_dataset):

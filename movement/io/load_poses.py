@@ -181,6 +181,11 @@ def from_dlc_style_df(
       `triangulating 2D poses from multiple DeepLabCut output files\
       <https://deeplabcut.github.io/DeepLabCut/docs/Overviewof3D.html>`__).
 
+    Other entries in the "coords" level are ignored with a warning, so
+    that files from tools that add diagnostic columns in the DLC layout
+    still load: for example, `eks <https://github.com/paninski-lab/eks>`__
+    appends columns such as "x_posterior_var" beside x, y and likelihood.
+
     The row index corresponds to the frame number.
 
     See Also
@@ -199,6 +204,27 @@ def from_dlc_style_df(
     )
     # Extract position (and confidence if present)
     coord_names = df.columns.get_level_values("coords").unique().to_list()
+    # Keep only the coords movement understands: x, y and z as spatial
+    # axes, likelihood as confidence. Tools such as eks append
+    # diagnostic columns (e.g. x_posterior_var) in the same DLC layout,
+    # which would otherwise be read as extra spatial axes and fail
+    # validation. Only filter when the DLC contract (x and y) holds;
+    # otherwise leave the DataFrame untouched so validation reports the
+    # missing spatial axes.
+    supported_coords = ("x", "y", "z", "likelihood")
+    ignored_coords = [
+        coord for coord in coord_names if coord not in supported_coords
+    ]
+    if ignored_coords and {"x", "y"}.issubset(coord_names):
+        df = df.loc[
+            :,
+            df.columns.get_level_values("coords").isin(supported_coords),
+        ]
+        coord_names = df.columns.get_level_values("coords").unique().to_list()
+        logger.warning(
+            f"Ignoring unsupported coords {ignored_coords}: "
+            f"loading {coord_names} only."
+        )
     n_coords = len(coord_names)
     n_individuals = len(individual_names) if individual_names else 1
     tracks = (
