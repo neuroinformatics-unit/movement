@@ -160,6 +160,8 @@ fix = true
 
 [tool.ruff.lint]
 # See https://docs.astral.sh/ruff/rules/
+preview = true
+explicit-preview-rules = true
 ignore = [
   "D203", # one blank line before class
   "D213", # multi-line-summary second line
@@ -175,6 +177,7 @@ select = [
   "C90",    # McCabe complexity
   "D",      # pydocstyle
   "NPY201", # checks for syntax that was deprecated in numpy2.0
+  "D420",   # incorrect docstring section order (preview rule)
 ]
 per-file-ignores = { "tests/*" = [
   "D100", # missing docstring in public module
