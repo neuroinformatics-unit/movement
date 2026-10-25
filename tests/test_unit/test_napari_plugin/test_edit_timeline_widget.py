@@ -11,9 +11,11 @@ from napari.utils.theme import get_theme
 
 from movement.napari.edit_timeline_widget import (
     DRAG_THRESHOLD_PIXELS,
+    MAX_LANES_WITH_LABELS,
     MIN_VISIBLE_FRAMES,
     EditTimelineWidget,
 )
+from movement.napari.layer_wiring import POINTS_LAYER_KEY
 from movement.napari.loader_widgets import POINTS_PROPERTIES_KEY
 
 
@@ -499,6 +501,56 @@ def test_lanes_collapse_by_frame_or_split_by_individual(
 
     assert len(edit_timeline_widget._bars) == 2
     assert edit_timeline_widget._lane_dividers == []
+
+
+@pytest.mark.parametrize(
+    "n_individuals, show_labels",
+    [
+        pytest.param(MAX_LANES_WITH_LABELS - 1, True, id="below_limit"),
+        pytest.param(MAX_LANES_WITH_LABELS, True, id="at_limit"),
+        pytest.param(MAX_LANES_WITH_LABELS + 1, False, id="above_limit"),
+    ],
+)
+def test_many_individual_lanes_hide_only_unreadable_axis_elements(
+    make_napari_viewer_proxy,
+    add_movement_points,
+    n_individuals,
+    show_labels,
+):
+    """Keep individual edit bars while hiding crowded axis details."""
+    viewer = make_napari_viewer_proxy()
+    individuals = [f"id_{index}" for index in range(n_individuals)]
+    add_movement_points(viewer, individuals, edited=[True] * n_individuals)
+    edit_timeline_widget = EditTimelineWidget(viewer)
+
+    edit_timeline_widget.set_show_individuals(True)
+
+    assert len(edit_timeline_widget._bars) == n_individuals
+    if show_labels:
+        assert len(edit_timeline_widget.ax.get_yticks()) == n_individuals
+        assert len(edit_timeline_widget._lane_dividers) == n_individuals - 1
+    else:
+        assert list(edit_timeline_widget.ax.get_yticks()) == []
+        assert edit_timeline_widget._lane_dividers == []
+
+
+def test_empty_individual_lanes_do_not_raise(make_napari_viewer_proxy):
+    """An empty movement Points layer has no lanes or edited-frame bars."""
+    viewer = make_napari_viewer_proxy()
+    viewer.add_points(
+        np.empty((0, 2)),
+        properties={
+            "edited": np.array([], dtype=bool),
+            "individual": np.array([], dtype=str),
+        },
+        metadata={POINTS_LAYER_KEY: True},
+    )
+    edit_timeline_widget = EditTimelineWidget(viewer)
+
+    edit_timeline_widget.set_show_individuals(True)
+
+    assert list(edit_timeline_widget.ax.get_yticks()) == []
+    assert edit_timeline_widget._bars == []
 
 
 def test_bar_colours_follow_display_mode_not_edited_data(
