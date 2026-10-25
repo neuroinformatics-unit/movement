@@ -1,13 +1,16 @@
 """Filter and interpolate tracks in ``movement`` datasets."""
 
+from collections.abc import Sequence
 from typing import Any, Literal
 
 import xarray as xr
 from scipy import signal
 from xarray.core.types import InterpOptions
 
+from movement.roi import PolygonOfInterest
 from movement.utils.logging import log_to_attrs, logger
 from movement.utils.reports import report_nan_values
+from movement.validators.arrays import validate_dims_coords
 
 
 @log_to_attrs
@@ -69,6 +72,91 @@ def filter_by_confidence(
     keep = confidence >= threshold
     if keep_points_with_nan_confidence:
         keep = keep | confidence.isnull()
+    data_filtered = data.where(keep)
+    if print_report:
+        print(report_nan_values(data, "input"))
+        print(report_nan_values(data_filtered, "output"))
+    return data_filtered
+
+
+@log_to_attrs
+def filter_by_region(
+    data: xr.DataArray,
+    regions: PolygonOfInterest | Sequence[PolygonOfInterest],
+    invert: bool = False,
+    include_boundary: bool = True,
+    print_report: bool = False,
+) -> xr.DataArray:
+    """Drop data points that fall outside one or more regions of interest.
+
+    Data points outside all of the given regions are converted to NaN.
+    This is useful, for example, for discarding keypoints that were
+    confidently detected outside the arena the animal can physically
+    access. Set ``invert=True`` to instead drop the points that fall
+    inside the region(s).
+
+    Parameters
+    ----------
+    data
+        The input data to be filtered. Must have a ``space`` dimension
+        with exactly the ``x`` and ``y`` coordinates.
+    regions
+        The region of interest, or a sequence of regions, to filter by.
+        If multiple regions are given, a point is considered inside if
+        it falls within any of them.
+    invert
+        If ``False`` (default), points outside the region(s) are dropped.
+        If ``True``, points inside the region(s) are dropped instead.
+    include_boundary
+        Whether to treat points lying exactly on a region's boundary as
+        inside the region. Default is ``True``.
+    print_report
+        Whether to print a report on the number of NaNs in the dataset
+        before and after filtering. Default is ``False``.
+
+    Returns
+    -------
+    xarray.DataArray
+        The data where points outside (or, if ``invert=True``, inside)
+        the region(s) have been converted to NaNs.
+
+    Raises
+    ------
+    TypeError
+        If ``regions`` is not a ``PolygonOfInterest`` or a non-empty
+        sequence of them.
+    ValueError
+        If ``data`` does not have a ``space`` dimension with exactly the
+        ``x`` and ``y`` coordinates. 3D data is not supported, since
+        regions of interest are two-dimensional.
+
+    See Also
+    --------
+    movement.roi.PolygonOfInterest : The class used to define regions.
+
+    Notes
+    -----
+    Points that are already NaN remain NaN regardless of ``invert``.
+
+    """
+    if isinstance(regions, PolygonOfInterest):
+        regions = [regions]
+    if len(regions) == 0 or not all(
+        isinstance(region, PolygonOfInterest) for region in regions
+    ):
+        raise logger.error(
+            TypeError(
+                "regions must be a PolygonOfInterest or a non-empty "
+                "sequence of PolygonOfInterest objects."
+            )
+        )
+    validate_dims_coords(data, {"space": ["x", "y"]}, exact_coords=True)
+    inside = regions[0].contains_point(data, include_boundary=include_boundary)
+    for region in regions[1:]:
+        inside = inside | region.contains_point(
+            data, include_boundary=include_boundary
+        )
+    keep = ~inside if invert else inside
     data_filtered = data.where(keep)
     if print_report:
         print(report_nan_values(data, "input"))
