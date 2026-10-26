@@ -305,13 +305,14 @@ def compute_turning_angle(
     invalid_steps = (step_lengths <= min_step_length) | (
         step_lengths.shift(time=1) <= min_step_length
     )
-    turning = xr.where(invalid_steps, np.nan, turning)
-
-    turning.attrs["units"] = "radians"
+    turning = turning.where(~invalid_steps)
 
     if in_degrees:
         turning = np.rad2deg(turning)
-        turning.attrs["units"] = "degrees"
+    #restores any metadata stripped by Numpy 
+    turning = turning.assign_attrs(data.attrs)
+
+    turning.attrs["units"] = "degrees" if in_degrees else "radians"
 
     turning.name = "turning_angle"
 
@@ -426,7 +427,10 @@ def compute_path_sinuosity(
     result = (
         2.0 * (mean_step_length * (angular_term + step_length_cv**2)) ** -0.5
     )
-
+    #Reassign the original attributes
+    result = result.assign_attrs(data.attrs)
+    #Removing the incorrect 'units' attribute 
+    result.attrs.pop('units',None)
     result.name = "sinuosity"
     result.attrs["long_name"] = "Path Sinuosity"
 
@@ -527,6 +531,10 @@ def compute_directional_change(
     dt = time_coord - time_coord.shift(time=2)
 
     dc = abs(theta) / dt
+    #Reassign the original attributes
+    dc = dc.assign_attrs(data.attrs)
+    #Fixing the leaked units attribute
+    dc.attrs["units"] = "degrees per unit time" if in_degrees else "radians per unit time"
     dc.name = "directional_change"
     dc.attrs["long_name"] = "Directional Change"
     return dc
@@ -656,6 +664,11 @@ def compute_path_emax(
     if in_spatial_units:
         emax = emax * _segment_lengths(data).mean(dim="time", skipna=True)
 
+    #Reassign the original input attributes
+    emax = emax.assign_attrs(data.attrs)
+    #Removing units attribute if result is dimensionless
+    if not in_spatial_units:
+        emax.attrs.pop('units',None)
     emax.name = "maximum_expected_displacement"
     emax.attrs["long_name"] = "Maximum Expected Displacement"
     return emax

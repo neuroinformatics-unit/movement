@@ -176,7 +176,7 @@ def compute_kinetic_energy(
     ke_total = weighted_ke.sum(dim="keypoint")
 
     if not decompose:
-        return ke_total
+        result = ke_total
     else:
         # Compute translational KE based on centre of mass velocity
         v_cm = (velocity * weights.expand_dims(space=["x", "y"])).sum(
@@ -190,5 +190,8 @@ def compute_kinetic_energy(
         # Format output
         ke = xr.concat([ke_trans, ke_int], dim="energy")
         ke = ke.assign_coords(energy=["translational", "internal"])
-        ke = ke.transpose("time", ..., "energy")
-        return ke
+        result = ke.transpose("time", ..., "energy")
+        result = result.assign_attrs(position.attrs)
+        #dropping the complex units
+        result.attrs.pop('units',None)
+        return result

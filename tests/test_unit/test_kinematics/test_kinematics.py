@@ -217,3 +217,53 @@ def test_forward_displacement_with_multiindex_coords():
     assert result.name == "forward_displacement"
     assert result.dims == position.dims
     assert result.shape == position.shape
+
+from movement.kinematics import (
+    compute_time_derivative,
+    compute_velocity,
+    compute_acceleration,
+    compute_speed,
+    compute_turning_angle,
+    compute_directional_change,
+    compute_path_emax,
+    compute_path_sinuosity,
+)
+
+# List of tuples containing (function, extra_arguments_dict)
+FUNCTIONS_TO_TEST = [
+    (compute_velocity, {}),
+    (compute_acceleration, {}),
+    (compute_time_derivative, {"order": 1}),
+    (compute_turning_angle, {}),
+    (compute_directional_change, {}),
+    (compute_path_emax, {}),
+    (compute_path_sinuosity, {}),
+    (compute_speed, {})
+]
+
+@pytest.mark.parametrize("func, kwargs", FUNCTIONS_TO_TEST)
+def test_kinematics_preserves_attributes(func, kwargs):
+    # Create mock data with a minimum of 3 time points (required by some functions)
+    data = xr.DataArray(
+        np.random.rand(10, 2), 
+        dims=["time", "space"],
+        coords={"time": np.arange(10), "space": ["x", "y"]}
+    )
+    # Attaching the attributes to track
+    data.attrs = {"log": "test_log", "foo": 1, "units": "cm"}
+
+    # Run the function with the mock data and any extra arguments
+    result = func(data, **kwargs)
+
+    # Verify the original non-unit attributes survived
+    assert result.attrs.get("log") == "test_log"
+    assert result.attrs.get("foo") == 1
+    
+    # Verify the original non-unit attributes survived
+    assert result.attrs.get("log") == "test_log"
+    assert result.attrs.get("foo") == 1
+    
+    # Check that "radians" didn't leak into functions where it shouldn't be
+    if "units" in result.attrs:
+        if func.__name__ != "compute_turning_angle":
+            assert result.attrs["units"] != "radians"
