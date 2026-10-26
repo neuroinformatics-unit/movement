@@ -191,7 +191,9 @@ def compute_kinetic_energy(
         ke = xr.concat([ke_trans, ke_int], dim="energy")
         ke = ke.assign_coords(energy=["translational", "internal"])
         result = ke.transpose("time", ..., "energy")
-        result = result.assign_attrs(position.attrs)
-        #dropping the complex units
-        result.attrs.pop('units',None)
-        return result
+
+    result = result.assign_attrs(position.attrs)
+    result.attrs.pop("units", None)
+    result.name = "kinetic_energy"
+
+    return result

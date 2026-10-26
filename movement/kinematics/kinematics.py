@@ -238,7 +238,8 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
     validate_dims_coords(data, {"space": []})
     result = compute_time_derivative(data, order=2)
     if "units" in result.attrs:
-        result.attrs["units"] = f"{result.attrs['units']} per unit time squared"
+        current_unit = result.attrs["units"]
+        result.attrs["units"] = f"{current_unit} per unit time squared"
     result.name = "acceleration"
     return result
 
