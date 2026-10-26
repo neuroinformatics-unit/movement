@@ -469,361 +469,365 @@ def _rotating_vector(scale=1.0, **kwargs):
     return _angle_to_vector(_rotating_angle(**kwargs), scale=scale)
 
 
-@pytest.fixture
-def noisy_angle():
-    """Return wrapped angles of a rotation crossing +-pi, plus noise."""
-    angle = _rotating_angle()
-    noise = np.random.default_rng(seed=42).normal(0, 0.05, angle.size)
-    return angle.copy(data=np.angle(np.exp(1j * (angle.values + noise))))
+class TestAngularTimeDerivative:
+    """Test compute_angular_time_derivative and its wrappers."""
 
+    @pytest.fixture
+    def noisy_angle(self):
+        """Return ``_rotating_angle()`` plus noise, re-wrapped."""
+        angle = _rotating_angle()
+        noise = np.random.default_rng(seed=42).normal(0, 0.05, angle.size)
+        return angle.copy(data=np.angle(np.exp(1j * (angle.values + noise))))
 
-@pytest.mark.parametrize("window", [None, 7], ids=["raw", "window_7"])
-@pytest.mark.parametrize(
-    "time_in_frames, expected",
-    [
-        pytest.param(False, 10.0, id="time_in_seconds"),
-        pytest.param(True, 10.0 / 40, id="time_in_frames"),
-    ],
-)
-def test_constant_angular_velocity(time_in_frames, expected, window):
-    """A constant-velocity rotation crossing +-pi yields that velocity on
-    the input's time coordinate. With ``window``, the first and last
-    ``window // 2`` frames are NaN.
-    """
-    data = _rotating_vector(scale=3.0, time_in_frames=time_in_frames)
-    result = kinematics.compute_angular_time_derivative(
-        data, order=1, window=window
+    @pytest.mark.parametrize("window", [None, 7], ids=["raw", "window_7"])
+    @pytest.mark.parametrize(
+        "time_in_frames, expected",
+        [
+            pytest.param(False, 10.0, id="time_in_seconds"),
+            pytest.param(True, 10.0 / 40, id="time_in_frames"),
+        ],
     )
-    xr.testing.assert_identical(result.time, data.time)
-    h = 0 if window is None else window // 2
-    interior = result.isel(time=slice(h, result.sizes["time"] - h))
-    np.testing.assert_allclose(interior, expected, atol=1e-6)
-    assert result.isnull().sum() == 2 * h
-
-
-@pytest.mark.parametrize("window", [None, 3], ids=["raw", "window_3"])
-@pytest.mark.parametrize(
-    "step, expected_sign",
-    [
-        pytest.param(0.1, 1, id="towards_+y"),
-        pytest.param(-0.1, -1, id="towards_-y"),
-    ],
-)
-def test_angular_velocity_sign_convention(step, expected_sign, window):
-    """Rotating from +x towards +y (clockwise in image coordinates)
-    gives a positive angular velocity, and the reverse a negative one.
-    """
-    angle = xr.DataArray(
-        np.arange(5) * step, dims="time", coords={"time": np.arange(5)}
-    )
-    result = kinematics.compute_angular_time_derivative(
-        _angle_to_vector(angle), order=1, window=window
-    ).dropna("time")
-    assert result.size > 0
-    assert (np.sign(result) == expected_sign).all()
-
-
-@pytest.mark.parametrize(
-    "order, expected",
-    [pytest.param(1, 0.4, id="order_1"), pytest.param(2, 0.0, id="order_2")],
-)
-def test_raw_irregular_time(order, expected):
-    """Without ``window``, irregular time steps are handled exactly for a
-    constant-velocity rotation.
-    """
-    time = np.cumsum(np.random.default_rng(seed=0).uniform(0.5, 1.5, 50))
-    angle = xr.DataArray(
-        np.angle(np.exp(0.4j * time)), dims="time", coords={"time": time}
-    )
-    result = kinematics.compute_angular_time_derivative(
-        _angle_to_vector(angle), order=order
-    )
-    np.testing.assert_allclose(result, expected, atol=1e-9)
-
-
-def test_angular_velocity_window_matches_polyfit(noisy_angle):
-    """The windowed estimate equals the slope of a least-squares line
-    over the centred window, and the trailing-window recipe equals the
-    slope over the window ending at each time point.
-    """
-    window = 7
-    half = window // 2
-    i = 100  # any frame far enough from the edges
-
-    # Reference: slope of a straight line fitted to the unwrapped angle
-    t = noisy_angle.time.values
-    unwrapped = np.unwrap(noisy_angle.values)
-
-    def fitted_slope(frames):
-        return np.polyfit(t[frames], unwrapped[frames], deg=1)[0]
-
-    result = kinematics.compute_angular_time_derivative(
-        _angle_to_vector(noisy_angle), order=1, window=window
-    )
-
-    # Centred window: frames i - half, ..., i + half
-    centred_frames = slice(i - half, i + half + 1)
-    assert np.isclose(result.values[i], fitted_slope(centred_frames))
-
-    # Trailing window (as in the example): frames i - window + 1, ..., i
-    trailing = result.shift(time=half)
-    trailing_frames = slice(i - window + 1, i + 1)
-    assert np.isclose(trailing.values[i], fitted_slope(trailing_frames))
-
-
-def test_angular_velocity_window_reduces_noise(noisy_angle):
-    """The windowed estimate is less noisy than the raw one."""
-    vector = _angle_to_vector(noisy_angle)
-    raw = kinematics.compute_angular_time_derivative(vector, order=1)
-    windowed = kinematics.compute_angular_time_derivative(
-        vector, order=1, window=7
-    )
-    assert windowed.std() < raw.std()
-
-
-@pytest.mark.parametrize("window", [None, 9], ids=["raw", "window_9"])
-@pytest.mark.parametrize("order", [1, 2, 3])
-def test_constant_angular_acceleration(order, window):
-    """Under a constant angular acceleration, orders 1, 2 and 3 give the
-    linearly increasing velocity, the acceleration, and zero, away from
-    the edges.
-    """
-    data = _rotating_vector(angular_velocity=1.0, angular_acceleration=4.0)
-    t = data.time.values
-    expected = {1: 1.0 + 4.0 * t, 2: np.full_like(t, 4.0), 3: 0 * t}[order]
-    result = kinematics.compute_angular_time_derivative(
-        data, order=order, window=window
-    )
-    # Edges are inexact (raw: one-sided differences, spreading one frame
-    # per order) or NaN (windowed), so compare only the interior frames
-    h = order if window is None else window // 2
-    interior = slice(h, result.sizes["time"] - h)
-    np.testing.assert_allclose(
-        result.isel(time=interior), expected[interior], atol=1e-4
-    )
-
-
-@pytest.mark.parametrize(
-    "order, expected",
-    [pytest.param(1, 10.0, id="order_1"), pytest.param(2, 0.0, id="order_2")],
-)
-@pytest.mark.parametrize("window", [None, 5], ids=["raw", "window"])
-@pytest.mark.parametrize(
-    "nan_frames",
-    [
-        pytest.param([50, 51, 120], id="interior_gaps"),
-        pytest.param([0, 1, 2, 197, 198, 199], id="leading_trailing"),
-    ],
-)
-def test_undefined_orientations_stay_local(
-    window, order, expected, nan_frames
-):
-    """NaNs (including at the edges) do not raise, and stay local.
-    Zero-length vectors are undefined too, and give the same result.
-    """
-    vector = _rotating_vector()
-    vector[nan_frames] = np.nan
-    result = kinematics.compute_angular_time_derivative(
-        vector, order=order, window=window
-    )
-    # Raw differences spread each NaN by one frame per order
-    max_nans_per_gap = 1 + 2 * order if window is None else window
-    assert result.isnull().sum() <= max_nans_per_gap * len(nan_frames)
-    interior = result.isel(time=slice(5, -5)).dropna("time")
-    np.testing.assert_allclose(interior, expected, atol=1e-6)
-
-    zeroed = _rotating_vector()
-    zeroed[nan_frames] = 0.0
-    xr.testing.assert_identical(
-        kinematics.compute_angular_time_derivative(
-            zeroed, order=order, window=window
-        ),
-        result,
-    )
-
-
-@pytest.mark.parametrize(
-    "window, corrupted_frames",
-    [
-        # Only the neighbours use the flipped frame, not the frame itself
-        pytest.param(None, [9, 11], id="raw"),
-        # Every window containing the flipped frame
-        pytest.param(7, list(range(7, 14)), id="window"),
-    ],
-)
-def test_keypoint_swap_stays_local(window, corrupted_frames):
-    """A one-frame 180-degree flip (e.g. a left/right ear swap) during a
-    turn corrupts only the outputs that use it, rather than leaving a
-    spurious full revolution.
-    """
-    vector = _rotating_vector(angular_velocity=0.1, fps=1, n_frames=40)
-    vector[10] = -vector[10]
-    result = kinematics.compute_angular_time_derivative(
-        vector, order=1, window=window
-    )
-    # NaNs compare as False, so are excluded here and checked separately
-    corrupted = np.abs(result - 0.1) > 1e-9
-    np.testing.assert_array_equal(np.flatnonzero(corrupted), corrupted_frames)
-    # Only the windowed estimate's edges are NaN
-    n_edge_nans = 0 if window is None else 2 * (window // 2)
-    assert result.isnull().sum() == n_edge_nans
-
-
-@pytest.mark.parametrize(
-    "dims",
-    [
-        pytest.param(("time", "space", "individual"), id="time_first"),
-        pytest.param(("individual", "time", "space"), id="time_middle"),
-        pytest.param(("individual", "space", "time"), id="time_last"),
-    ],
-)
-@pytest.mark.parametrize("window", [None, 5], ids=["raw", "window"])
-@pytest.mark.parametrize("order", [1, 2])
-def test_extra_dims_and_dim_order(order, window, dims):
-    """Each series is handled independently, whatever the dim order."""
-    angle = _rotating_angle(
-        angular_velocity=0.1, angular_acceleration=0.005, fps=1
-    )
-    angles = xr.concat([angle, -angle], dim="individual").assign_coords(
-        individual=["id_0", "id_1"]
-    )
-    data = _angle_to_vector(angles).transpose(*dims)
-    result = kinematics.compute_angular_time_derivative(
-        data, order=order, window=window
-    )
-    assert result.dims == tuple(d for d in dims if d != "space")
-    # Each series matches its own result as a plain (time, space) input
-    for individual in angles.individual.values:
-        alone = kinematics.compute_angular_time_derivative(
-            _angle_to_vector(angles.sel(individual=individual)),
-            order=order,
-            window=window,
+    def test_constant_angular_velocity(self, time_in_frames, expected, window):
+        """A constant-velocity rotation crossing +-pi yields that velocity on
+        the input's time coordinate. With ``window``, the first and last
+        ``window // 2`` frames are NaN.
+        """
+        data = _rotating_vector(scale=3.0, time_in_frames=time_in_frames)
+        result = kinematics.compute_angular_time_derivative(
+            data, order=1, window=window
         )
-        xr.testing.assert_allclose(result.sel(individual=individual), alone)
+        xr.testing.assert_identical(result.time, data.time)
+        h = 0 if window is None else window // 2
+        interior = result.isel(time=slice(h, result.sizes["time"] - h))
+        np.testing.assert_allclose(interior, expected, atol=1e-6)
+        assert result.isnull().sum() == 2 * h
 
-
-@pytest.mark.parametrize("in_degrees", [False, True], ids=["rad", "deg"])
-@pytest.mark.parametrize("window", [None, 5], ids=["raw", "window"])
-@pytest.mark.parametrize(
-    "wrapper, order, name",
-    [
-        pytest.param(
-            kinematics.compute_angular_velocity,
-            1,
-            "angular_velocity",
-            id="velocity",
-        ),
-        pytest.param(
-            kinematics.compute_angular_acceleration,
-            2,
-            "angular_acceleration",
-            id="acceleration",
-        ),
-    ],
-)
-def test_wrappers(wrapper, order, name, window, in_degrees):
-    """Each wrapper returns the derivative of its order, in degrees if
-    requested, named after the computed quantity. Like
-    ``compute_velocity``, every path drops the input's attrs.
-    """
-    vector = _rotating_vector(angular_acceleration=4.0)
-    vector.attrs["log"] = '[{"operation": "upstream"}]'
-    derivative = kinematics.compute_angular_time_derivative(
-        vector, order=order, window=window
+    @pytest.mark.parametrize("window", [None, 3], ids=["raw", "window_3"])
+    @pytest.mark.parametrize(
+        "step, expected_sign",
+        [
+            pytest.param(0.1, 1, id="towards_+y"),
+            pytest.param(-0.1, -1, id="towards_-y"),
+        ],
     )
-    assert derivative.name == "angular_time_derivative"
-    assert derivative.attrs == {}
-    result = wrapper(vector, window=window, in_degrees=in_degrees)
-    expected = np.rad2deg(derivative) if in_degrees else derivative
-    xr.testing.assert_identical(result, expected.rename(name))
+    def test_sign_convention(self, step, expected_sign, window):
+        """Rotating from +x towards +y (clockwise in image coordinates)
+        gives a positive angular velocity, and the reverse a negative one.
+        """
+        angle = xr.DataArray(
+            np.arange(5) * step, dims="time", coords={"time": np.arange(5)}
+        )
+        result = kinematics.compute_angular_time_derivative(
+            _angle_to_vector(angle), order=1, window=window
+        ).dropna("time")
+        assert result.size > 0
+        assert (np.sign(result) == expected_sign).all()
 
+    @pytest.mark.parametrize(
+        "order, expected",
+        [
+            pytest.param(1, 0.4, id="order_1"),
+            pytest.param(2, 0.0, id="order_2"),
+        ],
+    )
+    def test_raw_irregular_time(self, order, expected):
+        """Without ``window``, irregular time steps are handled exactly for a
+        constant-velocity rotation.
+        """
+        time = np.cumsum(np.random.default_rng(seed=0).uniform(0.5, 1.5, 50))
+        angle = xr.DataArray(
+            np.angle(np.exp(0.4j * time)), dims="time", coords={"time": time}
+        )
+        result = kinematics.compute_angular_time_derivative(
+            _angle_to_vector(angle), order=order
+        )
+        np.testing.assert_allclose(result, expected, atol=1e-9)
 
-@pytest.mark.parametrize(
-    "data, kwargs, expected_exception, match",
-    [
-        pytest.param(
-            _rotating_vector().values,
-            {},
-            TypeError,
-            "must be an xarray.DataArray",
-            id="not_a_dataarray",
-        ),
-        pytest.param(
-            _rotating_vector().rename(time="frame"),
-            {},
-            ValueError,
-            "as dimensions",
-            id="no_time_dim",
-        ),
-        pytest.param(
-            xr.DataArray(
-                np.ones((5, 3)),
-                dims=["time", "space"],
-                coords={"time": np.arange(5), "space": ["x", "y", "z"]},
+    def test_window_matches_polyfit(self, noisy_angle):
+        """The windowed estimate equals the slope of a least-squares line
+        over the centred window, and the trailing-window recipe equals the
+        slope over the window ending at each time point.
+        """
+        window = 7
+        half = window // 2
+        i = 100  # any frame far enough from the edges
+
+        # Reference: slope of a straight line fitted to the unwrapped angle
+        t = noisy_angle.time.values
+        unwrapped = np.unwrap(noisy_angle.values)
+
+        def fitted_slope(frames):
+            return np.polyfit(t[frames], unwrapped[frames], deg=1)[0]
+
+        result = kinematics.compute_angular_time_derivative(
+            _angle_to_vector(noisy_angle), order=1, window=window
+        )
+
+        # Centred window: frames i - half, ..., i + half
+        centred_frames = slice(i - half, i + half + 1)
+        assert np.isclose(result.values[i], fitted_slope(centred_frames))
+
+        # Trailing window (as in the example): frames i - window + 1, ..., i
+        trailing = result.shift(time=half)
+        trailing_frames = slice(i - window + 1, i + 1)
+        assert np.isclose(trailing.values[i], fitted_slope(trailing_frames))
+
+    def test_window_reduces_noise(self, noisy_angle):
+        """The windowed estimate is less noisy than the raw one."""
+        vector = _angle_to_vector(noisy_angle)
+        raw = kinematics.compute_angular_time_derivative(vector, order=1)
+        windowed = kinematics.compute_angular_time_derivative(
+            vector, order=1, window=7
+        )
+        assert windowed.std() < raw.std()
+
+    @pytest.mark.parametrize("window", [None, 9], ids=["raw", "window_9"])
+    @pytest.mark.parametrize("order", [1, 2, 3])
+    def test_constant_angular_acceleration(self, order, window):
+        """Under a constant angular acceleration, orders 1, 2 and 3 give the
+        linearly increasing velocity, the acceleration, and zero, away from
+        the edges.
+        """
+        data = _rotating_vector(angular_velocity=1.0, angular_acceleration=4.0)
+        t = data.time.values
+        expected = {1: 1.0 + 4.0 * t, 2: np.full_like(t, 4.0), 3: 0 * t}[order]
+        result = kinematics.compute_angular_time_derivative(
+            data, order=order, window=window
+        )
+        # Edges are inexact (raw: one-sided differences, spreading one frame
+        # per order) or NaN (windowed), so compare only the interior frames
+        h = order if window is None else window // 2
+        interior = slice(h, result.sizes["time"] - h)
+        np.testing.assert_allclose(
+            result.isel(time=interior), expected[interior], atol=1e-4
+        )
+
+    @pytest.mark.parametrize(
+        "order, expected",
+        [
+            pytest.param(1, 10.0, id="order_1"),
+            pytest.param(2, 0.0, id="order_2"),
+        ],
+    )
+    @pytest.mark.parametrize("window", [None, 5], ids=["raw", "window"])
+    @pytest.mark.parametrize(
+        "nan_frames",
+        [
+            pytest.param([50, 51, 120], id="interior_gaps"),
+            pytest.param([0, 1, 2, 197, 198, 199], id="leading_trailing"),
+        ],
+    )
+    def test_nans_stay_local(self, window, order, expected, nan_frames):
+        """NaNs (including at the edges) do not raise, and stay local."""
+        vector = _rotating_vector()
+        vector[nan_frames] = np.nan
+        result = kinematics.compute_angular_time_derivative(
+            vector, order=order, window=window
+        )
+        # Raw differences spread each NaN by one frame per order
+        max_nans_per_gap = 1 + 2 * order if window is None else window
+        assert result.isnull().sum() <= max_nans_per_gap * len(nan_frames)
+        interior = result.isel(time=slice(5, -5)).dropna("time")
+        np.testing.assert_allclose(interior, expected, atol=1e-6)
+
+    @pytest.mark.parametrize("window", [None, 5], ids=["raw", "window"])
+    def test_zero_length_vectors_treated_as_nan(self, window):
+        """Zero-length vectors are undefined orientations, and give the
+        same result as NaNs.
+        """
+        results = []
+        for fill in [0.0, np.nan]:
+            vector = _rotating_vector()
+            vector[[0, 60]] = fill  # an edge and an interior frame
+            results.append(
+                kinematics.compute_angular_time_derivative(
+                    vector, order=1, window=window
+                )
+            )
+        xr.testing.assert_identical(*results)
+
+    @pytest.mark.parametrize(
+        "window, corrupted_frames",
+        [
+            # Only the neighbours use the flipped frame, not the frame itself
+            pytest.param(None, [9, 11], id="raw"),
+            # Every window containing the flipped frame
+            pytest.param(7, list(range(7, 14)), id="window"),
+        ],
+    )
+    def test_keypoint_swap_stays_local(self, window, corrupted_frames):
+        """A one-frame 180-degree flip (e.g. a left/right ear swap) during a
+        turn corrupts only the outputs that use it, rather than leaving a
+        spurious full revolution.
+        """
+        vector = _rotating_vector(angular_velocity=0.1, fps=1, n_frames=40)
+        vector[10] = -vector[10]
+        result = kinematics.compute_angular_time_derivative(
+            vector, order=1, window=window
+        )
+        # NaNs compare as False, so are excluded here and checked separately
+        corrupted = np.abs(result - 0.1) > 1e-9
+        np.testing.assert_array_equal(
+            np.flatnonzero(corrupted), corrupted_frames
+        )
+        # Only the windowed estimate's edges are NaN
+        n_edge_nans = 0 if window is None else 2 * (window // 2)
+        assert result.isnull().sum() == n_edge_nans
+
+    @pytest.mark.parametrize(
+        "dims",
+        [
+            pytest.param(("time", "space", "individual"), id="time_first"),
+            pytest.param(("individual", "time", "space"), id="time_middle"),
+            pytest.param(("individual", "space", "time"), id="time_last"),
+        ],
+    )
+    @pytest.mark.parametrize("window", [None, 5], ids=["raw", "window"])
+    @pytest.mark.parametrize("order", [1, 2])
+    def test_extra_dims_and_dim_order(self, order, window, dims):
+        """Each series is handled independently, whatever the dim order."""
+        angle = _rotating_angle(
+            angular_velocity=0.1, angular_acceleration=0.005, fps=1
+        )
+        angles = xr.concat([angle, -angle], dim="individual").assign_coords(
+            individual=["id_0", "id_1"]
+        )
+        data = _angle_to_vector(angles).transpose(*dims)
+        result = kinematics.compute_angular_time_derivative(
+            data, order=order, window=window
+        )
+        assert result.dims == tuple(d for d in dims if d != "space")
+        # Each series matches its own result as a plain (time, space) input
+        for individual in angles.individual.values:
+            alone = kinematics.compute_angular_time_derivative(
+                _angle_to_vector(angles.sel(individual=individual)),
+                order=order,
+                window=window,
+            )
+            xr.testing.assert_allclose(
+                result.sel(individual=individual), alone
+            )
+
+    @pytest.mark.parametrize("in_degrees", [False, True], ids=["rad", "deg"])
+    @pytest.mark.parametrize("window", [None, 5], ids=["raw", "window"])
+    @pytest.mark.parametrize(
+        "wrapper, order, name",
+        [
+            pytest.param(
+                kinematics.compute_angular_velocity,
+                1,
+                "angular_velocity",
+                id="velocity",
             ),
-            {},
-            ValueError,
-            "must only contain",
-            id="3d_space",
-        ),
-        pytest.param(
-            _rotating_angle(),
-            {},
-            ValueError,
-            "as dimensions",
-            id="angle_input",
-        ),
-        pytest.param(
-            _rotating_vector(),
-            {"order": 0},
-            ValueError,
-            "Order must be a positive integer",
-            id="order_zero",
-        ),
-        pytest.param(
-            _rotating_vector(),
-            {"order": 1.0},
-            ValueError,
-            "Order must be a positive integer",
-            id="order_float",
-        ),
-        *[
+            pytest.param(
+                kinematics.compute_angular_acceleration,
+                2,
+                "angular_acceleration",
+                id="acceleration",
+            ),
+        ],
+    )
+    def test_wrappers(self, wrapper, order, name, window, in_degrees):
+        """Each wrapper returns the derivative of its order, in degrees if
+        requested, named after the computed quantity.
+        """
+        vector = _rotating_vector(angular_acceleration=4.0)
+        vector.attrs["log"] = '[{"operation": "upstream"}]'
+        derivative = kinematics.compute_angular_time_derivative(
+            vector, order=order, window=window
+        )
+        assert derivative.name == "angular_time_derivative"
+        assert derivative.attrs == {}
+        result = wrapper(vector, window=window, in_degrees=in_degrees)
+        expected = np.rad2deg(derivative) if in_degrees else derivative
+        xr.testing.assert_identical(result, expected.rename(name))
+
+    @pytest.mark.parametrize(
+        "data, kwargs, expected_exception, match",
+        [
+            pytest.param(
+                _rotating_vector().values,
+                {},
+                TypeError,
+                "must be an xarray.DataArray",
+                id="not_a_dataarray",
+            ),
+            pytest.param(
+                _rotating_vector().rename(time="frame"),
+                {},
+                ValueError,
+                "as dimensions",
+                id="no_time_dim",
+            ),
+            pytest.param(
+                xr.DataArray(
+                    np.ones((5, 3)),
+                    dims=["time", "space"],
+                    coords={"time": np.arange(5), "space": ["x", "y", "z"]},
+                ),
+                {},
+                ValueError,
+                "must only contain",
+                id="3d_space",
+            ),
+            pytest.param(
+                _rotating_angle(),
+                {},
+                ValueError,
+                "as dimensions",
+                id="angle_input",
+            ),
             pytest.param(
                 _rotating_vector(),
-                {"window": window},
+                {"order": 0},
                 ValueError,
-                "Window must be an odd",
-                id=case,
-            )
-            for window, case in [
-                (1, "window_too_small"),
-                (0, "window_zero"),
-                (-3, "window_negative"),
-                (4, "window_even"),
-                (5.0, "window_float"),
-            ]
+                "Order must be a positive integer",
+                id="order_zero",
+            ),
+            pytest.param(
+                _rotating_vector(),
+                {"order": 1.0},
+                ValueError,
+                "Order must be a positive integer",
+                id="order_float",
+            ),
+            *[
+                pytest.param(
+                    _rotating_vector(),
+                    {"window": window},
+                    ValueError,
+                    "Window must be an odd",
+                    id=case,
+                )
+                for window, case in [
+                    (1, "window_too_small"),
+                    (0, "window_zero"),
+                    (-3, "window_negative"),
+                    (4, "window_even"),
+                    (5.0, "window_float"),
+                ]
+            ],
+            pytest.param(
+                _rotating_vector(),
+                {"order": 3, "window": 3},
+                ValueError,
+                "Window must be an odd integer greater than the order",
+                id="window_not_greater_than_order",
+            ),
+            pytest.param(
+                _rotating_vector().assign_coords(time=np.arange(200) ** 1.1),
+                {"window": 5},
+                ValueError,
+                "uniformly sampled",
+                id="non_uniform_time",
+            ),
         ],
-        pytest.param(
-            _rotating_vector(),
-            {"order": 3, "window": 3},
-            ValueError,
-            "Window must be an odd integer greater than the order",
-            id="window_not_greater_than_order",
-        ),
-        pytest.param(
-            _rotating_vector().assign_coords(time=np.arange(200) ** 1.1),
-            {"window": 5},
-            ValueError,
-            "uniformly sampled",
-            id="non_uniform_time",
-        ),
-    ],
-)
-def test_invalid_inputs(data, kwargs, expected_exception, match):
-    """Invalid inputs, windows, or non-uniform time with a window raise
-    appropriate errors.
-    """
-    with pytest.raises(expected_exception, match=match):
-        kinematics.compute_angular_time_derivative(
-            data, **{"order": 1, **kwargs}
-        )
+    )
+    def test_invalid_inputs(self, data, kwargs, expected_exception, match):
+        """Invalid inputs, windows, or non-uniform time with a window raise
+        appropriate errors.
+        """
+        with pytest.raises(expected_exception, match=match):
+            kinematics.compute_angular_time_derivative(
+                data, **{"order": 1, **kwargs}
+            )
