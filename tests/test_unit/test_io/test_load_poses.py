@@ -280,6 +280,35 @@ def test_load_from_nwb_file(input_type, kwargs, request):
     assert ds_from_file_path.attrs == expected_attrs
 
 
+@pytest.mark.parametrize(
+    "kwargs, expected_time",
+    [
+        pytest.param(
+            {"rate": 10.0, "starting_time": 5.0},
+            5.0 + np.arange(100) / 10.0,
+            id="rate and starting_time",
+        ),
+        pytest.param(
+            # 10 fps from 5 s, with frame 50 dropped
+            {"timestamps": 5.0 + np.delete(np.arange(101), 50) / 10.0},
+            5.0 + np.delete(np.arange(101), 50) / 10.0,
+            id="timestamps with a dropped frame",
+        ),
+    ],
+)
+@pytest.mark.parametrize("input_type", ["nwb_file", "nwbfile_object"])
+def test_load_from_nwb_file_keeps_sample_times(
+    input_type, kwargs, expected_time, request
+):
+    """Test that the time coordinates match the sample times stored
+    in the NWB file, including their offset and any gaps.
+    """
+    nwb_file = request.getfixturevalue(input_type)(**kwargs)
+    ds = load_poses.from_nwb_file(nwb_file)
+    np.testing.assert_allclose(ds.time.values, expected_time)
+    assert ds.fps == 10.0
+
+
 def test_from_coco_file(coco_keypoint_results_file_valid):
     """Test loading COCO keypoint results."""
     ds = load_poses.from_coco_file(coco_keypoint_results_file_valid)
