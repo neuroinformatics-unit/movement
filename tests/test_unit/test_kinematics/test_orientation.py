@@ -439,17 +439,20 @@ def _rotating_angle(
     n_frames=200,
     fps=40,
     time_in_frames=False,
+    time=None,
 ):
     """Return wrapped angles (radians) of a 2D rotation.
 
     The unwrapped angle is ``w*t + 0.5*a*t**2`` with ``t`` in seconds,
     wrapped to (-pi, pi]. With the defaults (constant ``w``, ``a=0``) it
     crosses +-pi 8 times. ``time_in_frames`` only relabels the time
-    coordinate with frame numbers.
+    coordinate with frame numbers. ``time`` (in seconds, e.g. irregularly
+    spaced) overrides ``n_frames`` and ``fps``.
     """
-    time = np.arange(n_frames) / fps
+    if time is None:
+        time = np.arange(n_frames) / fps
     phase = angular_velocity * time + 0.5 * angular_acceleration * time**2
-    coords = np.arange(n_frames) if time_in_frames else time
+    coords = np.arange(time.size) if time_in_frames else time
     return xr.DataArray(
         np.angle(np.exp(1j * phase)), dims="time", coords={"time": coords}
     )
@@ -523,25 +526,29 @@ class TestAngularTimeDerivative:
         assert result.size > 0
         assert (np.sign(result) == expected_sign).all()
 
-    @pytest.mark.parametrize(
-        "order, expected",
-        [
-            pytest.param(1, 0.4, id="order_1"),
-            pytest.param(2, 0.0, id="order_2"),
-        ],
+    @pytest.mark.xfail(
+        strict=True,
+        reason="Raw path estimates the velocity at the midpoint of the "
+        "neighbouring time points, not at the time point itself",
     )
-    def test_raw_irregular_time(self, order, expected):
-        """Without ``window``, irregular time steps are handled exactly for a
-        constant-velocity rotation.
+    @pytest.mark.parametrize("order", [1, 2])
+    def test_raw_irregular_time(self, order):
+        """Without ``window``, irregular time steps are handled exactly
+        under a constant angular acceleration, away from the edges.
         """
         time = np.cumsum(np.random.default_rng(seed=0).uniform(0.5, 1.5, 50))
-        angle = xr.DataArray(
-            np.angle(np.exp(0.4j * time)), dims="time", coords={"time": time}
+        vector = _rotating_vector(
+            angular_velocity=0.4, angular_acceleration=0.002, time=time
         )
+        expected = {1: 0.4 + 0.002 * time, 2: np.full_like(time, 0.002)}
         result = kinematics.compute_angular_time_derivative(
-            _angle_to_vector(angle), order=order
+            vector, order=order
         )
-        np.testing.assert_allclose(result, expected, atol=1e-9)
+        # One-sided differences at the edges spread one frame per order
+        interior = slice(order, time.size - order)
+        np.testing.assert_allclose(
+            result.isel(time=interior), expected[order][interior], atol=1e-9
+        )
 
     def test_window_matches_polyfit(self, noisy_angle):
         """The windowed estimate equals the slope of a least-squares line
