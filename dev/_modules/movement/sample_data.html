@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=97fd211b"></script>
+    <script src="../../_static/documentation_options.js?v=3385a502"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -142,7 +142,7 @@
     <img src="../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev68</p>
+    <p class="title logo__title">movement v0.17.1.dev69</p>
   
 </a></div>
     
@@ -836,8 +836,8 @@
 <span class="sd">        Name of the file to fetch.</span>
 <span class="sd">    with_video</span>
 <span class="sd">        Whether to download the associated video file (if available). If set</span>
-<span class="sd">        to False, the "video" entry in the returned dictionary will be None.</span>
-<span class="sd">        Defaults to False.</span>
+<span class="sd">        to False, the ``video_path`` attribute will not be set on the</span>
+<span class="sd">        returned dataset. Defaults to False.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -851,8 +851,8 @@
 
 <span class="sd">    &gt;&gt;&gt; from movement.sample_data import fetch_dataset</span>
 <span class="sd">    &gt;&gt;&gt; ds = fetch_dataset(</span>
-<span class="sd">        "DLC_single-mouse_EPM.predictions.h5", with_video=True</span>
-<span class="sd">    )</span>
+<span class="sd">    ...     "DLC_single-mouse_EPM.predictions.h5", with_video=True</span>
+<span class="sd">    ... )</span>
 <span class="sd">    &gt;&gt;&gt; frame_path = ds.frame_path</span>
 <span class="sd">    &gt;&gt;&gt; video_path = ds.video_path</span>
 

@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=97fd211b"></script>
+    <script src="../../../_static/documentation_options.js?v=3385a502"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -142,7 +142,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev68</p>
+    <p class="title logo__title">movement v0.17.1.dev69</p>
   
 </a></div>
     
@@ -708,12 +708,14 @@
 <span class="sd">    Make a standalone function broadcast along the ``"space"`` axis of an</span>
 <span class="sd">    ``xarray.DataArray``.</span>
 
-<span class="sd">    &gt;&gt;&gt; @make_broadcastable(is_classmethod=False, only_broadcast_along="space")</span>
-<span class="sd">    ... def my_function(xyz_data, *args, **kwargs)</span>
-<span class="sd">    ...</span>
-<span class="sd">    ... # Call via the usual arguments, replacing the xyz_data argument with</span>
-<span class="sd">    ... # the xarray.DataArray to broadcast over</span>
-<span class="sd">    ... my_function(data_array, *args, **kwargs)</span>
+<span class="sd">    &gt;&gt;&gt; @make_broadcastable(</span>
+<span class="sd">    ...     is_classmethod=False, only_broadcastable_along="space"</span>
+<span class="sd">    ... )</span>
+<span class="sd">    ... def my_function(xyz_data, *args, **kwargs): ...</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Call via the usual arguments, replacing the xyz_data argument</span>
+<span class="sd">    &gt;&gt;&gt; # with the xarray.DataArray to broadcast over</span>
+<span class="sd">    &gt;&gt;&gt; my_function(data_array, *args, **kwargs)</span>
 
 <span class="sd">    Make a class method broadcast along any axis of an ``xarray.DataArray``.</span>
 
