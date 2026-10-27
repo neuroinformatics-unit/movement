@@ -499,6 +499,13 @@ class GUI:
             draw_tooltip(draw, tooltip, ratio * SMOOTHING)
         overlay = overlay.resize(image.size, Image.Resampling.LANCZOS)
         image = Image.alpha_composite(image.convert("RGBA"), overlay)
+        # Save at the window size, so screens with display scaling give
+        # the same image size as others
+        if ratio != 1:
+            image = image.resize(
+                (self.window.width(), self.window.height()),
+                Image.Resampling.LANCZOS,
+            )
         image.convert("RGB").save(path)
         self.viewer.close()
         return path
