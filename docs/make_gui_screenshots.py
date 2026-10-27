@@ -576,10 +576,10 @@ def poses_layers(out: Path) -> Path:
     gui.viewer.dims.set_current_step(0, 223)
     labels = [
         Label(
-            gui.rect(gui.section(LOAD_SECTION)),
-            "Widget for loading tracked data",
+            gui.rect(gui.section(LOAD_SECTION).toggleButton()),
+            "Widget for loading \ntracked data",
             side="left",
-            shift=-60,
+            box=False,
         ),
         *row_labels(
             gui, ["tracks", "points", ""], ["Tracks", "Points", "Image"]
