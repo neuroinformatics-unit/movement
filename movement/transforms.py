@@ -63,12 +63,12 @@ def scale(
     cm
     >>> print(ds["position"].log)
     [
-        {
-            "operation": "scale",
-            "datetime": "2025-06-05 15:08:16.919947",
-            "factor": "0.1",
-            "space_unit": "'cm'"
-        }
+      {
+        "operation": "scale",
+        "datetime": "...",
+        "factor": "0.1",
+        "space_unit": "'cm'"
+      }
     ]
 
     Note that the attributes of the scaled data array now contain the assigned
@@ -174,16 +174,14 @@ def poses_to_bboxes(
 
     Examples
     --------
-    Compute bounding boxes from a poses dataset with zero padding:
+    Compute bounding boxes from a poses dataset ``ds`` with zero padding:
 
     >>> from movement.transforms import poses_to_bboxes
-    >>> bbox_position, bbox_shape = poses_to_bboxes(poses_ds["position"])
+    >>> bbox_position, bbox_shape = poses_to_bboxes(ds["position"])
 
     Compute bounding boxes from a poses dataset with 10 pixels of padding:
 
-    >>> bbox_position, bbox_shape = poses_to_bboxes(
-    ...     poses_ds["position"], padding=10
-    ... )
+    >>> bbox_position, bbox_shape = poses_to_bboxes(ds["position"], padding=10)
 
     See Also
     --------

@@ -233,15 +233,19 @@ def save_dataset(
     Save a dataset to ``movement``'s native netCDF format:
 
     >>> from movement.io import save_dataset
-    >>> save_dataset(ds, "/path/to/file.nc")
+    >>> save_dataset(ds, "/path/to/file.nc")  # doctest: +SKIP
 
     Save a poses dataset to a DeepLabCut .h5 file:
 
-    >>> save_dataset(ds, "/path/to/file.h5", target_software="DeepLabCut")
+    >>> save_dataset(  # doctest: +SKIP
+    ...     ds, "/path/to/file.h5", target_software="DeepLabCut"
+    ... )
 
     Save a bounding boxes dataset to a VIA-tracks .csv file:
 
-    >>> save_dataset(ds, "/path/to/file.csv", target_software="VIA-tracks")
+    >>> save_dataset(  # doctest: +SKIP
+    ...     ds, "/path/to/file.csv", target_software="VIA-tracks"
+    ... )
 
     Save a poses dataset to NWB file(s), with custom metadata:
 
@@ -249,7 +253,7 @@ def save_dataset(
     >>> config = NWBFileSaveConfig(
     ...     nwbfile_kwargs={"session_description": "foraging session"}
     ... )
-    >>> save_dataset(
+    >>> save_dataset(  # doctest: +SKIP
     ...     ds, "/path/to/file.nwb", target_software="NWB", config=config
     ... )
 

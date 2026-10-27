@@ -278,7 +278,9 @@ def from_sleap_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     Examples
     --------
     >>> from movement.io import load_poses
-    >>> ds = load_poses.from_sleap_file("path/to/file.analysis.h5", fps=30)
+    >>> ds = load_poses.from_sleap_file(  # doctest: +SKIP
+    ...     "path/to/file.analysis.h5", fps=30
+    ... )
 
     """
     valid_file = cast("ValidFile", file)
@@ -314,7 +316,9 @@ def from_lp_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     Examples
     --------
     >>> from movement.io import load_poses
-    >>> ds = load_poses.from_lp_file("path/to/file.csv", fps=30)
+    >>> ds = load_poses.from_lp_file(  # doctest: +SKIP
+    ...     "path/to/file.csv", fps=30
+    ... )
 
     """
     valid_file = cast("ValidFile", file)
@@ -361,7 +365,9 @@ def from_dlc_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     Examples
     --------
     >>> from movement.io import load_poses
-    >>> ds = load_poses.from_dlc_file("path/to/file.h5", fps=30)
+    >>> ds = load_poses.from_dlc_file(  # doctest: +SKIP
+    ...     "path/to/file.h5", fps=30
+    ... )
 
     Notes
     -----
@@ -526,7 +532,7 @@ def from_coco_file(
     the categories in the annotations file at "path/to/annotations.json".
 
     >>> from movement.io import load_poses
-    >>> ds = load_poses.from_coco_file(
+    >>> ds = load_poses.from_coco_file(  # doctest: +SKIP
     ...     "path/to/results.json",
     ...     fps=30,
     ...     annotations_file="path/to/annotations.json",
@@ -536,7 +542,7 @@ def from_coco_file(
     across frames, with individuals named after the categories in the
     annotations file.
 
-    >>> ds = load_poses.from_coco_file(
+    >>> ds = load_poses.from_coco_file(  # doctest: +SKIP
     ...     "path/to/results.json",
     ...     annotations_file="path/to/annotations.json",
     ...     category_as_track=True,
@@ -546,7 +552,7 @@ def from_coco_file(
     t = 0 seconds corresponds to image ID 0 (e.g. the first frame of the
     full video).
 
-    >>> ds = load_poses.from_coco_file(
+    >>> ds = load_poses.from_coco_file(  # doctest: +SKIP
     ...     "path/to/results.json",
     ...     fps=30,
     ...     use_frame_numbers_from_file=True,
@@ -992,21 +998,23 @@ def from_nwb_file(
     >>> import pynwb
     >>> import xarray as xr
     >>> from movement.io import load_poses
-    >>> with pynwb.NWBHDF5IO("path/to/file.nwb", mode="r") as io:
+    >>> with pynwb.NWBHDF5IO(  # doctest: +SKIP
+    ...     "path/to/file.nwb", mode="r"
+    ... ) as io:
     ...     nwb_file = io.read()
     ...     ds = load_poses.from_nwb_file(nwb_file)
 
     Or, directly load pose tracks from an NWB file on disk:
 
-    >>> ds = load_poses.from_nwb_file("path/to/file.nwb")
+    >>> ds = load_poses.from_nwb_file("path/to/file.nwb")  # doctest: +SKIP
 
     Load two single-individual datasets from two NWB files and merge them
     into a multi-individual dataset:
 
-    >>> ds_singles = [
+    >>> ds_singles = [  # doctest: +SKIP
     ...     load_poses.from_nwb_file(f) for f in ["id1.nwb", "id2.nwb"]
     ... ]
-    >>> ds_multi = xr.merge(ds_singles)
+    >>> ds_multi = xr.merge(ds_singles)  # doctest: +SKIP
 
     """
     valid_file = cast("ValidFile", file)
