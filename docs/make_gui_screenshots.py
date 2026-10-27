@@ -564,7 +564,7 @@ def video_slider(out: Path) -> Path:
     gui = GUI()
     gui.open_video(OCTAGON)
     gui.viewer.dims.set_current_step(0, 4499)
-    labels = [Label(gui.frame_slider, "Frame slider", side="above", shift=250)]
+    labels = [Label(gui.frame_slider, "Frame slider", side="above", gap=70)]
     return gui.save(out / "napari_video_slider.png", labels)
 
 
