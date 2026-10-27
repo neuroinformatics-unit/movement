@@ -9,6 +9,7 @@ from numpy.typing import ArrayLike
 from scipy.signal import savgol_coeffs
 
 from movement.kinematics.kinematics import compute_time_derivative
+from movement.kinematics.path import _validate_time_points
 from movement.utils.logging import logger
 from movement.utils.vector import (
     compute_signed_angle_2d,
@@ -373,6 +374,7 @@ def compute_angular_time_derivative(
     validate_dims_coords(
         data, {"time": [], "space": ["x", "y"]}, exact_coords=True
     )
+    _validate_time_points(data, "angular time derivative")
     if window is None:
         # Mean angular velocity over each time step (divided along "time"
         # by name), interpolated from the step midpoints to the time

@@ -854,11 +854,24 @@ class TestAngularTimeDerivative:
                 "uniformly sampled",
                 id="non_uniform_time",
             ),
+            *[
+                pytest.param(
+                    _rotating_vector(n_frames=1),
+                    kwargs,
+                    ValueError,
+                    "At least 2 time points are required",
+                    id=case,
+                )
+                for kwargs, case in [
+                    ({}, "single_frame_raw"),
+                    ({"window": 5}, "single_frame_window"),
+                ]
+            ],
         ],
     )
     def test_invalid_inputs(self, data, kwargs, expected_exception, match):
-        """Invalid inputs, windows, or non-uniform time with a window raise
-        appropriate errors.
+        """Invalid inputs, windows, non-uniform time with a window, or too
+        few time points raise appropriate errors.
         """
         with pytest.raises(expected_exception, match=match):
             kinematics.compute_angular_time_derivative(
