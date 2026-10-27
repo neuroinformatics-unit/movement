@@ -318,14 +318,17 @@ def compute_angular_time_derivative(
     Instead, this function uses the
     :func:`signed angles<movement.utils.vector.compute_signed_angle_2d>`
     between nearby orientations vectors. Without
-    ``window``, ``order=1`` is the angle from the previous to the next
-    observation, divided by the time between them; higher orders
-    differentiate that result further with
+    ``window``, ``order=1`` combines the angular velocities over the time
+    steps before and after each observation, weighting each by the
+    duration of the other step, as :func:`numpy.gradient` does. This
+    centres the estimate on each observation, even when time steps are
+    irregular. Higher orders differentiate that result further with
     :func:`~movement.kinematics.compute_time_derivative`. With ``window``,
     the angles are measured from the window's centre orientation (see
     *Windowed estimate*). This assumes rotations of less than :math:`\pi`
-    across two time steps (or half a ``window``). Undefined orientations
-    (NaNs or zero-length vectors) are treated as NaN.
+    between consecutive observations (or across half a ``window``).
+    Undefined orientations (NaNs or zero-length vectors) are treated as
+    NaN.
 
     **Sign.** Positive values are rotations from the positive x-axis
     towards the positive y-axis. In image coordinates (y pointing down)
@@ -371,15 +374,24 @@ def compute_angular_time_derivative(
         data, {"time": [], "space": ["x", "y"]}, exact_coords=True
     )
     if window is None:
-        # Edge padding gives one-sided differences at the first/last frame
-        padded = data.drop_vars("time").pad(time=1, mode="edge")
-        time = np.pad(data["time"].values, 1, mode="edge")
-        angle = compute_signed_angle_2d(
-            padded.isel(time=slice(None, -2)), padded.isel(time=slice(2, None))
+        vectors = data.drop_vars("time")
+        before, after = slice(None, -1), slice(1, None)
+        step_angle = compute_signed_angle_2d(
+            vectors.isel(time=before),
+            vectors.isel(time=after),
         )
-        # Divide along "time" by name
-        dt = xr.DataArray(time[2:] - time[:-2], dims="time")
-        result = (angle / dt).assign_coords(time=data["time"])
+        step_dt = xr.DataArray(np.diff(data["time"].values), dims="time")
+        # Edge padding gives one-sided differences at the first/last frame
+        rate = (step_angle / step_dt).pad(time=1, mode="edge")
+        dt = step_dt.pad(time=1, mode="edge")
+        # Weighting each step's rate by the other step's duration (as in
+        # np.gradient) centres the estimate on each frame, even when time
+        # steps are irregular.
+        result = (
+            rate.isel(time=after) * dt.isel(time=before)
+            + rate.isel(time=before) * dt.isel(time=after)
+        ) / (dt.isel(time=before) + dt.isel(time=after))
+        result = result.assign_coords(time=data["time"])
         # The result is a rate, not an angle, so it doesn't wrap around;
         # higher orders can use the ordinary time derivative.
         if order > 1:

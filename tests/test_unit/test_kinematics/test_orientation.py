@@ -557,11 +557,6 @@ class TestAngularTimeDerivative:
         assert result.size > 0
         assert (np.sign(result) == expected_sign).all()
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="Raw path estimates the velocity at the midpoint of the "
-        "neighbouring time points, not at the time point itself",
-    )
     @pytest.mark.parametrize("order", [1, 2])
     def test_raw_irregular_time(self, order):
         """Without ``window``, irregular time steps are handled exactly
@@ -687,8 +682,8 @@ class TestAngularTimeDerivative:
     @pytest.mark.parametrize(
         "window, corrupted_frames",
         [
-            # Only the neighbours use the flipped frame, not the frame itself
-            pytest.param(None, [9, 11], id="raw"),
+            # The steps into and out of the flipped frame
+            pytest.param(None, [9, 10, 11], id="raw"),
             # Every window containing the flipped frame
             pytest.param(7, list(range(7, 14)), id="window"),
         ],
