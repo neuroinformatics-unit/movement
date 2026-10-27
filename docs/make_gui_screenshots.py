@@ -30,12 +30,16 @@ from pathlib import Path
 import matplotlib
 import napari
 from PIL import Image, ImageDraw, ImageFont
+from PIL.PngImagePlugin import PngInfo
 from qtpy.QtCore import QPoint, QRect, Qt
 from qtpy.QtGui import QFont, QFontDatabase
 from qtpy.QtWidgets import QApplication, QLayout, QWidget
 
 from movement import sample_data
 from movement.napari.meta_widget import MovementMetaWidget
+
+# Recorded in each image, since napari versions draw the GUI differently
+NAPARI_VERSION = f"napari {napari.__version__}"
 
 DEFAULT_WINDOW_SIZE = (1100, 660)
 LINE_COLOR = (255, 255, 255, 255)
@@ -506,7 +510,9 @@ class GUI:
                 (self.window.width(), self.window.height()),
                 Image.Resampling.LANCZOS,
             )
-        image.convert("RGB").save(path)
+        info = PngInfo()
+        info.add_text("Software", NAPARI_VERSION)
+        image.convert("RGB").save(path, pnginfo=info)
         self.viewer.close()
         return path
 
@@ -762,3 +768,4 @@ if __name__ == "__main__":
         )
     for name in names:
         print(f"Saved {SCREENSHOTS[name](STATIC_PATH)}")
+    print(f"Made with {NAPARI_VERSION}")
