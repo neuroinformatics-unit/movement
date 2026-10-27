@@ -21,6 +21,7 @@ for how to add a new screenshot.
 """
 
 import math
+import re
 import sys
 import time
 from collections.abc import Callable
@@ -49,6 +50,8 @@ FONT_SIZE = 22
 PADDING = 6
 # Space between an arrow's tip and the box (or widget) it points at
 ARROW_GAP = 12
+# Step numbers such as "2. " or "3a. ", which get a hanging indent
+STEP_NUMBER = re.compile(r"^\d+[a-z]?\. ")
 # Labels are drawn this many times larger, then shrunk for smooth edges
 SMOOTHING = 4
 
@@ -205,8 +208,23 @@ def draw_labels(
                 width=width,
             )
 
+        # Wrapped lines of a numbered step line up after the number,
+        # as in a numbered list
+        match = STEP_NUMBER.match(label.text)
+        number = match.group() if match else ""
+        body = label.text[len(number) :]
+        indent = draw.textlength(number, font=font)
+
         # Measure the text in logical pixels, then place it
-        bbox = draw.multiline_textbbox((0, 0), label.text, font=font)
+        bbox = draw.multiline_textbbox((indent, 0), body, font=font)
+        if number:
+            number_bbox = draw.textbbox((0, 0), number, font=font)
+            bbox = (
+                min(bbox[0], number_bbox[0]),
+                min(bbox[1], number_bbox[1]),
+                bbox[2],
+                bbox[3],
+            )
         text_w = (bbox[2] - bbox[0]) / ratio + 2 * PADDING
         text_h = (bbox[3] - bbox[1]) / ratio + 2 * PADDING
         top_left = text_position(label, (text_w, text_h))
@@ -233,14 +251,13 @@ def draw_labels(
         draw.rounded_rectangle(
             scaled(text_box), radius=4 * ratio, fill=TEXT_BACKGROUND
         )
+        origin = (
+            (top_left.x() + PADDING) * ratio - bbox[0],
+            (top_left.y() + PADDING) * ratio - bbox[1],
+        )
+        draw.text(origin, number, font=font, fill=LINE_COLOR)
         draw.multiline_text(
-            (
-                (top_left.x() + PADDING) * ratio - bbox[0],
-                (top_left.y() + PADDING) * ratio - bbox[1],
-            ),
-            label.text,
-            font=font,
-            fill=LINE_COLOR,
+            (origin[0] + indent, origin[1]), body, font=font, fill=LINE_COLOR
         )
 
 
