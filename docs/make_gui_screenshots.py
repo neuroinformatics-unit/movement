@@ -435,7 +435,7 @@ class GUI:
 
     def world_to_window(self, y: float, x: float) -> QPoint:
         """Return where data coordinates ``(y, x)`` appear in the window."""
-        camera = self.viewer.camera
+        camera = self.viewer.scene.camera
         center_y, center_x = camera.center[-2:]
         canvas = self.canvas
         return QPoint(
@@ -597,8 +597,8 @@ def points_tooltip(out: Path) -> Path:
     features = points.features[in_frame].reset_index(drop=True)
     coords = points.data[in_frame]
     animal = coords[(features["individual"] == individual).to_numpy()]
-    gui.viewer.camera.center = animal[:, 1:].mean(axis=0)
-    gui.viewer.camera.zoom = 3.5
+    gui.viewer.scene.camera.center = animal[:, 1:].mean(axis=0)
+    gui.viewer.scene.camera.zoom = 3.5
     settle()
 
     # Hover the chosen keypoint
