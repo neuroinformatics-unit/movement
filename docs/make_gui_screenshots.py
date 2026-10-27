@@ -738,22 +738,26 @@ def new_region_layer(out: Path) -> Path:
 def drawing_regions(out: Path) -> Path:
     """Make the screenshot of a region layer and the drawing controls."""
     gui = GUI()
-    video = gui.open_video(EPM)
+    gui.open_video(EPM)
     gui.viewer.dims.set_current_step(0, 8557)
     gui.expand_only(REGIONS_SECTION)
     regions = gui.section(REGIONS_SECTION).content()
     regions.add_layer_button.click()
     settle()
 
-    # Draw the two open arms of the elevated plus maze
-    height, width = video.data.shape[1:3]
+    # Open arms of the elevated plus maze, as (row, column) corners in pixels
+    open_arms = {
+        "open-left": [[460, 335], [575, 590]],
+        "open-right": [[460, 708], [575, 975]],
+    }
     layer = gui.layer("regions")
-    rows = (0.44 * height, 0.54 * height)
-    for cols in ((0.16 * width, 0.42 * width), (0.58 * width, 0.86 * width)):
-        layer.add_rectangles([[rows[0], cols[0]], [rows[1], cols[1]]])
-    layer.properties = {"name": ["open-left", "open-right"]}
+    for corners in open_arms.values():
+        layer.add_rectangles(corners)
+    layer.properties = {"name": list(open_arms)}
     layer.mode = "add_rectangle"
     layer.selected_data = {0}
+    gui.viewer.scene.camera.center = (517, 655)
+    gui.viewer.scene.camera.zoom = 0.5
     settle()
 
     controls = gui.layer_controls(layer)
