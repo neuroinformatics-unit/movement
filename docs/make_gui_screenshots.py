@@ -688,9 +688,7 @@ def tracks_sliders(out: Path) -> Path:
     sliders = gui.controls_rect(
         tracks, "_tail_length_slider_control", "_head_length_slider_control"
     )
-    labels = [
-        Label(sliders, "Tail and head length sliders", side="right", shift=-90)
-    ]
+    labels = [Label(sliders, "Tail and head length sliders", side="right")]
     return gui.save(out / "napari_tracks_sliders.png", labels)
 
 
