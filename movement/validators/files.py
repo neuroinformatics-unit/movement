@@ -1218,3 +1218,101 @@ class ValidROICollectionGeoJSON:
 
     data: dict = field(init=False, factory=dict)
     """Parsed JSON data from the file, available after validation."""
+
+
+@define
+class ValidOCTRONCSV:
+    """Validate an OCTRON per-track CSV and cache its tracking table."""
+
+    suffixes: ClassVar[set[str]] = {".csv"}
+    file: Path = field(
+        converter=Path,
+        validator=_file_validator(permission="r", suffixes=suffixes),
+    )
+    metadata: dict[str, str] = field(init=False, factory=dict)
+    data: pd.DataFrame = field(init=False)
+
+    @file.validator
+    def _validate_octron_csv(self, attribute, value):
+        """Check the metadata, frame indices, IDs and bounding box extents."""
+        self._read_table(value)
+
+        required = {
+            "frame_counter",
+            "frame_idx",
+            "track_id",
+            "label",
+            "confidence",
+            "bbox_x_min",
+            "bbox_x_max",
+            "bbox_y_min",
+            "bbox_y_max",
+        }
+        if not required.issubset(self.data.columns):
+            raise ValueError("Missing required OCTRON tracking columns.")
+        if self.data.empty:
+            raise ValueError("OCTRON tracking CSV contains no observations.")
+        try:
+            frame_count = int(self.metadata["frame_count"])
+        except ValueError as error:
+            raise ValueError("Invalid OCTRON frame_count.") from error
+        if frame_count <= 0:
+            raise ValueError("OCTRON frame_count must be positive.")
+        self._validate_indices(frame_count)
+        for key in required - {
+            "frame_counter",
+            "frame_idx",
+            "track_id",
+            "label",
+        }:
+            self.data[key] = pd.to_numeric(self.data[key], errors="raise")
+            if np.isinf(self.data[key]).any():
+                raise ValueError(f"OCTRON {key} contains infinite values.")
+        if (self.data.bbox_x_max < self.data.bbox_x_min).any() or (
+            self.data.bbox_y_max < self.data.bbox_y_min
+        ).any():
+            raise ValueError(
+                "OCTRON bounding box extents must be non-negative."
+            )
+
+    def _read_table(self, path):
+        """Read the metadata header and tracking table."""
+        expected_metadata = (
+            "video_name",
+            "frame_count",
+            "frame_count_analyzed",
+            "video_height",
+            "video_width",
+            "created_at",
+        )
+        with open(path) as stream:
+            for key in expected_metadata:
+                name, separator, content = stream.readline().partition(":")
+                if not separator or name != key:
+                    raise ValueError("Invalid OCTRON metadata header.")
+                self.metadata[key] = content.strip()
+            if stream.readline().strip():
+                raise ValueError(
+                    "Expected a blank line after OCTRON metadata."
+                )
+            self.data = pd.read_csv(stream)
+
+    def _validate_indices(self, frame_count):
+        """Validate original frame numbers and track identifiers."""
+        for key in ("frame_idx", "track_id"):
+            values = pd.to_numeric(self.data[key], errors="raise")
+            if (
+                not np.isfinite(values).all()
+                or (values < 0).any()
+                or (values != np.floor(values)).any()
+            ):
+                raise ValueError(
+                    f"OCTRON {key} must contain non-negative integers."
+                )
+            self.data[key] = values.astype(np.int64)
+        if (self.data.frame_idx >= frame_count).any():
+            raise ValueError("OCTRON frame_idx exceeds frame_count.")
+        if self.data.duplicated(["frame_idx", "track_id"]).any():
+            raise ValueError(
+                "Duplicate OCTRON frame_idx and track_id observations."
+            )
