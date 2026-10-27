@@ -700,7 +700,8 @@ def new_region_layer(out: Path) -> Path:
     video = gui.open_video(EPM)
     gui.viewer.dims.set_current_step(0, 8557)
     gui.expand_only(REGIONS_SECTION)
-    regions = gui.section(REGIONS_SECTION).content()
+    section = gui.section(REGIONS_SECTION)
+    regions = section.content()
     regions.add_layer_button.click()
     settle()
     labels = [
@@ -712,19 +713,17 @@ def new_region_layer(out: Path) -> Path:
             shift=30,
         ),
         Label(
-            gui.rect(gui.section(REGIONS_SECTION)),
+            gui.rect(section.toggleButton()),
             "2. Expand regions of\ninterest widget",
             side="left",
-            gap=40,
-            shift=-260,
+            box=False,
         ),
         Label(
             gui.rect(regions.add_layer_button),
             "3a. Add new\nregion layer",
             side="left",
-            box=False,
             gap=230,
-            shift=-20,
+            shift=20,
         ),
         Label(
             gui.layer_row("regions"),
