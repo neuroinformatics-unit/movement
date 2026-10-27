@@ -221,7 +221,7 @@ def from_via_tracks_file(
     >>> from movement.io import load_bboxes
     >>> ds = load_bboxes.from_via_tracks_file(
     ...     "path/to/file.csv",
-    ...     use_frame_numbers_from_file=True.
+    ...     use_frame_numbers_from_file=True,
     ... )
 
     Create a dataset from the VIA tracks .csv file at "path/to/file.csv", with

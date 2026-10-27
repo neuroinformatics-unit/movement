@@ -902,9 +902,12 @@ def _warn_about_nan_proportion(
     if not exceeds_threshold.any():
         return
     track_dims = [d for d in data.dims if d not in ("time", "space")]
-    stacked = data.stack(tracks=track_dims)
-    mask = exceeds_threshold.stack(tracks=track_dims)
-    data_to_warn_about = stacked.sel(tracks=mask).unstack("tracks")
+    if track_dims:
+        stacked = data.stack(tracks=track_dims)
+        mask = exceeds_threshold.stack(tracks=track_dims)
+        data_to_warn_about = stacked.sel(tracks=mask).unstack("tracks")
+    else:  # a single track, e.g. one individual's centroid: nothing to stack
+        data_to_warn_about = data
     warnings.warn(
         "The result may be unreliable for point tracks with many "
         "missing values. The following tracks have at least "

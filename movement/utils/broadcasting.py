@@ -223,12 +223,14 @@ def make_broadcastable(
     Make a standalone function broadcast along the ``"space"`` axis of an
     ``xarray.DataArray``.
 
-    >>> @make_broadcastable(is_classmethod=False, only_broadcast_along="space")
-    ... def my_function(xyz_data, *args, **kwargs)
-    ...
-    ... # Call via the usual arguments, replacing the xyz_data argument with
-    ... # the xarray.DataArray to broadcast over
-    ... my_function(data_array, *args, **kwargs)
+    >>> @make_broadcastable(
+    ...     is_classmethod=False, only_broadcastable_along="space"
+    ... )
+    ... def my_function(xyz_data, *args, **kwargs): ...
+    >>>
+    >>> # Call via the usual arguments, replacing the xyz_data argument
+    >>> # with the xarray.DataArray to broadcast over
+    >>> my_function(data_array, *args, **kwargs)
 
     Make a class method broadcast along any axis of an ``xarray.DataArray``.
 

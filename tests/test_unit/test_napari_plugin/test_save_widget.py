@@ -18,10 +18,16 @@ from movement.napari.save_widget import (
 )
 
 
-def test_data_saver_widget_instantiation(make_napari_viewer_proxy):
-    """Test that the save widget is properly instantiated."""
-    data_saver_widget = DataSaver(make_napari_viewer_proxy())
+@pytest.fixture
+def data_saver_widget(headless_napari_viewer, qtbot):
+    """Return a real Qt save widget without constructing a viewer window."""
+    widget = DataSaver(headless_napari_viewer)
+    qtbot.addWidget(widget)
+    return widget
 
+
+def test_data_saver_widget_instantiation(data_saver_widget):
+    """Test that the save widget is properly instantiated."""
     assert data_saver_widget.layout().rowCount() == 1
     assert isinstance(data_saver_widget.save_button, QPushButton)
     assert data_saver_widget.save_button.objectName() == "save_button"
@@ -29,12 +35,11 @@ def test_data_saver_widget_instantiation(make_napari_viewer_proxy):
     assert data_saver_widget.save_button.toolTip() == DISABLED_TOOLTIP
 
 
-def test_save_button_enabled_for_valid_points_layer(make_napari_viewer_proxy):
+def test_save_button_enabled_for_valid_points_layer(data_saver_widget):
     """Test that selecting a valid movement points layer enables the save
     button and updates its tooltip.
     """
-    viewer = make_napari_viewer_proxy()
-    data_saver_widget = DataSaver(viewer)
+    viewer = data_saver_widget.viewer
 
     layer = viewer.add_points(
         name="points",
@@ -70,9 +75,7 @@ def test_save_button_enabled_for_valid_points_layer(make_napari_viewer_proxy):
         ),
     ],
 )
-def test_save_button_disabled_for_invalid_layer(
-    make_layer, make_napari_viewer_proxy
-):
+def test_save_button_disabled_for_invalid_layer(make_layer, data_saver_widget):
     """Test that selecting a layer that is not a movement points layer
     keeps the save button disabled with the default tooltip.
 
@@ -80,8 +83,7 @@ def test_save_button_disabled_for_invalid_layer(
     treating the mere presence of ``POINTS_PROPERTIES_KEY`` (even if
     falsy/None) as a stand-in for "this layer was created by movement".
     """
-    viewer = make_napari_viewer_proxy()
-    data_saver_widget = DataSaver(viewer)
+    viewer = data_saver_widget.viewer
 
     viewer.layers.selection.active = make_layer(viewer)
 
@@ -89,7 +91,7 @@ def test_save_button_disabled_for_invalid_layer(
     assert data_saver_widget.save_button.toolTip() == DISABLED_TOOLTIP
 
 
-def test_disabled_button_click_does_not_save(make_napari_viewer_proxy, mocker):
+def test_disabled_button_click_does_not_save(data_saver_widget, mocker):
     """Test that clicking the disabled save button (no valid layer
     selected) never opens the file dialog.
 
@@ -97,8 +99,7 @@ def test_disabled_button_click_does_not_save(make_napari_viewer_proxy, mocker):
     sole gate on saving, so ``_on_save_clicked`` can safely assume the
     active layer is a valid movement points layer.
     """
-    viewer = make_napari_viewer_proxy()
-    data_saver_widget = DataSaver(viewer)
+    viewer = data_saver_widget.viewer
 
     viewer.layers.selection.active = viewer.add_image(
         np.zeros((10, 10)), name="an image"
@@ -114,10 +115,9 @@ def test_disabled_button_click_does_not_save(make_napari_viewer_proxy, mocker):
     mock_file_dialog.assert_not_called()
 
 
-def test_save_clicked_cancelled_dialog(make_napari_viewer_proxy, mocker):
+def test_save_clicked_cancelled_dialog(data_saver_widget, mocker):
     """Test that cancelling the file dialog does not attempt to save."""
-    viewer = make_napari_viewer_proxy()
-    data_saver_widget = DataSaver(viewer)
+    viewer = data_saver_widget.viewer
 
     layer = viewer.add_points(
         name="points",
@@ -212,12 +212,11 @@ def test_save_failure_shows_error(
     assert not out_path.exists()
 
 
-def test_close_event_disconnects_selection_signal(make_napari_viewer_proxy):
+def test_close_event_disconnects_selection_signal(data_saver_widget):
     """Test that closing the widget disconnects the layer selection
     callback, so it no longer reacts to further selection changes.
     """
-    viewer = make_napari_viewer_proxy()
-    data_saver_widget = DataSaver(viewer)
+    viewer = data_saver_widget.viewer
 
     data_saver_widget.closeEvent(QCloseEvent())
 
