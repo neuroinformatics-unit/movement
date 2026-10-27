@@ -1159,7 +1159,6 @@ A `Label` takes what to point at and the text, plus these options:
 | `box` | Whether to draw a box around the target (default `True`) |
 | `gap` | Distance between the text and the target |
 | `shift` | Moves the text along its side, to avoid covering other widgets |
-| `callout` | Draws the text in a white bubble instead of white text on a dark background |
 
 Hover tooltips are shown in a separate popup that screenshots
 do not capture. For those, use `gui.tooltip_at()` to get the text

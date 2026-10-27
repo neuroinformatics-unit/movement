@@ -39,8 +39,6 @@ from movement.napari.meta_widget import MovementMetaWidget
 DEFAULT_WINDOW_SIZE = (1100, 660)
 LINE_COLOR = (255, 255, 255, 255)
 TEXT_BACKGROUND = (38, 40, 46, 200)  # napari's dark grey, see-through
-CALLOUT_BACKGROUND = (255, 255, 255, 245)
-CALLOUT_TEXT = (20, 20, 20, 255)
 LINE_WIDTH = 3
 FONT_SIZE = 22
 PADDING = 6
@@ -91,9 +89,6 @@ class Label:
     shift
         Moves the text along the side it sits on (down for left/right,
         right for above/below). Useful to avoid overlaps.
-    callout
-        Draw the text in a white bubble (as in the edit overview image)
-        instead of white text on a dark background.
 
     """
 
@@ -103,7 +98,6 @@ class Label:
     box: bool = True
     gap: int = 40
     shift: int = 0
-    callout: bool = False
 
 
 def text_position(label: Label, size: tuple[float, float]) -> QPoint:
@@ -229,11 +223,8 @@ def draw_labels(
                 ratio,
             )
 
-        background = CALLOUT_BACKGROUND if label.callout else TEXT_BACKGROUND
         draw.rounded_rectangle(
-            scaled(text_box),
-            radius=(12 if label.callout else 4) * ratio,
-            fill=background,
+            scaled(text_box), radius=4 * ratio, fill=TEXT_BACKGROUND
         )
         draw.multiline_text(
             (
@@ -242,8 +233,7 @@ def draw_labels(
             ),
             label.text,
             font=font,
-            fill=CALLOUT_TEXT if label.callout else LINE_COLOR,
-            align="center" if label.callout else "left",
+            fill=LINE_COLOR,
         )
 
 
