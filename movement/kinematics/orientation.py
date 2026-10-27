@@ -297,11 +297,12 @@ def compute_angular_time_derivative(
         2 for angular acceleration. Must be a positive integer.
     window
         If ``None`` (default), the derivative is computed with central
-        differences (one-sided at the first and last frames). If an odd
-        integer greater than ``order``, the derivative is instead
-        estimated by a least-squares polynomial fit over a centred
-        window of ``window`` frames (see Notes). This requires a
-        uniformly sampled ``time`` coordinate.
+        differences (one-sided at the first and last observations).
+        Otherwise, the size of the centred rolling window, representing
+        the fixed number of observations to which a least-squares
+        polynomial is fitted (see Notes). Must be an odd integer greater
+        than ``order``, and requires a uniformly sampled ``time``
+        coordinate.
 
     Returns
     -------
@@ -318,12 +319,12 @@ def compute_angular_time_derivative(
     :func:`signed angles<movement.utils.vector.compute_signed_angle_2d>`
     between nearby orientations vectors. Without
     ``window``, ``order=1`` is the angle from the previous to the next
-    frame, divided by the time between them; higher orders differentiate
-    that result further with
+    observation, divided by the time between them; higher orders
+    differentiate that result further with
     :func:`~movement.kinematics.compute_time_derivative`. With ``window``,
-    the angles are measured from the window's centre frame (see
+    the angles are measured from the window's centre orientation (see
     *Windowed estimate*). This assumes rotations of less than :math:`\pi`
-    across two frames (or half a ``window``). Undefined orientations
+    across two time steps (or half a ``window``). Undefined orientations
     (NaNs or zero-length vectors) are treated as NaN.
 
     **Sign.** Positive values are rotations from the positive x-axis
@@ -331,14 +332,14 @@ def compute_angular_time_derivative(
     with a top-down camera, this is clockwise on screen.
 
     **Windowed estimate.** With ``window``, the angles of the
-    orientations in the window, relative to its centre frame, are
+    orientations in the window, relative to the centre one, are
     differentiated with Savitzky-Golay coefficients
     (:func:`scipy.signal.savgol_coeffs`). For ``order=1``, this is the
-    slope of a least-squares line over the ``window`` frames centred on
-    each time point. It uses every frame in the window. The first and last
+    slope of a least-squares line over the window centred on each time
+    point. It uses every observation in the window. The first and last
     ``window // 2`` values are NaN, as are all outputs whose window contains
     a NaN. For a window *ending* on each time point, shift the result by
-    ``window // 2`` frames.
+    ``window // 2`` time steps.
 
     **Preprocessing.** Smooth, interpolate, or resample the orientation
     *vectors*, not their angles, since angle averages are wrong near
@@ -421,14 +422,16 @@ def compute_angular_velocity(
         as dimensions. ``space`` must have exactly the coordinates
         ``["x", "y"]``. The vectors need not be of unit length.
     window
-        If ``None`` (default), the unsmoothed angular velocity is
-        computed with central differences. If an odd integer greater
-        than 1, it is the slope of a least-squares line fitted to the
-        orientation angle over a centred window of ``window`` frames.
-        The windowed approach requires a uniformly sampled ``time`` coordinate.
+        If ``None`` (default), the angular velocity is computed with
+        central differences (one-sided at the first and last
+        observations). Otherwise, the size of the centred rolling window,
+        representing the fixed number of observations to which a
+        least-squares line is fitted; the angular velocity is its slope.
+        Must be an odd integer greater than 1, and requires a uniformly
+        sampled ``time`` coordinate.
     in_degrees
-        If ``True``, the output is in degrees per unit of time.
-        Otherwise (default), it is in radians per unit of time.
+        If ``False`` (default), the output is in radians per unit of
+        time. If ``True``, it is in degrees per unit of time.
 
     Returns
     -------
@@ -452,16 +455,18 @@ def compute_angular_velocity(
     ...     ds.position, "left_ear", "right_ear"
     ... )
 
-    Unsmoothed angular head velocity:
+    Central-difference angular head velocity:
 
     >>> ahv = compute_angular_velocity(head_vector)
 
-    Least-squares estimate over a centred window of 7 frames, in degrees:
+    Least-squares estimate over the 7 observations centred on each time
+    point, in degrees per unit of time:
 
     >>> ahv = compute_angular_velocity(head_vector, window=7, in_degrees=True)
 
-    Same estimate, but over a trailing window of 7 frames (ending on each
-    time point):
+    Shift the above estimate by half a window to get a trailing
+    estimate, using only the 7 observations up to and including each
+    time point, in radians per unit of time:
 
     >>> ahv_trailing = compute_angular_velocity(head_vector, window=7).shift(
     ...     time=7 // 2
@@ -492,15 +497,17 @@ def compute_angular_acceleration(
         as dimensions. ``space`` must have exactly the coordinates
         ``["x", "y"]``. The vectors need not be of unit length.
     window
-        If ``None`` (default), the unsmoothed angular acceleration is
-        computed by differentiating the central-difference angular
-        velocity. If an odd integer greater than 2, it is the second
-        derivative of a least-squares quadratic fitted to the
-        orientation angle over a centred window of ``window`` frames.
-        This requires a uniformly sampled ``time`` coordinate.
+        If ``None`` (default), the angular acceleration is computed by
+        differentiating the central-difference angular velocity.
+        Otherwise, the size of the centred rolling window, representing
+        the fixed number of observations to which a least-squares
+        quadratic is fitted; the angular acceleration is its second
+        derivative. Must be an odd integer greater than 2, and requires
+        a uniformly sampled ``time`` coordinate.
     in_degrees
-        If ``True``, the output is in degrees per unit of time squared.
-        Otherwise (default), it is in radians per unit of time squared.
+        If ``False`` (default), the output is in radians per unit of
+        time squared. If ``True``, it is in degrees per unit of time
+        squared.
 
     Returns
     -------
@@ -524,7 +531,8 @@ def compute_angular_acceleration(
     ...     ds.position, "left_ear", "right_ear"
     ... )
 
-    Least-squares estimate over a centred window of 9 frames, in degrees:
+    Least-squares estimate over the 9 observations centred on each time
+    point, in degrees per unit of time squared:
 
     >>> aha = compute_angular_acceleration(
     ...     head_vector, window=9, in_degrees=True
