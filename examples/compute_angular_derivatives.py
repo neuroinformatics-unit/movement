@@ -238,7 +238,7 @@ for i, ax in enumerate(axes):
     da.plot.hist(
         ax=ax, bins=N_BINS, range=raw_range, yscale="log", color=colors[i]
     )
-    p99 = np.nanpercentile(np.abs(da), 99)
+    p99 = abs(da).quantile(0.99, skipna=True).item()
     ax.set_title(
         f"{title}\n99% within ±{p99:.0f} deg/s", color=colors[i], fontsize=10
     )
