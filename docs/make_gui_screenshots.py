@@ -593,13 +593,20 @@ def bboxes_layers(out: Path) -> Path:
     gui = GUI()
     gui.open_video(CRAB)
     gui.load_tracks(CRAB, "VIA-tracks", fps=1)
-    gui.viewer.dims.set_current_step(0, 38)
+    frame = 38
+    gui.viewer.dims.set_current_step(0, frame)
+    # Zoom in on the crab, so the box edges and centroid stay visible
+    points = gui.layer("points")
+    centroid = points.data[points.data[:, 0] == frame][0, 1:]
+    gui.viewer.scene.camera.center = centroid
+    gui.viewer.scene.camera.zoom = 0.9
+    settle()
     labels = [
         Label(
-            gui.rect(gui.section(LOAD_SECTION)),
-            "Widget for loading tracked data",
+            gui.rect(gui.section(LOAD_SECTION).toggleButton()),
+            "Widget for loading \ntracked data",
             side="left",
-            shift=-60,
+            box=False,
         ),
         *row_labels(
             gui,
