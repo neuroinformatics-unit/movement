@@ -99,6 +99,9 @@ class Label:
     shift
         Moves the text along the side it sits on (down for left/right,
         right for above/below). Useful to avoid overlaps.
+    group
+        Labels with the same group get text boxes of the same width
+        (the widest of them), e.g. a column of labels next to each other.
 
     """
 
@@ -108,6 +111,7 @@ class Label:
     box: bool = True
     gap: int = 40
     shift: int = 0
+    group: str | None = None
 
 
 def text_position(label: Label, size: tuple[float, float]) -> QPoint:
@@ -187,6 +191,16 @@ def draw_labels(
     font = ImageFont.truetype(FONT_PATH, round(FONT_SIZE * ratio))
     width = round(LINE_WIDTH * ratio)
 
+    # Widest text box of each label group, in logical pixels
+    group_widths: dict[str, float] = {}
+    for label in labels:
+        if label.group is not None:
+            bbox = draw.multiline_textbbox((0, 0), label.text, font=font)
+            text_w = (bbox[2] - bbox[0]) / ratio + 2 * PADDING
+            group_widths[label.group] = max(
+                text_w, group_widths.get(label.group, 0)
+            )
+
     def scaled(rect: QRect) -> tuple[float, float, float, float]:
         return (
             rect.left() * ratio,
@@ -227,6 +241,7 @@ def draw_labels(
             )
         text_w = (bbox[2] - bbox[0]) / ratio + 2 * PADDING
         text_h = (bbox[3] - bbox[1]) / ratio + 2 * PADDING
+        text_w = max(text_w, group_widths.get(label.group, 0))
         top_left = text_position(label, (text_w, text_h))
         # Keep the text inside the window
         max_x = window.width() - text_w - 2
@@ -610,7 +625,13 @@ def row_labels(gui: GUI, prefixes: list[str], names: list[str]) -> list[Label]:
                 if not ly.name.startswith(("tracks", "points", "boxes"))
             )
         labels.append(
-            Label(gui.layer_row(prefix), f"{name} layer", box=False, gap=50)
+            Label(
+                gui.layer_row(prefix),
+                f"{name} layer",
+                box=False,
+                gap=50,
+                group="layer rows",
+            )
         )
     return labels
 
