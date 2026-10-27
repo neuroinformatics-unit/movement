@@ -980,6 +980,17 @@ def from_nwb_file(
         A single-individual ``movement`` dataset containing the pose tracks,
         confidence scores, and associated metadata.
 
+    Notes
+    -----
+    The ``time`` coordinates are the sample times stored in the NWB file,
+    in seconds. They are taken from the ``timestamps`` of each
+    ``PoseEstimationSeries``, or computed from its ``starting_time`` and
+    ``rate`` if the series has no timestamps. This means that ``time``
+    does not necessarily start at 0, and that any gaps (e.g. dropped frames)
+    are preserved. The ``fps`` attribute is set to the series' ``rate``, or,
+    if that is not available, estimated from the median time difference
+    between timestamps.
+
     References
     ----------
     .. [1] https://github.com/rly/ndx-pose
@@ -1066,9 +1077,12 @@ def _ds_from_nwb_object(
             if getattr(pes, "confidence", None) is not None
             else np.full(position_data.shape[0], np.nan)
         )
+        # Sample times in seconds, either stored as timestamps or
+        # generated from starting_time and rate
+        timestamps = np.asarray(pes.get_timestamps())
         # Compute fps from time differences between timestamps
         # if rate is not available
-        fps = pes.rate or float(np.nanmedian(1 / np.diff(pes.timestamps)))
+        fps = pes.rate or float(np.nanmedian(1 / np.diff(timestamps)))
         single_keypoint_datasets.append(
             # create movement dataset with 1 keypoint and 1 individual
             from_numpy(
@@ -1079,6 +1093,10 @@ def _ds_from_nwb_object(
                 fps=round(fps, 6),
                 source_software=source_software,
             )
+            # Keep the stored sample times, so that a time offset or
+            # dropped frames are not lost and the data remain aligned
+            # with other data in the NWB file
+            .assign_coords(time=timestamps)
         )
     return xr.merge(
         single_keypoint_datasets, join="outer", compat="no_conflicts"

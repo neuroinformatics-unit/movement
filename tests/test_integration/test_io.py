@@ -148,6 +148,17 @@ def test_save_and_load_nwb_file(valid_poses_dataset):
     xr.testing.assert_allclose(ds, valid_poses_dataset)
 
 
+def test_save_and_load_nwb_file_keeps_time(valid_poses_dataset):
+    """Test that a dataset whose time coordinates do not start at 0
+    keeps them after saving to NWBFile and loading the file back in.
+    """
+    ds_clip = valid_poses_dataset.isel(time=slice(3, None))
+    nwb_files = save_poses.to_nwb_file_object(ds_clip)
+    ds_singles = [load_poses.from_nwb_file(nwb_file) for nwb_file in nwb_files]
+    ds = xr.merge(ds_singles, join="outer", compat="no_conflicts")
+    np.testing.assert_allclose(ds.time.values, ds_clip.time.values)
+
+
 @pytest.mark.parametrize(
     "source_software, filename, dataset_fixture",
     [
