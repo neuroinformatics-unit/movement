@@ -18,6 +18,12 @@ movement.kinematics
     
     compute_acceleration
     
+    compute_angular_acceleration
+    
+    compute_angular_time_derivative
+    
+    compute_angular_velocity
+    
     compute_backward_displacement
     
     compute_directional_change

@@ -123,11 +123,7 @@ The loaded dataset is made up of three data arrays:
         position    (time, space, individual) float32 280B 1.118e+03 373.3 ... 401.9
         shape       (time, space, individual) float32 280B 320.1 153.2 ... 120.1
         confidence  (time, individual) float32 140B nan nan nan nan ... nan nan nan
-    Attributes:
-        source_software:  VIA-tracks
-        time_unit:        frames
-        ds_type:          bboxes
-        source_file:      /home/runner/.movement/data/bboxes/VIA_single-crab_MOCA...
+    Attributes: (4)
 
 
 
@@ -755,7 +751,7 @@ code.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.986 seconds)
+   **Total running time of the script:** (0 minutes 3.457 seconds)
 
 
 .. _sphx_glr_download_examples_load_and_upsample_bboxes.py:

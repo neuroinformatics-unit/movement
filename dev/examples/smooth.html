@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=3385a502"></script>
+    <script src="../_static/documentation_options.js?v=d0a1c250"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev69</p>
+    <p class="title logo__title">movement v0.17.1.dev70</p>
   
 </a></div>
     
@@ -447,6 +447,7 @@
 <li class="toctree-l1"><a class="reference internal" href="convert_file_formats.html">Convert pose tracks between file formats</a></li>
 <li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Smooth pose tracks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mouse_eye_movements.html">Pupil tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compute_angular_derivatives.html">Compute angular velocity and acceleration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compute_head_direction.html">Compute head direction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="boundary_angles.html">Compute distances and angles to regions of interest</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compute_kinematics.html">Compute and visualise kinematics</a></li>
@@ -960,7 +961,7 @@ what we’ve done.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[
   {
     "operation": "rolling_filter",
-    "datetime": "2026-10-26 17:22:33.768890",
+    "datetime": "2026-10-27 15:23:36.440311",
     "window": "3",
     "statistic": "'median'",
     "min_periods": "2",
@@ -968,14 +969,14 @@ what we’ve done.</p>
   },
   {
     "operation": "interpolate_over_time",
-    "datetime": "2026-10-26 17:22:33.782949",
+    "datetime": "2026-10-27 15:23:36.462852",
     "method": "'linear'",
     "max_gap": "30",
     "print_report": "False"
   },
   {
     "operation": "savgol_filter",
-    "datetime": "2026-10-26 17:22:33.785580",
+    "datetime": "2026-10-27 15:23:36.467212",
     "window": "12",
     "polyorder": "2",
     "print_report": "False",
@@ -1001,7 +1002,7 @@ also look at other keypoints and time ranges.</p>
 in the
 <a class="reference internal" href="filter_and_interpolate.html#sphx-glr-examples-filter-and-interpolate-py"><span class="std std-ref">Drop outliers and interpolate</span></a> example.</p>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 8.704 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 13.361 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-smooth-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/main?filepath=notebooks/examples/smooth.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo1.svg" style="width: 150px;" />

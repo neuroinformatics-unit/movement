@@ -107,6 +107,23 @@ of ``movement``.
 
 .. raw:: html
 
+    <div class="sphx-glr-thumbcontainer" tooltip="Compute the head angular velocity and acceleration.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_compute_angular_derivatives_thumb.png
+    :alt:
+
+  :doc:`/examples/compute_angular_derivatives`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Compute angular velocity and acceleration</div>
+    </div>
+
+
+.. raw:: html
+
     <div class="sphx-glr-thumbcontainer" tooltip="Compute the head direction vector and angle using different methods.">
 
 .. only:: html
@@ -222,6 +239,7 @@ of ``movement``.
    /examples/convert_file_formats
    /examples/smooth
    /examples/mouse_eye_movements
+   /examples/compute_angular_derivatives
    /examples/compute_head_direction
    /examples/boundary_angles
    /examples/compute_kinematics

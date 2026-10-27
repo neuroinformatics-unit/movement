@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=3385a502"></script>
+    <script src="../_static/documentation_options.js?v=d0a1c250"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -147,7 +147,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev69</p>
+    <p class="title logo__title">movement v0.17.1.dev70</p>
   
 </a></div>
     
@@ -504,6 +504,9 @@
 </details></li>
 <li class="toctree-l1 current active has-children"><a aria-current="page" class="current reference internal" href="#">movement.kinematics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_acceleration.html">compute_acceleration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_angular_acceleration.html">compute_angular_acceleration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_angular_time_derivative.html">compute_angular_time_derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_angular_velocity.html">compute_angular_velocity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_backward_displacement.html">compute_backward_displacement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_directional_change.html">compute_directional_change</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_forward_displacement.html">compute_forward_displacement</a></li>
@@ -703,55 +706,64 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="movement.kinematics.compute_acceleration.html#movement.kinematics.compute_acceleration" title="movement.kinematics.compute_acceleration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_acceleration</span></code></a></p></td>
 <td><p>Compute acceleration array in Cartesian coordinates.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="movement.kinematics.compute_backward_displacement.html#movement.kinematics.compute_backward_displacement" title="movement.kinematics.compute_backward_displacement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_backward_displacement</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="movement.kinematics.compute_angular_acceleration.html#movement.kinematics.compute_angular_acceleration" title="movement.kinematics.compute_angular_acceleration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_angular_acceleration</span></code></a></p></td>
+<td><p>Compute the angular acceleration of a 2D orientation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="movement.kinematics.compute_angular_time_derivative.html#movement.kinematics.compute_angular_time_derivative" title="movement.kinematics.compute_angular_time_derivative"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_angular_time_derivative</span></code></a></p></td>
+<td><p>Compute the time-derivative of a 2D orientation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="movement.kinematics.compute_angular_velocity.html#movement.kinematics.compute_angular_velocity" title="movement.kinematics.compute_angular_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_angular_velocity</span></code></a></p></td>
+<td><p>Compute the angular velocity of a 2D orientation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="movement.kinematics.compute_backward_displacement.html#movement.kinematics.compute_backward_displacement" title="movement.kinematics.compute_backward_displacement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_backward_displacement</span></code></a></p></td>
 <td><p>Compute backward displacement array in Cartesian coordinates.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="movement.kinematics.compute_directional_change.html#movement.kinematics.compute_directional_change" title="movement.kinematics.compute_directional_change"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_directional_change</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="movement.kinematics.compute_directional_change.html#movement.kinematics.compute_directional_change" title="movement.kinematics.compute_directional_change"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_directional_change</span></code></a></p></td>
 <td><p>Compute the directional change (DC) per time step.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="movement.kinematics.compute_forward_displacement.html#movement.kinematics.compute_forward_displacement" title="movement.kinematics.compute_forward_displacement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_forward_displacement</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="movement.kinematics.compute_forward_displacement.html#movement.kinematics.compute_forward_displacement" title="movement.kinematics.compute_forward_displacement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_forward_displacement</span></code></a></p></td>
 <td><p>Compute forward displacement array in Cartesian coordinates.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="movement.kinematics.compute_forward_vector.html#movement.kinematics.compute_forward_vector" title="movement.kinematics.compute_forward_vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_forward_vector</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="movement.kinematics.compute_forward_vector.html#movement.kinematics.compute_forward_vector" title="movement.kinematics.compute_forward_vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_forward_vector</span></code></a></p></td>
 <td><p>Compute a 2D forward vector given two left-right symmetric keypoints.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="movement.kinematics.compute_forward_vector_angle.html#movement.kinematics.compute_forward_vector_angle" title="movement.kinematics.compute_forward_vector_angle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_forward_vector_angle</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="movement.kinematics.compute_forward_vector_angle.html#movement.kinematics.compute_forward_vector_angle" title="movement.kinematics.compute_forward_vector_angle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_forward_vector_angle</span></code></a></p></td>
 <td><p>Compute the signed angle between a reference and a forward vector.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="movement.kinematics.compute_head_direction_vector.html#movement.kinematics.compute_head_direction_vector" title="movement.kinematics.compute_head_direction_vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_head_direction_vector</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="movement.kinematics.compute_head_direction_vector.html#movement.kinematics.compute_head_direction_vector" title="movement.kinematics.compute_head_direction_vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_head_direction_vector</span></code></a></p></td>
 <td><p>Compute the 2D head direction vector given two keypoints on the head.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="movement.kinematics.compute_kinetic_energy.html#movement.kinematics.compute_kinetic_energy" title="movement.kinematics.compute_kinetic_energy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_kinetic_energy</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="movement.kinematics.compute_kinetic_energy.html#movement.kinematics.compute_kinetic_energy" title="movement.kinematics.compute_kinetic_energy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_kinetic_energy</span></code></a></p></td>
 <td><p>Compute kinetic energy per individual.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="movement.kinematics.compute_pairwise_distances.html#movement.kinematics.compute_pairwise_distances" title="movement.kinematics.compute_pairwise_distances"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_pairwise_distances</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="movement.kinematics.compute_pairwise_distances.html#movement.kinematics.compute_pairwise_distances" title="movement.kinematics.compute_pairwise_distances"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_pairwise_distances</span></code></a></p></td>
 <td><p>Compute pairwise distances between individuals or keypoints.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="movement.kinematics.compute_path_deviation.html#movement.kinematics.compute_path_deviation" title="movement.kinematics.compute_path_deviation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_path_deviation</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="movement.kinematics.compute_path_deviation.html#movement.kinematics.compute_path_deviation" title="movement.kinematics.compute_path_deviation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_path_deviation</span></code></a></p></td>
 <td><p>Compute deviation from the straight-line path at each time point.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="movement.kinematics.compute_path_emax.html#movement.kinematics.compute_path_emax" title="movement.kinematics.compute_path_emax"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_path_emax</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="movement.kinematics.compute_path_emax.html#movement.kinematics.compute_path_emax" title="movement.kinematics.compute_path_emax"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_path_emax</span></code></a></p></td>
 <td><p>Compute the maximum expected displacement (<span class="math notranslate nohighlight">\(E_{\max}\)</span>).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="movement.kinematics.compute_path_length.html#movement.kinematics.compute_path_length" title="movement.kinematics.compute_path_length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_path_length</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="movement.kinematics.compute_path_length.html#movement.kinematics.compute_path_length" title="movement.kinematics.compute_path_length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_path_length</span></code></a></p></td>
 <td><p>Compute the length of a path travelled.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="movement.kinematics.compute_path_sinuosity.html#movement.kinematics.compute_path_sinuosity" title="movement.kinematics.compute_path_sinuosity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_path_sinuosity</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="movement.kinematics.compute_path_sinuosity.html#movement.kinematics.compute_path_sinuosity" title="movement.kinematics.compute_path_sinuosity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_path_sinuosity</span></code></a></p></td>
 <td><p>Compute the sinuosity of a path.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="movement.kinematics.compute_path_straightness.html#movement.kinematics.compute_path_straightness" title="movement.kinematics.compute_path_straightness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_path_straightness</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="movement.kinematics.compute_path_straightness.html#movement.kinematics.compute_path_straightness" title="movement.kinematics.compute_path_straightness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_path_straightness</span></code></a></p></td>
 <td><p>Compute the straightness index of a path <span class="math notranslate nohighlight">\((D/L)\)</span>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="movement.kinematics.compute_speed.html#movement.kinematics.compute_speed" title="movement.kinematics.compute_speed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_speed</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="movement.kinematics.compute_speed.html#movement.kinematics.compute_speed" title="movement.kinematics.compute_speed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_speed</span></code></a></p></td>
 <td><p>Compute instantaneous speed at each time point.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="movement.kinematics.compute_time_derivative.html#movement.kinematics.compute_time_derivative" title="movement.kinematics.compute_time_derivative"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_time_derivative</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="movement.kinematics.compute_time_derivative.html#movement.kinematics.compute_time_derivative" title="movement.kinematics.compute_time_derivative"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_time_derivative</span></code></a></p></td>
 <td><p>Compute the time-derivative of an array using numerical differentiation.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="movement.kinematics.compute_turning_angle.html#movement.kinematics.compute_turning_angle" title="movement.kinematics.compute_turning_angle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_turning_angle</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="movement.kinematics.compute_turning_angle.html#movement.kinematics.compute_turning_angle" title="movement.kinematics.compute_turning_angle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_turning_angle</span></code></a></p></td>
 <td><p>Compute the turning angles between consecutive steps in a path.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="movement.kinematics.compute_velocity.html#movement.kinematics.compute_velocity" title="movement.kinematics.compute_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_velocity</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="movement.kinematics.compute_velocity.html#movement.kinematics.compute_velocity" title="movement.kinematics.compute_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_velocity</span></code></a></p></td>
 <td><p>Compute velocity array in Cartesian coordinates.</p></td>
 </tr>
 </tbody>

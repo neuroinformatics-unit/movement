@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=3385a502"></script>
+    <script src="../_static/documentation_options.js?v=d0a1c250"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev69</p>
+    <p class="title logo__title">movement v0.17.1.dev70</p>
   
 </a></div>
     
@@ -447,6 +447,7 @@
 <li class="toctree-l1"><a class="reference internal" href="convert_file_formats.html">Convert pose tracks between file formats</a></li>
 <li class="toctree-l1"><a class="reference internal" href="smooth.html">Smooth pose tracks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mouse_eye_movements.html">Pupil tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compute_angular_derivatives.html">Compute angular velocity and acceleration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compute_head_direction.html">Compute head direction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="boundary_angles.html">Compute distances and angles to regions of interest</a></li>
 <li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Compute and visualise kinematics</a></li>
@@ -562,13 +563,7 @@ Coordinates:
 Data variables:
     position    (time, space, keypoint, individual) float32 14kB 770.3 ... 755.1
     confidence  (time, keypoint, individual) float32 7kB nan nan nan ... nan nan
-Attributes:
-    source_software:  SLEAP
-    fps:              50.0
-    time_unit:        seconds
-    ds_type:          poses
-    source_file:      /home/runner/.movement/data/poses/SLEAP_three-mice_Aeon...
-    frame_path:       /home/runner/.movement/data/frames/three-mice_Aeon_fram...
+Attributes: (6)
 </pre></div>
 </div>
 <p>We can see in the printed description of the dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code> that
@@ -726,7 +721,7 @@ this case we focus on the mouse <code class="docutils literal notranslate"><span
 </span><a class="sphx-glr-backref-module-matplotlib-collections sphx-glr-backref-type-py-method reference external" href="https://matplotlib.org/stable/api/collections_api.html#matplotlib.collections.PathCollection.set_clim" title="matplotlib.collections.PathCollection.set_clim"><span class="n">sc</span><span class="o">.</span><span class="n">set_clim</span></a><span class="p">(</span><span class="mf">8.8</span><span class="p">,</span> <span class="mf">9.2</span><span class="p">)</span><span class="w">
 </span><a class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.colorbar.html#matplotlib.figure.Figure.colorbar" title="matplotlib.figure.Figure.colorbar"><span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span></a><span class="p">(</span><a class="sphx-glr-backref-module-matplotlib-collections sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://matplotlib.org/stable/api/collections_api.html#matplotlib.collections.PathCollection" title="matplotlib.collections.PathCollection"><span class="n">sc</span></a><span class="p">,</span> <a class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes"><span class="n">ax</span></a><span class="o">=</span><a class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes"><span class="n">ax</span></a><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">time (s)</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<img src="../_images/sphx_glr_compute_kinematics_004.png" srcset="../_images/sphx_glr_compute_kinematics_004.png" alt="Zoomed in forward trajectory of AEON3B_TP2" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar object at 0x7f6233d4a990&gt;
+<img src="../_images/sphx_glr_compute_kinematics_004.png" srcset="../_images/sphx_glr_compute_kinematics_004.png" alt="Zoomed in forward trajectory of AEON3B_TP2" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar object at 0x7f682c2ad310&gt;
 </pre></div>
 </div>
 <p>We can visually verify that indeed the forward displacement vector
@@ -774,7 +769,7 @@ displacement vector.</p>
 </span><a class="sphx-glr-backref-module-matplotlib-collections sphx-glr-backref-type-py-method reference external" href="https://matplotlib.org/stable/api/collections_api.html#matplotlib.collections.PathCollection.set_clim" title="matplotlib.collections.PathCollection.set_clim"><span class="n">sc</span><span class="o">.</span><span class="n">set_clim</span></a><span class="p">(</span><span class="mf">8.8</span><span class="p">,</span> <span class="mf">9.2</span><span class="p">)</span><span class="w">
 </span><a class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.colorbar.html#matplotlib.figure.Figure.colorbar" title="matplotlib.figure.Figure.colorbar"><span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span></a><span class="p">(</span><a class="sphx-glr-backref-module-matplotlib-collections sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://matplotlib.org/stable/api/collections_api.html#matplotlib.collections.PathCollection" title="matplotlib.collections.PathCollection"><span class="n">sc</span></a><span class="p">,</span> <a class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes"><span class="n">ax</span></a><span class="o">=</span><a class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes"><span class="n">ax</span></a><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">time (s)</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<img src="../_images/sphx_glr_compute_kinematics_005.png" srcset="../_images/sphx_glr_compute_kinematics_005.png" alt="Zoomed in backward trajectory of AEON3B_TP2" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar object at 0x7f6232d8a490&gt;
+<img src="../_images/sphx_glr_compute_kinematics_005.png" srcset="../_images/sphx_glr_compute_kinematics_005.png" alt="Zoomed in backward trajectory of AEON3B_TP2" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar object at 0x7f683c0d5590&gt;
 </pre></div>
 </div>
 </section>
@@ -951,7 +946,7 @@ acceleration vector for each individual:</p>
 </span>    <a class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_ylabel.html#matplotlib.axes.Axes.set_ylabel" title="matplotlib.axes.Axes.set_ylabel"><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span></a><span class="p">(</span><span class="s2">&quot;</span><span class="s2">accel (px/s**2)</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
 </span><a class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.tight_layout.html#matplotlib.figure.Figure.tight_layout" title="matplotlib.figure.Figure.tight_layout"><span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span></a><span class="p">(</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<img src="../_images/sphx_glr_compute_kinematics_010.png" srcset="../_images/sphx_glr_compute_kinematics_010.png" alt="AEON3B_NTP, AEON3B_TP1, AEON3B_TP2" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.229 seconds)</p>
+<img src="../_images/sphx_glr_compute_kinematics_010.png" srcset="../_images/sphx_glr_compute_kinematics_010.png" alt="AEON3B_NTP, AEON3B_TP1, AEON3B_TP2" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.316 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-compute-kinematics-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/main?filepath=notebooks/examples/compute_kinematics.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo1.svg" style="width: 150px;" />
