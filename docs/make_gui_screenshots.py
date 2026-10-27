@@ -136,8 +136,7 @@ def text_position(label: Label, size: tuple[float, float]) -> QPoint:
 def arrow_points(label: Label, text_box: QRect) -> tuple[QPoint, QPoint]:
     """Return the start (at the text) and end (at the target) of an arrow."""
     t = label.target
-    # The box is drawn 4 px outside the target, so stop past that
-    gap = 4 + ARROW_GAP
+    gap = ARROW_GAP
     if label.side == "right":
         start = QPoint(text_box.left() - 4, text_box.center().y())
         end = QPoint(t.right() + gap, t.center().y())
