@@ -62,6 +62,8 @@ EPM = "SLEAP_single-mouse_EPM.analysis.h5"
 
 # Titles of the movement widget sections
 LOAD_SECTION = "Load tracked data"
+EDIT_SECTION = "Edit tracked data"
+SAVE_SECTION = "Save tracked data"
 REGIONS_SECTION = "Define regions of interest"
 
 
