@@ -766,6 +766,16 @@ if __name__ == "__main__":
             f"Unknown screenshots: {sorted(unknown)}. "
             f"Choose from: {list(SCREENSHOTS)}."
         )
+    failed = []
     for name in names:
-        print(f"Saved {SCREENSHOTS[name](STATIC_PATH)}")
+        try:
+            print(f"Saved {SCREENSHOTS[name](STATIC_PATH)}")
+        except Exception as e:
+            print(f"Failed {name}: {e!r}")
+            failed.append(name)
+        finally:
+            # Close the viewer even if the screenshot failed halfway
+            napari.Viewer.close_all()
     print(f"Made with {NAPARI_VERSION}")
+    if failed:
+        sys.exit(f"Failed screenshots: {failed}")
