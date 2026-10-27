@@ -31,6 +31,7 @@ import matplotlib
 import napari
 from PIL import Image, ImageDraw, ImageFont
 from qtpy.QtCore import QPoint, QRect, Qt
+from qtpy.QtGui import QFont, QFontDatabase
 from qtpy.QtWidgets import QApplication, QLayout, QWidget
 
 from movement import sample_data
@@ -307,6 +308,12 @@ class GUI:
 
     def __init__(self, size: tuple[int, int] = DEFAULT_WINDOW_SIZE):
         """Open the viewer at ``size`` and dock the movement widget."""
+        # Use the labels' font for napari too, so the GUI looks the same
+        # on every machine (system fonts differ)
+        app = napari.qt.get_qapp()
+        font_id = QFontDatabase.addApplicationFont(str(FONT_PATH))
+        family = QFontDatabase.applicationFontFamilies(font_id)[0]
+        app.setFont(QFont(family, 10))
         self.viewer = napari.Viewer()
         self.window = self.viewer.window._qt_window
         self.window.resize(*size)
