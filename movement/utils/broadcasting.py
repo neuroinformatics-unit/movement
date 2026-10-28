@@ -223,19 +223,27 @@ def make_broadcastable(
     Make a standalone function broadcast along the ``"space"`` axis of an
     ``xarray.DataArray``.
 
+    >>> import numpy as np
+    >>> import xarray as xr
+    >>> from movement.utils.broadcasting import make_broadcastable
+    >>> data_array = xr.DataArray(
+    ...     np.arange(6).reshape(3, 2),
+    ...     dims=["time", "space"],
+    ...     coords={"space": ["x", "y"]},
+    ... )
     >>> @make_broadcastable(
     ...     is_classmethod=False, only_broadcastable_along="space"
     ... )
-    ... def my_function(xyz_data, *args, **kwargs): ...
-    >>>
+    ... def sum_of_squares(xyz_data, *args, **kwargs):
+    ...     return sum(value**2 for value in xyz_data)
     >>> # Call via the usual arguments, replacing the xyz_data argument
     >>> # with the xarray.DataArray to broadcast over
-    >>> my_function(data_array, *args, **kwargs)
+    >>> sum_of_squares(data_array).values
+    array([ 1, 13, 41])
 
     Make a class method broadcast along any axis of an ``xarray.DataArray``.
 
     >>> from dataclasses import dataclass
-    >>>
     >>> @dataclass
     ... class MyClass:
     ...     factor: float
@@ -245,9 +253,8 @@ def make_broadcastable(
     ...     def manipulate_values(self, xyz_values, *args, **kwargs):
     ...         return self.factor * sum(xyz_values) + self.offset
     >>> m = MyClass(factor=5.9, offset=1.0)
-    >>> m.manipulate_values(
-    ...     data_array, *args, broadcast_dimension="time", **kwargs
-    ... )
+    >>> m.manipulate_values(data_array, broadcast_dimension="time").values
+    array([36.4, 54.1])
 
     """
 

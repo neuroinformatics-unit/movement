@@ -39,6 +39,14 @@ def validate_dims_coords(
     Validate that a data array contains the dimension 'time'. No specific
     coordinates are required.
 
+    >>> import numpy as np
+    >>> import xarray as xr
+    >>> from movement.validators.arrays import validate_dims_coords
+    >>> data = xr.DataArray(
+    ...     np.zeros((10, 2)),
+    ...     dims=["time", "space"],
+    ...     coords={"space": ["x", "y"]},
+    ... )
     >>> validate_dims_coords(data, {"time": []})
 
     Validate that a data array contains the dimensions 'time' and 'space',

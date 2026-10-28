@@ -122,6 +122,7 @@ addopts = "--cov=movement -m 'not benchmark'" # exclude benchmarks by default
 markers = [
     "benchmark: marks benchmarking tests (deselect with '-m \"not benchmark\"')",
 ]
+doctest_optionflags = "NORMALIZE_WHITESPACE ELLIPSIS NUMBER"
 
 [tool.setuptools_scm]
 
@@ -134,6 +135,7 @@ ignore = [
   "tests/test_integration/",
   "docs/",
   "docs/source/",
+  "conftest.py",
 ]
 
 [tool.mypy]
@@ -218,4 +220,6 @@ pass_env = [
 dependency_groups = ["dev"]
 commands = [
     ["pytest", "-v", "--color=yes", "--cov=movement", "--cov-report=xml", "-m", "", "--benchmark-disable"],
+    # Run the docstring examples as doctests
+    ["pytest", "-v", "--color=yes", "--doctest-modules", "movement", "--no-cov"],
 ]

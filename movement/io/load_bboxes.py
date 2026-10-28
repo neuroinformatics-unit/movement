@@ -200,7 +200,7 @@ def from_via_tracks_file(
     file as frame 0.
 
     >>> from movement.io import load_bboxes
-    >>> ds = load_bboxes.from_via_tracks_file(
+    >>> ds = load_bboxes.from_via_tracks_file(  # doctest: +SKIP
     ...     "path/to/file.csv",
     ... )
 
@@ -209,7 +209,7 @@ def from_via_tracks_file(
     the first tracked frame in the file.
 
     >>> from movement.io import load_bboxes
-    >>> ds = load_bboxes.from_via_tracks_file(
+    >>> ds = load_bboxes.from_via_tracks_file(  # doctest: +SKIP
     ...     "path/to/file.csv",
     ...     fps=30,
     ... )
@@ -219,7 +219,7 @@ def from_via_tracks_file(
     in the VIA tracks .csv file.
 
     >>> from movement.io import load_bboxes
-    >>> ds = load_bboxes.from_via_tracks_file(
+    >>> ds = load_bboxes.from_via_tracks_file(  # doctest: +SKIP
     ...     "path/to/file.csv",
     ...     use_frame_numbers_from_file=True,
     ... )
@@ -229,7 +229,7 @@ def from_via_tracks_file(
     the 0th frame in the full video.
 
     >>> from movement.io import load_bboxes
-    >>> ds = load_bboxes.from_via_tracks_file(
+    >>> ds = load_bboxes.from_via_tracks_file(  # doctest: +SKIP
     ...     "path/to/file.csv",
     ...     fps=30,
     ...     use_frame_numbers_from_file=True,
