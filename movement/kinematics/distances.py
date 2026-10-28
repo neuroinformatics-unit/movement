@@ -6,6 +6,7 @@ from typing import Literal
 import xarray as xr
 from scipy.spatial.distance import cdist
 
+from movement.kinematics._units import _get_unit
 from movement.utils.logging import logger
 from movement.validators.arrays import validate_dims_coords
 
@@ -103,6 +104,34 @@ def _cdist(
         }
     )
     result.name = "distance"
+    result.attrs = a.attrs.copy()
+    # These metrics return distances in the input spatial units. Other
+    # metrics (or user callables) need not have the same dimensions.
+    metric_name = metric.lower() if isinstance(metric, str) else None
+    if metric_name not in (
+        "euclidean",
+        "euclid",
+        "eu",
+        "e",
+        "cityblock",
+        "cblock",
+        "cb",
+        "c",
+        "chebyshev",
+        "chebychev",
+        "cheb",
+        "cheby",
+        "ch",
+        "minkowski",
+        "mi",
+        "m",
+        "pnorm",
+    ):
+        result.attrs.pop("units", None)
+        if metric_name in ("sqeuclidean", "sqeuclid", "sqe"):
+            unit = _get_unit(a, spatial=True)
+            if unit is not None:
+                result.attrs["units"] = f"{unit}^2"
     # Drop any squeezed coordinates
     return result.squeeze(drop=True)
 
@@ -164,6 +193,14 @@ def compute_pairwise_distances(
         representing the pair  (e.g., ``'dist_ind1_ind2'`` or
         ``'dist_key1_key2'``) and each value is an :class:`xarray.DataArray`
         containing the computed distances for that pair.
+        Input attributes are preserved independently of xarray settings.
+        Euclidean, city-block, Chebyshev and Minkowski metrics retain input
+        spatial units, including SciPy's case-insensitive aliases. Squared
+        Euclidean distances use ``unit^2`` for supported simple labels (see
+        :func:`movement.kinematics.compute_time_derivative`). For other
+        metrics, callables or unsupported squared-unit labels, ``units``
+        is removed. Metric normalization only affects metadata; the original
+        metric is passed to SciPy unchanged.
 
     Raises
     ------
