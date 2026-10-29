@@ -13,6 +13,8 @@ Usage::
     python docs/make_gui_screenshots.py                 # all screenshots
     python docs/make_gui_screenshots.py poses_layers    # only some
 
+Requires napari 0.9 or newer.
+
 Not covered (still made by hand): ``napari_video_reader.png`` (a modal
 dialog) and any ``.mp4`` recordings.
 
@@ -30,6 +32,7 @@ from pathlib import Path
 
 import matplotlib
 import napari
+from packaging.version import Version
 from PIL import Image, ImageDraw, ImageFont
 from PIL.PngImagePlugin import PngInfo
 from qtpy.QtCore import QPoint, QRect, Qt
@@ -38,6 +41,15 @@ from qtpy.QtWidgets import QApplication, QLayout, QWidget
 
 from movement import sample_data
 from movement.napari.meta_widget import MovementMetaWidget
+
+# The script uses napari APIs added in 0.9 (e.g. viewer.scene.camera)
+MIN_NAPARI_VERSION = "0.9"
+if Version(napari.__version__) < Version(MIN_NAPARI_VERSION):
+    sys.exit(
+        f"This script needs napari {MIN_NAPARI_VERSION} or newer "
+        f"(found {napari.__version__}). Upgrade with:\n"
+        f'    uv pip install -U "napari[all]>={MIN_NAPARI_VERSION}"'
+    )
 
 # Recorded in each image, since napari versions draw the GUI differently
 NAPARI_VERSION = f"napari {napari.__version__}"
