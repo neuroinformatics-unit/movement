@@ -650,6 +650,9 @@ and is structured as follows:
   datasets into the NumPy arrays and properties DataFrames
   that `napari` layer constructors expect.
 
+If your changes affect how the GUI looks, remember to also
+[update the GUI screenshots](target-gui-screenshots) in the user guide.
+
 #### Where should a layer callback live?
 
 The layers created by a widget stay in the viewer even after closing the widget.
@@ -1040,6 +1043,66 @@ Subtitle (one-line summary).
 #   a {ROLE} at the `{AFFILIATION} <{AFFILIATION_URL}>`_
 #   studying {SUBJECT}.
 ```
+
+(target-gui-screenshots)=
+### Updating GUI screenshots
+
+Most screenshots in the [GUI guide](target-gui) are made by the
+`docs/make_gui_screenshots.py` script, rather than taken by hand.
+The script opens `napari` with the `movement` widget, loads
+[sample data](#sample-data), sets up the GUI, takes a screenshot,
+and draws labels (text and arrows) on it.
+Labels are placed based on where the widgets they point at are,
+so they follow the widgets if the layout changes.
+
+The screenshots are saved as PNG files in `docs/source/_static/` and
+committed to the repository. The script does not run automatically during the
+documentation build, and it needs a display, since it opens `napari` windows.
+
+Some screenshots, such as `napari_video_reader.png` (a pop-up dialog),
+cannot be made with the script and are still taken by hand.
+Labels that point at `napari`'s layer controls rely on names that are
+private to `napari` and may change between versions.
+
+#### When the GUI changes
+
+If your PR changes how the GUI looks, regenerate the screenshots
+from the repository root:
+
+```sh
+python docs/make_gui_screenshots.py
+```
+
+Check the images that changed (`git diff --stat`), and commit them
+with your PR. Since `napari` versions draw the GUI slightly differently,
+mention the `napari` version printed by the script in the commit message,
+e.g. "Regenerate GUI screenshots with napari 0.9.2".
+To see the images in place,
+[build the documentation](#building-the-documentation-locally).
+
+#### Adding a new screenshot
+
+Each screenshot is made by one function in the script. To add one,
+write a new function modelled on an existing one (e.g. `tracks_sliders`),
+add it to the `SCREENSHOTS` dictionary at the bottom of the script,
+and run it by name, e.g. `python docs/make_gui_screenshots.py tracks_sliders`.
+Then reference the image in `docs/source/user_guide/gui.md` and commit
+it together with the script change.
+The options for placing labels are documented in the script itself
+(see `Label` and the `GUI` helper methods).
+
+To keep the screenshots consistent, please follow these conventions:
+
+- Point labels at what the user interacts with.
+  For example, point at the header of a `movement` widget section,
+  when prompting the user to expand that section.
+- Only draw a box around the target if it would otherwise be unclear
+  what the label points at.
+- When a screenshot shows a sequence of steps, number the labels
+  (e.g. "1. Load a background layer").
+- Zoom in on the data as needed, so that keypoints, tracks or
+  boxes are clearly visible.
+- Avoid covering the data or the widgets the screenshot is about.
 
 ### Cross-referencing Python objects
 
