@@ -530,8 +530,9 @@ def test_bar_colours_follow_display_mode_not_edited_data(
     edit_timeline_widget._redraw_bars()
 
     # id_0 edited on frame 2; id_1 on frames 2 and 5, so  red once, blue twice.
-    assert sorted(_bar_colors(edit_timeline_widget)) == pytest.approx(
-        sorted([known["id_0"], known["id_1"], known["id_1"]])
+    np.testing.assert_allclose(
+        sorted(_bar_colors(edit_timeline_widget)),
+        sorted([known["id_0"], known["id_1"], known["id_1"]]),
     )
 
     edit_timeline_widget.set_show_individuals(False)
