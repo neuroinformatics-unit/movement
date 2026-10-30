@@ -113,6 +113,10 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
         and ``phi`` in the dimension coordinate. The angles
         ``phi`` returned are in radians, in the range ``[-pi, pi]``.
 
+    See Also
+    --------
+    :obj:`numpy.arctan2`
+
     Notes
     -----
     To compute the angle ``phi`` we rely on the :obj:`numpy.arctan2`
@@ -127,10 +131,6 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
     .. [1] ISO/IEC standard 9899:1999, “Programming language C.”
     .. [2] https://en.wikipedia.org/wiki/Atan2
     .. [3] https://en.wikipedia.org/wiki/Signed_zero
-
-    See Also
-    --------
-    :obj:`numpy.arctan2`
 
     """
     validate_dims_coords(data, {"space": ["x", "y"]})

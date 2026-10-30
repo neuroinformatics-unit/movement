@@ -57,6 +57,11 @@ class LineOfInterest(BaseRegionOfInterest[LineLike]):
             inherited from the base class if not provided, and
             defaults are inherited from.
 
+        See Also
+        --------
+        movement.roi.BaseRegionOfInterest
+            The base class that constructor arguments are passed to.
+
         Notes
         -----
         The constructor supports 'rings' or 'closed loops' via the ``loop``
@@ -64,11 +69,6 @@ class LineOfInterest(BaseRegionOfInterest[LineLike]):
         analysis, we recommend you create a
         :class:`PolygonOfInterest<movement.roi.PolygonOfInterest>`
         and use its ``exterior_boundary`` property instead.
-
-        See Also
-        --------
-        movement.roi.BaseRegionOfInterest
-            The base class that constructor arguments are passed to.
 
         """
         if len(points) < 2:

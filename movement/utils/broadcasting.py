@@ -185,6 +185,12 @@ def make_broadcastable(
         ``@make_broadcastable(...)`` syntax. See Notes for a description of
         the action of the returned decorator.
 
+    See Also
+    --------
+    broadcastable_method : Convenience alias for ``is_classmethod = True``.
+    space_broadcastable : Convenience alias for
+        ``only_broadcastable_along = "space"``.
+
     Notes
     -----
     The returned decorator (the "``r_decorator``") extends a function that
@@ -211,12 +217,6 @@ def make_broadcastable(
     the same interpretations and effects on the result. If ``data`` provided to
     ``fr`` is not an ``xarray.DataArray``, it will fall back on the behaviour
     of ``f`` (and ignore the ``broadcast_dimension`` argument).
-
-    See Also
-    --------
-    broadcastable_method : Convenience alias for ``is_classmethod = True``.
-    space_broadcastable : Convenience alias for
-        ``only_broadcastable_along = "space"``.
 
     Examples
     --------
