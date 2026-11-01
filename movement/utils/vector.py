@@ -104,6 +104,9 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
     data
         The input data containing ``space`` as a dimension,
         with ``x`` and ``y`` in the dimension coordinate.
+        Polar coordinates are 2D, so ``space`` must contain
+        exactly ``x`` and ``y``; 3D data (with a ``z`` coordinate)
+        is not accepted.
 
     Returns
     -------
@@ -133,7 +136,7 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
     :obj:`numpy.arctan2`
 
     """
-    validate_dims_coords(data, {"space": ["x", "y"]})
+    validate_dims_coords(data, {"space": ["x", "y"]}, exact_coords=True)
     rho = compute_norm(data)
     phi = xr.apply_ufunc(
         np.arctan2,
@@ -166,6 +169,7 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
     data
         The input data containing ``space_pol`` as a dimension,
         with ``rho`` and ``phi`` in the dimension coordinate.
+        ``space_pol`` must contain exactly ``rho`` and ``phi``.
 
     Returns
     -------
@@ -175,7 +179,9 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
         in the dimension coordinate.
 
     """
-    validate_dims_coords(data, {"space_pol": ["rho", "phi"]})
+    validate_dims_coords(
+        data, {"space_pol": ["rho", "phi"]}, exact_coords=True
+    )
     rho = data.sel(space_pol="rho")
     phi = data.sel(space_pol="phi")
     x = rho * np.cos(phi)
