@@ -63,7 +63,8 @@ napari = ["napari[all]>=0.6.0"]
 
 [dependency-groups]
 dev = [
-  "pytest",
+  # pytest 9.2 breaks pytest-benchmark 5.3 (Function._nodeid removed)
+  "pytest<9.2",
   "pytest-cov",
   "pytest-mock",
   "pytest-benchmark",
