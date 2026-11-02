@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=88a85cee"></script>
+    <script src="../_static/documentation_options.js?v=bf50d684"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev75</p>
+    <p class="title logo__title">movement v0.17.1.dev76</p>
   
 </a></div>
     
@@ -721,6 +721,13 @@ receive the default name defined by
     unrecognised shape type.</p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="movement.napari.convert_roi.rois_to_napari_shapes.html#movement.napari.convert_roi.rois_to_napari_shapes" title="movement.napari.convert_roi.rois_to_napari_shapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rois_to_napari_shapes</span></code></a></dt><dd><p>The inverse of this function.</p>
+</dd>
+</dl>
+</div>
 <p class="rubric">Notes</p>
 <p>The mapping from <code class="docutils literal notranslate"><span class="pre">napari</span></code> shape types to <code class="docutils literal notranslate"><span class="pre">movement</span></code> RoI classes is:</p>
 <div class="pst-scrollable-table-container"><table class="table">
@@ -747,13 +754,6 @@ its underlying geometry library (<code class="docutils literal notranslate"><spa
 The approximation uses <a class="reference external" href="https://shapely.readthedocs.io/en/stable/reference/shapely.Point.html#shapely.Point.buffer" title="(in Shapely)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">shapely.Point.buffer()</span></code></a> scaled and rotated
 to match the ellipse geometry. This approach was inspired by
 <a class="reference external" href="https://gis.stackexchange.com/questions/243459/drawing-ellipse-with-shapely">https://gis.stackexchange.com/questions/243459/drawing-ellipse-with-shapely</a></p>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<dl class="simple">
-<dt><a class="reference internal" href="movement.napari.convert_roi.rois_to_napari_shapes.html#movement.napari.convert_roi.rois_to_napari_shapes" title="movement.napari.convert_roi.rois_to_napari_shapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rois_to_napari_shapes</span></code></a></dt><dd><p>The inverse of this function.</p>
-</dd>
-</dl>
-</div>
 </dd></dl>
 
 </section>

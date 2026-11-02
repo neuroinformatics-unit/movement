@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=88a85cee"></script>
+    <script src="../_static/documentation_options.js?v=bf50d684"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev75</p>
+    <p class="title logo__title">movement v0.17.1.dev76</p>
   
 </a></div>
     
@@ -726,6 +726,14 @@ against, to see if they lie inside.</p></li>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.9.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span></p>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>When RoIs in <code class="docutils literal notranslate"><span class="pre">regions</span></code> have identical names, a suffix
+will be appended to their name in the form of “_X”, where “X” is a number
+starting from 0. These numbers are zero-padded depending on the maximum
+number of regions with identical names (e.g. if there are 100 RoIs with the
+same name, “00” will be appended to the first of them)</p>
+<p>Regions with unique names will retain their original name as their
+corresponding coordinate name.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
@@ -748,14 +756,6 @@ against, to see if they lie inside.</p></li>
 <span class="go">np.array([True, False])</span>
 </pre></div>
 </div>
-<p class="rubric">Notes</p>
-<p>When RoIs in <code class="docutils literal notranslate"><span class="pre">regions</span></code> have identical names, a suffix
-will be appended to their name in the form of “_X”, where “X” is a number
-starting from 0. These numbers are zero-padded depending on the maximum
-number of regions with identical names (e.g. if there are 100 RoIs with the
-same name, “00” will be appended to the first of them)</p>
-<p>Regions with unique names will retain their original name as their
-corresponding coordinate name.</p>
 </dd></dl>
 
 </section>

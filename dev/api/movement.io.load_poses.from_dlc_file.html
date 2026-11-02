@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=88a85cee"></script>
+    <script src="../_static/documentation_options.js?v=bf50d684"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev75</p>
+    <p class="title logo__title">movement v0.17.1.dev76</p>
   
 </a></div>
     
@@ -724,17 +724,17 @@ and associated metadata.</p>
 <p class="admonition-title">See also</p>
 <p><a class="reference internal" href="movement.io.load_poses.from_dlc_style_df.html#movement.io.load_poses.from_dlc_style_df" title="movement.io.load_poses.from_dlc_style_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.load_poses.from_dlc_style_df</span></code></a></p>
 </div>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_poses</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_dlc_file</span><span class="p">(</span><span class="s2">"path/to/file.h5"</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
-</pre></div>
-</div>
 <p class="rubric">Notes</p>
 <p>In <code class="docutils literal notranslate"><span class="pre">movement</span></code>, pose data can only be loaded if all individuals have
 the same set of keypoints (i.e., the same labeled body parts).
 While DeepLabCut supports assigning keypoints that are not shared across
 individuals (see the <a class="reference external" href="https://deeplabcut.github.io/DeepLabCut/docs/quick-start/tutorial_maDLC.html">DeepLabCut documentation for multi-animal projects</a>),
 this feature is not currently supported in <code class="docutils literal notranslate"><span class="pre">movement</span></code>.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_poses</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_dlc_file</span><span class="p">(</span><span class="s2">"path/to/file.h5"</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </section>

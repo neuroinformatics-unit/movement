@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=88a85cee"></script>
+    <script src="../_static/documentation_options.js?v=bf50d684"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -147,7 +147,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev75</p>
+    <p class="title logo__title">movement v0.17.1.dev76</p>
   
 </a></div>
     
@@ -735,6 +735,15 @@ the input, without <code class="docutils literal notranslate"><span class="pre">
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.9.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span></p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="movement.kinematics.compute_angular_velocity.html#movement.kinematics.compute_angular_velocity" title="movement.kinematics.compute_angular_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_angular_velocity</span></code></a></dt><dd><p>Wrapper for <code class="docutils literal notranslate"><span class="pre">order=1</span></code>.</p>
+</dd>
+<dt><a class="reference internal" href="movement.kinematics.compute_angular_acceleration.html#movement.kinematics.compute_angular_acceleration" title="movement.kinematics.compute_angular_acceleration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_angular_acceleration</span></code></a></dt><dd><p>Wrapper for <code class="docutils literal notranslate"><span class="pre">order=2</span></code>.</p>
+</dd>
+</dl>
+</div>
 <p class="rubric">Notes</p>
 <p><strong>Wrap-around.</strong> Differentiating angles directly produces spurious
 spikes wherever they wrap around at <span class="math notranslate nohighlight">\(\pm\pi\)</span>.
@@ -769,15 +778,6 @@ a NaN. For a window <em>ending</em> on each time point, shift the result by
 <span class="math notranslate nohighlight">\(\pm\pi\)</span>. Windowed estimates require uniform sampling, so make sure
 to resample irregularly sampled data onto a uniform <code class="docutils literal notranslate"><span class="pre">time</span></code> grid first,
 e.g. with <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.interp.html#xarray.DataArray.interp" title="(in xarray v2026.9.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.interp()</span></code></a> on the vectors.</p>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<dl class="simple">
-<dt><a class="reference internal" href="movement.kinematics.compute_angular_velocity.html#movement.kinematics.compute_angular_velocity" title="movement.kinematics.compute_angular_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_angular_velocity</span></code></a></dt><dd><p>Wrapper for <code class="docutils literal notranslate"><span class="pre">order=1</span></code>.</p>
-</dd>
-<dt><a class="reference internal" href="movement.kinematics.compute_angular_acceleration.html#movement.kinematics.compute_angular_acceleration" title="movement.kinematics.compute_angular_acceleration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_angular_acceleration</span></code></a></dt><dd><p>Wrapper for <code class="docutils literal notranslate"><span class="pre">order=2</span></code>.</p>
-</dd>
-</dl>
-</div>
 </dd></dl>
 
 </section>

@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=88a85cee"></script>
+    <script src="../../../_static/documentation_options.js?v=bf50d684"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -142,7 +142,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev75</p>
+    <p class="title logo__title">movement v0.17.1.dev76</p>
   
 </a></div>
     
@@ -803,6 +803,11 @@
 <span class="sd">        time (raised to the power of ``order``). It has the dimensions of</span>
 <span class="sd">        the input, without ``space``.</span>
 
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">        compute_angular_velocity : Wrapper for ``order=1``.</span>
+<span class="sd">        compute_angular_acceleration : Wrapper for ``order=2``.</span>
+
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    **Wrap-around.** Differentiating angles directly produces spurious</span>
@@ -841,11 +846,6 @@
 <span class="sd">    :math:`\pm\pi`. Windowed estimates require uniform sampling, so make sure</span>
 <span class="sd">    to resample irregularly sampled data onto a uniform ``time`` grid first,</span>
 <span class="sd">    e.g. with :meth:`xarray.DataArray.interp` on the vectors.</span>
-
-<span class="sd">    See Also</span>
-<span class="sd">    --------</span>
-<span class="sd">    compute_angular_velocity : Wrapper for ``order=1``.</span>
-<span class="sd">    compute_angular_acceleration : Wrapper for ``order=2``.</span>
 
 <span class="sd">    """</span>
     <span class="n">_validate_type_data_array</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>

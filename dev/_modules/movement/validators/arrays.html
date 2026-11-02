@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=88a85cee"></script>
+    <script src="../../../_static/documentation_options.js?v=bf50d684"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -142,7 +142,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev75</p>
+    <p class="title logo__title">movement v0.17.1.dev76</p>
   
 </a></div>
     
@@ -516,6 +516,12 @@
 <span class="sd">        The exactness check is completely skipped for dimensions with</span>
 <span class="sd">        no required coordinates.</span>
 
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the input data does not contain the required dimension(s)</span>
+<span class="sd">        and/or the required coordinate(s).</span>
+
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    Validate that a data array contains the dimension 'time'. No specific</span>
@@ -531,12 +537,6 @@
 <span class="sd">    Enforce that 'space' has *only* 'x' and 'y', and no other coordinates:</span>
 
 <span class="sd">    &gt;&gt;&gt; validate_dims_coords(data, {"space": ["x", "y"]}, exact_coords=True)</span>
-
-<span class="sd">    Raises</span>
-<span class="sd">    ------</span>
-<span class="sd">    ValueError</span>
-<span class="sd">        If the input data does not contain the required dimension(s)</span>
-<span class="sd">        and/or the required coordinate(s).</span>
 
 <span class="sd">    """</span>
     <span class="c1"># 1. Check that all required dimensions are present</span>

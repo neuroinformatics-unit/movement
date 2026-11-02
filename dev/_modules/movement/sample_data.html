@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../_static/documentation_options.js?v=88a85cee"></script>
+    <script src="../../_static/documentation_options.js?v=bf50d684"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -142,7 +142,7 @@
     <img src="../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev75</p>
+    <p class="title logo__title">movement v0.17.1.dev76</p>
   
 </a></div>
     
@@ -747,6 +747,10 @@
 <span class="sd">        the file is either not available or not requested</span>
 <span class="sd">        (if ``with_video=False``).</span>
 
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    fetch_dataset</span>
+
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    Fetch a sample dataset and get the paths to the file containing the</span>
@@ -765,10 +769,6 @@
 
 <span class="sd">    &gt;&gt;&gt; paths = fetch_dataset_paths("VIA_multiple-crabs_5-frames_labels.csv")</span>
 <span class="sd">    &gt;&gt;&gt; bboxes_path = paths["bboxes"]</span>
-
-<span class="sd">    See Also</span>
-<span class="sd">    --------</span>
-<span class="sd">    fetch_dataset</span>
 
 <span class="sd">    """</span>
     <span class="n">available_data_files</span> <span class="o">=</span> <span class="n">list_datasets</span><span class="p">()</span>
@@ -844,6 +844,10 @@
 <span class="sd">    ds : xarray.Dataset</span>
 <span class="sd">        Data contained in the fetched sample file.</span>
 
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    fetch_dataset_paths</span>
+
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    Fetch a sample dataset and get the paths to the associated frame and video</span>
@@ -855,10 +859,6 @@
 <span class="sd">    ... )</span>
 <span class="sd">    &gt;&gt;&gt; frame_path = ds.frame_path</span>
 <span class="sd">    &gt;&gt;&gt; video_path = ds.video_path</span>
-
-<span class="sd">    See Also</span>
-<span class="sd">    --------</span>
-<span class="sd">    fetch_dataset_paths</span>
 
 <span class="sd">    """</span>
     <span class="c1"># If the filename start with "TRex", raise an NotImplementedError</span>

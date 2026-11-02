@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=88a85cee"></script>
+    <script src="../_static/documentation_options.js?v=bf50d684"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -147,7 +147,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev75</p>
+    <p class="title logo__title">movement v0.17.1.dev76</p>
   
 </a></div>
     
@@ -734,15 +734,6 @@ except <code class="docutils literal notranslate"><span class="pre">time</span><
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.9.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span></p>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
-<p>The Euclidean distance <span class="math notranslate nohighlight">\(D\)</span>, also known as the “straight-line” or
-“beeline” distance, is calculated using the first and last valid (non-NaN)
-spatial coordinates in the data. This ensures that missing data at the
-first or last time points do not nullify the result, provided there are
-valid observed positions in between.</p>
-<p>Note that the total path length (L), and therefore the straightness index,
-is sensitive to the temporal sampling  rate (i.e. frames per second),
-as described in the Notes of <a class="reference internal" href="movement.kinematics.compute_path_length.html#movement.kinematics.compute_path_length" title="movement.kinematics.compute_path_length"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_path_length()</span></code></a>.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
@@ -754,6 +745,15 @@ as described in the Notes of <a class="reference internal" href="movement.kinema
 </dd>
 </dl>
 </div>
+<p class="rubric">Notes</p>
+<p>The Euclidean distance <span class="math notranslate nohighlight">\(D\)</span>, also known as the “straight-line” or
+“beeline” distance, is calculated using the first and last valid (non-NaN)
+spatial coordinates in the data. This ensures that missing data at the
+first or last time points do not nullify the result, provided there are
+valid observed positions in between.</p>
+<p>Note that the total path length (L), and therefore the straightness index,
+is sensitive to the temporal sampling  rate (i.e. frames per second),
+as described in the Notes of <a class="reference internal" href="movement.kinematics.compute_path_length.html#movement.kinematics.compute_path_length" title="movement.kinematics.compute_path_length"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_path_length()</span></code></a>.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.kinematics</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_path_straightness</span>
 </pre></div>

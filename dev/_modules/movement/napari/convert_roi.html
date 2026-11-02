@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=88a85cee"></script>
+    <script src="../../../_static/documentation_options.js?v=bf50d684"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -142,7 +142,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev75</p>
+    <p class="title logo__title">movement v0.17.1.dev76</p>
   
 </a></div>
     
@@ -590,6 +590,10 @@
 <span class="sd">        - ``"properties"``: dict with a ``"name"`` key containing the</span>
 <span class="sd">          RoI names.</span>
 
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    napari_shapes_layer_to_rois : The inverse of this function.</span>
+
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    The mapping from ``movement`` RoI classes to ``napari`` shape types is:</span>
@@ -613,10 +617,6 @@
 <span class="sd">    ``loop=True``) is also affected: ``napari`` has no closed-path shape type,</span>
 <span class="sd">    so the segment connecting the last point back to the first is dropped</span>
 <span class="sd">    and a warning is emitted.</span>
-
-<span class="sd">    See Also</span>
-<span class="sd">    --------</span>
-<span class="sd">    napari_shapes_layer_to_rois : The inverse of this function.</span>
 
 <span class="sd">    """</span>
     <span class="n">data</span><span class="p">,</span> <span class="n">shape_types</span><span class="p">,</span> <span class="n">names</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
@@ -726,6 +726,10 @@
 <span class="sd">        If any shape has more than 2 coordinate columns, or has an</span>
 <span class="sd">        unrecognised shape type.</span>
 
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    rois_to_napari_shapes : The inverse of this function.</span>
+
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    The mapping from ``napari`` shape types to ``movement`` RoI classes is:</span>
@@ -747,10 +751,6 @@
 <span class="sd">    The approximation uses :meth:`shapely.Point.buffer` scaled and rotated</span>
 <span class="sd">    to match the ellipse geometry. This approach was inspired by</span>
 <span class="sd">    https://gis.stackexchange.com/questions/243459/drawing-ellipse-with-shapely</span>
-
-<span class="sd">    See Also</span>
-<span class="sd">    --------</span>
-<span class="sd">    rois_to_napari_shapes : The inverse of this function.</span>
 
 <span class="sd">    """</span>
     <span class="n">names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">,</span> <span class="p">[]))</span>

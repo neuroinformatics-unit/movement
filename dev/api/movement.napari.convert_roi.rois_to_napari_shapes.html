@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=88a85cee"></script>
+    <script src="../_static/documentation_options.js?v=bf50d684"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev75</p>
+    <p class="title logo__title">movement v0.17.1.dev76</p>
   
 </a></div>
     
@@ -724,6 +724,13 @@ RoI names.</p></li>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="movement.napari.convert_roi.napari_shapes_layer_to_rois.html#movement.napari.convert_roi.napari_shapes_layer_to_rois" title="movement.napari.convert_roi.napari_shapes_layer_to_rois"><code class="xref py py-obj docutils literal notranslate"><span class="pre">napari_shapes_layer_to_rois</span></code></a></dt><dd><p>The inverse of this function.</p>
+</dd>
+</dl>
+</div>
 <p class="rubric">Notes</p>
 <p>The mapping from <code class="docutils literal notranslate"><span class="pre">movement</span></code> RoI classes to <code class="docutils literal notranslate"><span class="pre">napari</span></code> shape types is:</p>
 <div class="pst-scrollable-table-container"><table class="table">
@@ -750,13 +757,6 @@ are all returned as <code class="docutils literal notranslate"><span class="pre"
 <code class="docutils literal notranslate"><span class="pre">loop=True</span></code>) is also affected: <code class="docutils literal notranslate"><span class="pre">napari</span></code> has no closed-path shape type,
 so the segment connecting the last point back to the first is dropped
 and a warning is emitted.</p>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<dl class="simple">
-<dt><a class="reference internal" href="movement.napari.convert_roi.napari_shapes_layer_to_rois.html#movement.napari.convert_roi.napari_shapes_layer_to_rois" title="movement.napari.convert_roi.napari_shapes_layer_to_rois"><code class="xref py py-obj docutils literal notranslate"><span class="pre">napari_shapes_layer_to_rois</span></code></a></dt><dd><p>The inverse of this function.</p>
-</dd>
-</dl>
-</div>
 </dd></dl>
 
 </section>

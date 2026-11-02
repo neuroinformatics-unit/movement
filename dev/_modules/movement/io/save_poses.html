@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=88a85cee"></script>
+    <script src="../../../_static/documentation_options.js?v=bf50d684"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -142,7 +142,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev75</p>
+    <p class="title logo__title">movement v0.17.1.dev76</p>
   
 </a></div>
     
@@ -610,6 +610,10 @@
 <span class="sd">    pandas.DataFrame or dict</span>
 <span class="sd">        DeepLabCut-style pandas DataFrame or dictionary of DataFrames.</span>
 
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    to_dlc_file : Save dataset directly to a DeepLabCut-style .h5 or .csv file.</span>
+
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    The DataFrame(s) will have a multi-index column with the following levels:</span>
@@ -623,10 +627,6 @@
 
 <span class="sd">    For 3D data, the "coords" level will only contain "x", "y", and "z",</span>
 <span class="sd">    as DeepLabCut does not currently provide 3D likelihoods.</span>
-
-<span class="sd">    See Also</span>
-<span class="sd">    --------</span>
-<span class="sd">    to_dlc_file : Save dataset directly to a DeepLabCut-style .h5 or .csv file.</span>
 
 <span class="sd">    """</span>
     <span class="n">ValidPosesInputs</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
@@ -687,6 +687,10 @@
 <span class="sd">        Whether to save individuals to separate files or to the same file</span>
 <span class="sd">        (see Notes). Defaults to "auto".</span>
 
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    to_dlc_style_df : Convert dataset to DeepLabCut-style DataFrame(s).</span>
+
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    If ``split_individuals`` is True, each individual will be saved to a</span>
@@ -700,10 +704,6 @@
 <span class="sd">    (with the "individuals" column level). The file path will not be modified.</span>
 <span class="sd">    If "auto", the argument's value is determined based on the number of</span>
 <span class="sd">    individuals in the dataset: True if there is only one, False otherwise.</span>
-
-<span class="sd">    See Also</span>
-<span class="sd">    --------</span>
-<span class="sd">    to_dlc_style_df : Convert dataset to DeepLabCut-style DataFrame(s).</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -759,6 +759,10 @@
 <span class="sd">    file</span>
 <span class="sd">        Path to the file to save the poses to. File extension must be .csv.</span>
 
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    to_dlc_file : Save dataset to a DeepLabCut-style .h5 or .csv file.</span>
+
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    LightningPose saves pose estimation outputs as .csv files, using the same</span>
@@ -769,10 +773,6 @@
 <span class="sd">    individual, the individual's name is appended to the file path, just</span>
 <span class="sd">    before the file extension, i.e. "/path/to/filename_individual1.csv".</span>
 <span class="sd">    If it contains only one individual, the given file path is used as is.</span>
-
-<span class="sd">    See Also</span>
-<span class="sd">    --------</span>
-<span class="sd">    to_dlc_file : Save dataset to a DeepLabCut-style .h5 or .csv file.</span>
 
 <span class="sd">    """</span>
     <span class="n">to_dlc_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">split_individuals</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
@@ -914,6 +914,11 @@
 <span class="sd">        will be returned. If the dataset contains multiple individuals,</span>
 <span class="sd">        a list of NWBFile objects will be returned, one for each individual.</span>
 
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    movement.io.nwb.NWBFileSaveConfig :</span>
+<span class="sd">        For further details on the configuration object and its parameters.</span>
+
 <span class="sd">    References</span>
 <span class="sd">    ----------</span>
 <span class="sd">    .. [1] https://github.com/rly/ndx-pose</span>
@@ -982,11 +987,6 @@
 <span class="sd">    ...     },</span>
 <span class="sd">    ... )</span>
 <span class="sd">    &gt;&gt;&gt; nwb_files = save_poses.to_nwb_file_object(ds, config)</span>
-
-<span class="sd">    See Also</span>
-<span class="sd">    --------</span>
-<span class="sd">    movement.io.nwb.NWBFileSaveConfig :</span>
-<span class="sd">        For further details on the configuration object and its parameters.</span>
 
 <span class="sd">    """</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="ow">or</span> <span class="n">NWBFileSaveConfig</span><span class="p">()</span>
@@ -1067,6 +1067,11 @@
 <span class="sd">        will be returned. If the dataset contains multiple individuals,</span>
 <span class="sd">        a list of NWBFile objects will be returned, one for each individual.</span>
 
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    movement.io.nwb.NWBFileSaveConfig :</span>
+<span class="sd">        For further details on the configuration object and its parameters.</span>
+
 <span class="sd">    References</span>
 <span class="sd">    ----------</span>
 <span class="sd">    .. [1] https://github.com/rly/ndx-pose</span>
@@ -1135,11 +1140,6 @@
 <span class="sd">    ...     },</span>
 <span class="sd">    ... )</span>
 <span class="sd">    &gt;&gt;&gt; nwb_files = save_poses.to_nwb_file_object(ds, config)</span>
-
-<span class="sd">    See Also</span>
-<span class="sd">    --------</span>
-<span class="sd">    movement.io.nwb.NWBFileSaveConfig :</span>
-<span class="sd">        For further details on the configuration object and its parameters.</span>
 
 <span class="sd">    """</span>
     <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>

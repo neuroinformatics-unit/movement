@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=88a85cee"></script>
+    <script src="../_static/documentation_options.js?v=bf50d684"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev75</p>
+    <p class="title logo__title">movement v0.17.1.dev76</p>
   
 </a></div>
     
@@ -732,6 +732,15 @@ the action of the returned decorator.</p>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.15)">collections.abc.Callable</a></p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="movement.utils.broadcasting.broadcastable_method.html#movement.utils.broadcasting.broadcastable_method" title="movement.utils.broadcasting.broadcastable_method"><code class="xref py py-obj docutils literal notranslate"><span class="pre">broadcastable_method</span></code></a></dt><dd><p>Convenience alias for <code class="docutils literal notranslate"><span class="pre">is_classmethod</span> <span class="pre">=</span> <span class="pre">True</span></code>.</p>
+</dd>
+<dt><a class="reference internal" href="movement.utils.broadcasting.space_broadcastable.html#movement.utils.broadcasting.space_broadcastable" title="movement.utils.broadcasting.space_broadcastable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">space_broadcastable</span></code></a></dt><dd><p>Convenience alias for <code class="docutils literal notranslate"><span class="pre">only_broadcastable_along</span> <span class="pre">=</span> <span class="pre">&quot;space&quot;</span></code>.</p>
+</dd>
+</dl>
+</div>
 <p class="rubric">Notes</p>
 <p>The returned decorator (the “<code class="docutils literal notranslate"><span class="pre">r_decorator</span></code>”) extends a function that
 acts on a 1D sequence of values, allowing it to be broadcast along the
@@ -754,15 +763,6 @@ The <code class="docutils literal notranslate"><span class="pre">*args</span></c
 the same interpretations and effects on the result. If <code class="docutils literal notranslate"><span class="pre">data</span></code> provided to
 <code class="docutils literal notranslate"><span class="pre">fr</span></code> is not an <code class="docutils literal notranslate"><span class="pre">xarray.DataArray</span></code>, it will fall back on the behaviour
 of <code class="docutils literal notranslate"><span class="pre">f</span></code> (and ignore the <code class="docutils literal notranslate"><span class="pre">broadcast_dimension</span></code> argument).</p>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<dl class="simple">
-<dt><a class="reference internal" href="movement.utils.broadcasting.broadcastable_method.html#movement.utils.broadcasting.broadcastable_method" title="movement.utils.broadcasting.broadcastable_method"><code class="xref py py-obj docutils literal notranslate"><span class="pre">broadcastable_method</span></code></a></dt><dd><p>Convenience alias for <code class="docutils literal notranslate"><span class="pre">is_classmethod</span> <span class="pre">=</span> <span class="pre">True</span></code>.</p>
-</dd>
-<dt><a class="reference internal" href="movement.utils.broadcasting.space_broadcastable.html#movement.utils.broadcasting.space_broadcastable" title="movement.utils.broadcasting.space_broadcastable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">space_broadcastable</span></code></a></dt><dd><p>Convenience alias for <code class="docutils literal notranslate"><span class="pre">only_broadcastable_along</span> <span class="pre">=</span> <span class="pre">&quot;space&quot;</span></code>.</p>
-</dd>
-</dl>
-</div>
 <p class="rubric">Examples</p>
 <p>Make a standalone function broadcast along the <code class="docutils literal notranslate"><span class="pre">&quot;space&quot;</span></code> axis of an
 <code class="docutils literal notranslate"><span class="pre">xarray.DataArray</span></code>.</p>

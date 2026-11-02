@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=88a85cee"></script>
+    <script src="../_static/documentation_options.js?v=bf50d684"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev75</p>
+    <p class="title logo__title">movement v0.17.1.dev76</p>
   
 </a></div>
     
@@ -757,6 +757,13 @@ containing the computed distances for that pair.</p>
     if there are no pairs in <code class="docutils literal notranslate"><span class="pre">data</span></code> to compute distances for.</p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.cdist.html#scipy.spatial.distance.cdist" title="(in SciPy v1.18.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scipy.spatial.distance.cdist</span></code></a></dt><dd><p>The underlying function used.</p>
+</dd>
+</dl>
+</div>
 <p class="rubric">Examples</p>
 <p>Compute the Euclidean distance (default) between <code class="docutils literal notranslate"><span class="pre">ind1</span></code> and <code class="docutils literal notranslate"><span class="pre">ind2</span></code>
 (i.e. interindividual distance), for all possible pairs of keypoints.</p>
@@ -842,13 +849,6 @@ individuals using <code class="docutils literal notranslate"><span class="pre">p
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ind_dists</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
 <span class="go">dict_keys(['dist_ind1_ind2', 'dist_ind1_ind3', 'dist_ind2_ind3'])</span>
 </pre></div>
-</div>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<dl class="simple">
-<dt><a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.cdist.html#scipy.spatial.distance.cdist" title="(in SciPy v1.18.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scipy.spatial.distance.cdist</span></code></a></dt><dd><p>The underlying function used.</p>
-</dd>
-</dl>
 </div>
 </dd></dl>
 

@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=88a85cee"></script>
+    <script src="../../../_static/documentation_options.js?v=bf50d684"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -142,7 +142,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev75</p>
+    <p class="title logo__title">movement v0.17.1.dev76</p>
   
 </a></div>
     
@@ -665,6 +665,10 @@
 <span class="sd">        An xarray DataArray containing velocity vectors in Cartesian</span>
 <span class="sd">        coordinates.</span>
 
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    compute_time_derivative : The underlying function used.</span>
+
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    For the ``position`` array of a ``poses`` dataset, the ``velocity`` array</span>
@@ -673,10 +677,6 @@
 <span class="sd">    For the ``position`` array of a ``bboxes`` dataset, the ``velocity`` array</span>
 <span class="sd">    will hold the velocity vectors for the centroid of every individual</span>
 <span class="sd">    bounding box.</span>
-
-<span class="sd">    See Also</span>
-<span class="sd">    --------</span>
-<span class="sd">    compute_time_derivative : The underlying function used.</span>
 
 <span class="sd">    """</span>
     <span class="c1"># validate only presence of Cartesian space dimension</span>
@@ -709,6 +709,10 @@
 <span class="sd">        An xarray DataArray containing acceleration vectors in Cartesian</span>
 <span class="sd">        coordinates.</span>
 
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    compute_time_derivative : The underlying function used.</span>
+
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    For the ``position`` array of a ``poses`` dataset, the ``acceleration``</span>
@@ -718,10 +722,6 @@
 <span class="sd">    For the ``position`` array of a ``bboxes`` dataset, the ``acceleration``</span>
 <span class="sd">    array will hold the acceleration vectors for the centroid of every</span>
 <span class="sd">    individual bounding box.</span>
-
-<span class="sd">    See Also</span>
-<span class="sd">    --------</span>
-<span class="sd">    compute_time_derivative : The underlying function used.</span>
 
 <span class="sd">    """</span>
     <span class="c1"># validate only presence of Cartesian space dimension</span>

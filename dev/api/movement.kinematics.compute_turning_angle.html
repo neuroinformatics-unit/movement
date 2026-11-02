@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=88a85cee"></script>
+    <script src="../_static/documentation_options.js?v=bf50d684"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -147,7 +147,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev75</p>
+    <p class="title logo__title">movement v0.17.1.dev76</p>
   
 </a></div>
     
@@ -734,6 +734,15 @@ with the <code class="docutils literal notranslate"><span class="pre">space</spa
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.9.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span></p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="movement.kinematics.compute_backward_displacement.html#movement.kinematics.compute_backward_displacement" title="movement.kinematics.compute_backward_displacement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.kinematics.compute_backward_displacement</span></code></a></dt><dd><p>The underlying function used to compute the displacement vectors.</p>
+</dd>
+<dt><a class="reference internal" href="movement.utils.vector.compute_signed_angle_2d.html#movement.utils.vector.compute_signed_angle_2d" title="movement.utils.vector.compute_signed_angle_2d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.utils.vector.compute_signed_angle_2d</span></code></a></dt><dd><p>The underlying function used to compute the signed angle between two consecutive displacement vectors.</p>
+</dd>
+</dl>
+</div>
 <p class="rubric">Notes</p>
 <ol class="arabic simple">
 <li><p><strong>Time dimension length:</strong> This function uses a <code class="docutils literal notranslate"><span class="pre">shift</span></code>
@@ -760,15 +769,6 @@ Use <a class="reference internal" href="movement.filtering.interpolate_over_time
 positional gaps before computing turning angles if continuity
 is important.</p></li>
 </ol>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<dl class="simple">
-<dt><a class="reference internal" href="movement.kinematics.compute_backward_displacement.html#movement.kinematics.compute_backward_displacement" title="movement.kinematics.compute_backward_displacement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.kinematics.compute_backward_displacement</span></code></a></dt><dd><p>The underlying function used to compute the displacement vectors.</p>
-</dd>
-<dt><a class="reference internal" href="movement.utils.vector.compute_signed_angle_2d.html#movement.utils.vector.compute_signed_angle_2d" title="movement.utils.vector.compute_signed_angle_2d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.utils.vector.compute_signed_angle_2d</span></code></a></dt><dd><p>The underlying function used to compute the signed angle between two consecutive displacement vectors.</p>
-</dd>
-</dl>
-</div>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.kinematics</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_turning_angle</span>
 </pre></div>

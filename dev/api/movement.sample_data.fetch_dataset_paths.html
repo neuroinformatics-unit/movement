@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=88a85cee"></script>
+    <script src="../_static/documentation_options.js?v=bf50d684"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev75</p>
+    <p class="title logo__title">movement v0.17.1.dev76</p>
   
 </a></div>
     
@@ -726,6 +726,10 @@ the file is either not available or not requested
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span></p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="movement.sample_data.fetch_dataset.html#movement.sample_data.fetch_dataset" title="movement.sample_data.fetch_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fetch_dataset</span></code></a></p>
+</div>
 <p class="rubric">Examples</p>
 <p>Fetch a sample dataset and get the paths to the file containing the
 predicted poses, as well as the associated frame and video files:</p>
@@ -743,10 +747,6 @@ poses, use <code class="docutils literal notranslate"><span class="pre">paths[&q
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="n">fetch_dataset_paths</span><span class="p">(</span><span class="s2">"VIA_multiple-crabs_5-frames_labels.csv"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">bboxes_path</span> <span class="o">=</span> <span class="n">paths</span><span class="p">[</span><span class="s2">"bboxes"</span><span class="p">]</span>
 </pre></div>
-</div>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><a class="reference internal" href="movement.sample_data.fetch_dataset.html#movement.sample_data.fetch_dataset" title="movement.sample_data.fetch_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fetch_dataset</span></code></a></p>
 </div>
 </dd></dl>
 

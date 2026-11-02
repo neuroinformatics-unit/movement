@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=88a85cee"></script>
+    <script src="../_static/documentation_options.js?v=bf50d684"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev75</p>
+    <p class="title logo__title">movement v0.17.1.dev76</p>
   
 </a></div>
     
@@ -727,6 +727,13 @@ DataFrame for all individuals (see Notes).</p></li>
 <dd class="field-even"><p><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)">pandas.DataFrame</a> or <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)">dict</a></p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="movement.io.save_poses.to_dlc_file.html#movement.io.save_poses.to_dlc_file" title="movement.io.save_poses.to_dlc_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dlc_file</span></code></a></dt><dd><p>Save dataset directly to a DeepLabCut-style .h5 or .csv file.</p>
+</dd>
+</dl>
+</div>
 <p class="rubric">Notes</p>
 <p>The DataFrame(s) will have a multi-index column with the following levels:
 “scorer”, “bodyparts”, “coords” (if split_individuals is True),
@@ -737,13 +744,6 @@ scores, they will be referred to as “likelihood”, and stored in
 the “coords” level as DeepLabCut expects.</p>
 <p>For 3D data, the “coords” level will only contain “x”, “y”, and “z”,
 as DeepLabCut does not currently provide 3D likelihoods.</p>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<dl class="simple">
-<dt><a class="reference internal" href="movement.io.save_poses.to_dlc_file.html#movement.io.save_poses.to_dlc_file" title="movement.io.save_poses.to_dlc_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dlc_file</span></code></a></dt><dd><p>Save dataset directly to a DeepLabCut-style .h5 or .csv file.</p>
-</dd>
-</dl>
-</div>
 </dd></dl>
 
 </section>

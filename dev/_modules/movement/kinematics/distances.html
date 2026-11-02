@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=88a85cee"></script>
+    <script src="../../../_static/documentation_options.js?v=bf50d684"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -142,7 +142,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev75</p>
+    <p class="title logo__title">movement v0.17.1.dev76</p>
   
 </a></div>
     
@@ -529,12 +529,17 @@
 <span class="sd">        Additional keyword arguments to pass to</span>
 <span class="sd">        :func:`scipy.spatial.distance.cdist`.</span>
 
-
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    xarray.DataArray</span>
 <span class="sd">        An xarray DataArray containing the computed distances between</span>
 <span class="sd">        each pair of inputs.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    scipy.spatial.distance.cdist : The underlying function used.</span>
+<span class="sd">    compute_pairwise_distances : Compute pairwise distances between</span>
+<span class="sd">        ``individual`` or ``keypoint``</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -553,12 +558,6 @@
 <span class="sd">    &gt;&gt;&gt; pos1 = ds.position.sel(keypoint="key1")</span>
 <span class="sd">    &gt;&gt;&gt; pos2 = ds.position.sel(keypoint="key2")</span>
 <span class="sd">    &gt;&gt;&gt; key_dists = _cdist(pos1, pos2, dim="keypoint")</span>
-
-<span class="sd">    See Also</span>
-<span class="sd">    --------</span>
-<span class="sd">    scipy.spatial.distance.cdist : The underlying function used.</span>
-<span class="sd">    compute_pairwise_distances : Compute pairwise distances between</span>
-<span class="sd">        ``individual`` or ``keypoint``</span>
 
 <span class="sd">    """</span>
     <span class="c1"># The dimension from which ``dim`` labels are obtained</span>
@@ -654,6 +653,10 @@
 <span class="sd">        if ``pairs`` is not a dictionary or ``'all'``; or</span>
 <span class="sd">        if there are no pairs in ``data`` to compute distances for.</span>
 
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    scipy.spatial.distance.cdist : The underlying function used.</span>
+
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    Compute the Euclidean distance (default) between ``ind1`` and ``ind2``</span>
@@ -743,10 +746,6 @@
 <span class="sd">    ... )</span>
 <span class="sd">    &gt;&gt;&gt; ind_dists.keys()</span>
 <span class="sd">    dict_keys(['dist_ind1_ind2', 'dist_ind1_ind3', 'dist_ind2_ind3'])</span>
-
-<span class="sd">    See Also</span>
-<span class="sd">    --------</span>
-<span class="sd">    scipy.spatial.distance.cdist : The underlying function used.</span>
 
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="n">dim</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"individual"</span><span class="p">,</span> <span class="s2">"keypoint"</span><span class="p">]:</span>

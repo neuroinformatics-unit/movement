@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=88a85cee"></script>
+    <script src="../_static/documentation_options.js?v=bf50d684"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev75</p>
+    <p class="title logo__title">movement v0.17.1.dev76</p>
   
 </a></div>
     
@@ -685,7 +685,9 @@ Sometimes you may have good reasons to ignore a particular rule for a specific l
 <section id="docstrings">
 <h3>Docstrings<a class="headerlink" href="#docstrings" title="Link to this heading">#</a></h3>
 <p>We adhere to the <a class="reference external" href="https://numpydoc.readthedocs.io/en/latest/format.html">numpydoc</a> style.
-All public functions, classes, and methods must include docstrings, as these enable <a class="reference internal" href="#updating-the-api-reference"><span class="std std-ref">automatic generation of the API reference</span></a>.</p>
+All public functions, classes, and methods must include docstrings to enable <a class="reference internal" href="#updating-the-api-reference"><span class="std std-ref">automatic generation of the API reference</span></a>.
+Docstring sections must follow the order specified in the numpydoc style guide
+(e.g. <code class="docutils literal notranslate"><span class="pre">See</span> <span class="pre">Also</span></code> comes before <code class="docutils literal notranslate"><span class="pre">Notes</span></code>, <code class="docutils literal notranslate"><span class="pre">References</span></code>, and <code class="docutils literal notranslate"><span class="pre">Examples</span></code>).</p>
 <p>To document module‑level variables or class attributes, place a string literal immediately after the definition—a convention recognised by <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#doc-comments-and-docstrings">sphinx-autodoc</a>; see also <a class="reference external" href="https://peps.python.org/pep-0257/#what-is-a-docstring">PEP 257</a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MyClass</span><span class="p">:</span>
     <span class="n">x</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span>

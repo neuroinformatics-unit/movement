@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=88a85cee"></script>
+    <script src="../../../_static/documentation_options.js?v=bf50d684"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -142,7 +142,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev75</p>
+    <p class="title logo__title">movement v0.17.1.dev76</p>
   
 </a></div>
     
@@ -539,6 +539,11 @@
 <span class="sd">            inherited from the base class if not provided, and</span>
 <span class="sd">            defaults are inherited from.</span>
 
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        movement.roi.BaseRegionOfInterest</span>
+<span class="sd">            The base class that constructor arguments are passed to.</span>
+
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
 <span class="sd">        The constructor supports 'rings' or 'closed loops' via the ``loop``</span>
@@ -546,11 +551,6 @@
 <span class="sd">        analysis, we recommend you create a</span>
 <span class="sd">        :class:`PolygonOfInterest&lt;movement.roi.PolygonOfInterest&gt;`</span>
 <span class="sd">        and use its ``exterior_boundary`` property instead.</span>
-
-<span class="sd">        See Also</span>
-<span class="sd">        --------</span>
-<span class="sd">        movement.roi.BaseRegionOfInterest</span>
-<span class="sd">            The base class that constructor arguments are passed to.</span>
 
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
