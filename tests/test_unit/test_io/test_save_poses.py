@@ -1,6 +1,7 @@
 from contextlib import nullcontext as does_not_raise
 from pathlib import Path
 
+import h5py
 import numpy as np
 import pandas as pd
 import pytest
@@ -377,6 +378,34 @@ def test_to_sleap_analysis_file_invalid_dataset(
     ds = request.getfixturevalue(invalid_poses_dataset)
     with pytest.raises(expected_exception):
         save_poses.to_sleap_analysis_file(ds, new_h5_file)
+
+
+@pytest.mark.parametrize("fps", [None, 30])
+def test_to_sleap_analysis_file_with_frame_gaps(
+    valid_poses_dataset, fps, new_h5_file
+):
+    """Test that saving a dataset with gaps between its frames to a
+    SLEAP analysis file places each frame at its frame index, and fills
+    the missing frames with NaN.
+    """
+    ds = valid_poses_dataset.isel(time=slice(0, None, 2))
+    if fps is not None:
+        ds = ds.assign_coords(time=ds.time / fps)
+        ds.attrs.update({"fps": fps, "time_unit": "seconds"})
+    save_poses.to_sleap_analysis_file(ds, new_h5_file)
+    with h5py.File(new_h5_file, "r") as f:
+        n_frames = {
+            key: f[key].shape[-1]
+            for key in ["tracks", "point_scores", "instance_scores"]
+        }
+        n_frames["track_occupancy"] = f["track_occupancy"].shape[0]
+    assert set(n_frames.values()) == {9}
+    ds_loaded = load_poses.from_sleap_file(new_h5_file, fps=fps)
+    xr.testing.assert_allclose(
+        ds_loaded.position.isel(time=slice(0, None, 2)),
+        ds.position.transpose(*ds_loaded.position.dims),
+    )
+    assert ds_loaded.position.isel(time=slice(1, None, 2)).isnull().all()
 
 
 nwb_file_expectations_ind = {
