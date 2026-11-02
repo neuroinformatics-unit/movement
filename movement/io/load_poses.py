@@ -167,6 +167,10 @@ def from_dlc_style_df(
         ``movement`` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
+    See Also
+    --------
+    movement.io.load_poses.from_dlc_file
+
     Notes
     -----
     The DataFrame must have a multi-index column with the following levels:
@@ -182,10 +186,6 @@ def from_dlc_style_df(
       <https://deeplabcut.github.io/DeepLabCut/docs/Overviewof3D.html>`__).
 
     The row index corresponds to the frame number.
-
-    See Also
-    --------
-    movement.io.load_poses.from_dlc_file
 
     """
     # Read names of individuals and keypoints from the DataFrame
@@ -358,11 +358,6 @@ def from_dlc_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     --------
     movement.io.load_poses.from_dlc_style_df
 
-    Examples
-    --------
-    >>> from movement.io import load_poses
-    >>> ds = load_poses.from_dlc_file("path/to/file.h5", fps=30)
-
     Notes
     -----
     In ``movement``, pose data can only be loaded if all individuals have
@@ -371,6 +366,11 @@ def from_dlc_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     individuals (see the `DeepLabCut documentation for multi-animal projects
     <https://deeplabcut.github.io/DeepLabCut/docs/quick-start/tutorial_maDLC.html>`_),
     this feature is not currently supported in ``movement``.
+
+    Examples
+    --------
+    >>> from movement.io import load_poses
+    >>> ds = load_poses.from_dlc_file("path/to/file.h5", fps=30)
 
     """
     return _ds_from_lp_or_dlc_file(

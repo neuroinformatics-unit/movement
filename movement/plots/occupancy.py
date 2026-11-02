@@ -65,6 +65,10 @@ def plot_occupancy(
         from :meth:`matplotlib.axes.Axes.hist2d` that would otherwise be lost
         if only the figure and axes handles were returned.
 
+    See Also
+    --------
+    :meth:`matplotlib.axes.Axes.hist2d` : The underlying plotting function.
+
     Examples
     --------
     Simple use-case is to plot a histogram of the centroid of all
@@ -107,10 +111,6 @@ def plot_occupancy(
     ...     # Normalise the plot, scaling the counts to [0, 1]
     ...     norm="log",
     ... )
-
-    See Also
-    --------
-    :meth:`matplotlib.axes.Axes.hist2d` : The underlying plotting function.
 
     """
     # Collapse dimensions if necessary

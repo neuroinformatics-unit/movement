@@ -108,6 +108,10 @@ def rois_to_napari_shapes(
         - ``"properties"``: dict with a ``"name"`` key containing the
           RoI names.
 
+    See Also
+    --------
+    napari_shapes_layer_to_rois : The inverse of this function.
+
     Notes
     -----
     The mapping from ``movement`` RoI classes to ``napari`` shape types is:
@@ -131,10 +135,6 @@ def rois_to_napari_shapes(
     ``loop=True``) is also affected: ``napari`` has no closed-path shape type,
     so the segment connecting the last point back to the first is dropped
     and a warning is emitted.
-
-    See Also
-    --------
-    napari_shapes_layer_to_rois : The inverse of this function.
 
     """
     data, shape_types, names = [], [], []
@@ -241,6 +241,10 @@ def napari_shapes_layer_to_rois(
         If any shape has more than 2 coordinate columns, or has an
         unrecognised shape type.
 
+    See Also
+    --------
+    rois_to_napari_shapes : The inverse of this function.
+
     Notes
     -----
     The mapping from ``napari`` shape types to ``movement`` RoI classes is:
@@ -262,10 +266,6 @@ def napari_shapes_layer_to_rois(
     The approximation uses :meth:`shapely.Point.buffer` scaled and rotated
     to match the ellipse geometry. This approach was inspired by
     https://gis.stackexchange.com/questions/243459/drawing-ellipse-with-shapely
-
-    See Also
-    --------
-    rois_to_napari_shapes : The inverse of this function.
 
     """
     names = list(layer.properties.get("name", []))
