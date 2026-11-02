@@ -348,11 +348,17 @@ def to_sleap_analysis_file(ds: xr.Dataset, file: str | Path) -> None:
     else:
         frame_idxs = ds.time.values.astype(int).tolist()
     n_frames = frame_idxs[-1] - frame_idxs[0] + 1
+    rows = np.asarray(frame_idxs) - frame_idxs[0]
     pos_x = ds.position.sel(space="x").values
     # Mask denoting which individuals are present in each frame
-    track_occupancy = (~np.all(np.isnan(pos_x), axis=1)).astype(int)
-    tracks = ds.position.data.transpose(3, 1, 2, 0)
-    point_scores = ds.confidence.data.T
+    track_occupancy = np.zeros((n_frames, n_individuals), dtype=int)
+    track_occupancy[rows] = ~np.all(np.isnan(pos_x), axis=1)
+    position = ds.position.data.transpose(3, 1, 2, 0)
+    tracks = np.full(position.shape[:-1] + (n_frames,), np.nan)
+    tracks[..., rows] = position
+    confidence = ds.confidence.data.T
+    point_scores = np.full(confidence.shape[:-1] + (n_frames,), np.nan)
+    point_scores[..., rows] = confidence
     instance_scores = np.full((n_individuals, n_frames), np.nan, dtype=float)
     tracking_scores = np.full((n_individuals, n_frames), np.nan, dtype=float)
     source_file = getattr(ds, "source_file", None)
