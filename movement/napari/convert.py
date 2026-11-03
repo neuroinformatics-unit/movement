@@ -330,6 +330,23 @@ def napari_layers_to_ds(
         edited_da = live_das["edited"].fillna(False).astype(bool) | (
             point_missing_now & position_was_present_originally
         )
+        # A point removed in an earlier session is loaded as missing with
+        # `edited` set; it stays edited while it is still missing.
+        if "edited" in properties_with_nans.columns:
+            edited_before = (
+                properties_with_nans.set_index(
+                    ["time", "keypoint", "individual"]
+                )["edited"]
+                .to_xarray()
+                .reindex(
+                    time=time_coords,
+                    keypoint=keypoint_coords,
+                    individual=individual_coords,
+                    fill_value=False,
+                )
+                .astype(bool)
+            )
+            edited_da = edited_da | (point_missing_now & edited_before)
 
         ds = xr.Dataset(
             data_vars={
