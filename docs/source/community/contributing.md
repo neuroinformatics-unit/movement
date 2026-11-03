@@ -22,9 +22,6 @@ There are a few reasons an issue might not be actionable yet:
 
 If you're unsure whether an issue is ready to work on, just ask!
 
-Some issues are labelled as ``good first issue``.
-These are especially suitable if you're new to the project, and we recommend starting there.
-
 Before opening a pull request, make sure to read through
 [relevant section](target-pull-requests) of this guide.
 
