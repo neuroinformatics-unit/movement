@@ -25,6 +25,9 @@ If you're unsure whether an issue is ready to work on, just ask!
 Some issues are labelled as ``good first issue``.
 These are especially suitable if you're new to the project, and we recommend starting there.
 
+Before opening a pull request, make sure to read through
+[relevant section](target-pull-requests) of this guide.
+
 (target-contribution-workflow)=
 ## Contribution workflow
 
@@ -113,9 +116,24 @@ Now that you have the repository locally, you need to set up a Python environmen
     pre-commit install
     ```
 
+(target-pull-requests)=
 ### Pull requests
 
 In all cases, please submit code to the main repository via a pull request (PR).
+
+:::{admonition} Pull request review limits
+:class: note
+
+To help us give each contribution thoughtful, timely feedback, we limit new contributors
+to one PR marked as "Ready for review" at a time. Draft PRs are welcome for exploring
+ideas and discussing direction, but only PRs marked as ready receive a full review
+from the maintainers. This avoids spreading our attention too thinly.
+
+That limit doesn't apply after two of your PRs have been merged, as familiarity with
+the project typically translates to less back-and-forth.
+Team members with write access are also exempt.
+:::
+
 We recommend, and adhere, to the following conventions:
 
 - Please submit _draft_ PRs as early as possible to allow for discussion.
