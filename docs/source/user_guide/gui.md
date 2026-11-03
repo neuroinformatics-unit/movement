@@ -330,7 +330,8 @@ Editing involves the following parts of the GUI:
 
 - **The viewer**, where you select and edit keypoints on the points layer.
 - **The `Edit tracked data` menu** on the right-hand side of the window,
-  which holds the [editing options](target-edit-types). Expanding or collapsing it shows or
+  which holds the [editing options](target-edit-types) and the buttons to
+  [reset edits](target-reset-edits). Expanding or collapsing it shows or
   hides the edit timeline.
 - **The [edit timeline](target-edit-timeline)** at the bottom of the
   window, which provides a visual summary of all edited frames and lets
@@ -434,6 +435,29 @@ The checkbox is disabled for single-individual datasets.
 <video autoplay loop muted playsinline width="100%" aria-label="Ticking Display individuals to split the edit timeline into one row per individual">
   <source src="../_static/napari_edit_timeline_individuals.mp4" type="video/mp4">
 </video>
+
+(target-reset-edits)=
+### Reset edits
+
+If you want to discard your corrections, the `Edit tracked data` menu
+provides two buttons:
+
+- `Reset current frame` restores the moved or removed keypoints in the
+  frame currently shown in the viewer. Edits in other frames are kept.
+- `Reset all frames` restores all edited keypoints in the loaded dataset.
+  You will be asked to confirm before the edits are discarded.
+
+Both buttons restore the dataset to the state it was in when you
+[loaded it](target-load-tracked-data) into the viewer. This means
+that if you [resumed an editing session](target-save-edits) from a
+saved file, the edits already saved in that file are kept, and their
+keypoints are still marked as edited.
+
+Resetting does not change the file on disk. To keep the restored state,
+[save the dataset](target-save-edits) again.
+
+Individual edits cannot be undone one at a time: you can only reset
+a whole frame or the whole dataset.
 
 (target-save-edits)=
 ### Save edits
