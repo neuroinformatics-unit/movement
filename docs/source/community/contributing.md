@@ -22,8 +22,9 @@ There are a few reasons an issue might not be actionable yet:
 
 If you're unsure whether an issue is ready to work on, just ask!
 
-Before opening a pull request, make sure to read through
-[relevant section](target-pull-requests) of this guide.
+Before opening a pull request, make sure to read through the
+[relevant section](target-pull-requests) of this guide as well our 
+[policy on contributions using AI](https://neuroinformatics.dev/get-involved/ai_policy.html).
 
 (target-contribution-workflow)=
 ## Contribution workflow
