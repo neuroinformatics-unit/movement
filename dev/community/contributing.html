@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=574a7546"></script>
+    <script src="../_static/documentation_options.js?v=a5237b6f"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev79</p>
+    <p class="title logo__title">movement v0.17.1.dev80</p>
   
 </a></div>
     
@@ -1125,6 +1125,8 @@ properties for each layer type.</p></li>
 datasets into the NumPy arrays and properties DataFrames
 that <code class="docutils literal notranslate"><span class="pre">napari</span></code> layer constructors expect.</p></li>
 </ul>
+<p>If your changes affect how the GUI looks, remember to also
+<a class="reference internal" href="#target-gui-screenshots"><span class="std std-ref">update the GUI screenshots</span></a> in the user guide.</p>
 <section id="where-should-a-layer-callback-live">
 <h4>Where should a layer callback live?<a class="headerlink" href="#where-should-a-layer-callback-live" title="Link to this heading">#</a></h4>
 <p>The layers created by a widget stay in the viewer even after closing the widget.
@@ -1504,6 +1506,61 @@ roughly following the pattern below.</p>
 <span class="c1">#   studying {SUBJECT}.</span>
 </pre></div>
 </div>
+</section>
+<section id="updating-gui-screenshots">
+<span id="target-gui-screenshots"></span><h3>Updating GUI screenshots<a class="headerlink" href="#updating-gui-screenshots" title="Link to this heading">#</a></h3>
+<p>Most screenshots in the <a class="reference internal" href="../user_guide/gui.html#target-gui"><span class="std std-ref">GUI guide</span></a> are made by the
+<code class="docutils literal notranslate"><span class="pre">docs/make_gui_screenshots.py</span></code> script, rather than taken by hand.
+The script opens <code class="docutils literal notranslate"><span class="pre">napari</span></code> with the <code class="docutils literal notranslate"><span class="pre">movement</span></code> widget, loads
+<a class="reference internal" href="#sample-data"><span class="std std-ref">sample data</span></a>, sets up the GUI, takes a screenshot,
+and draws labels (text and arrows) on it.
+Labels are placed based on where the widgets they point at are,
+so they follow the widgets if the layout changes.</p>
+<p>The screenshots are saved as PNG files in <code class="docutils literal notranslate"><span class="pre">docs/source/_static/</span></code> and
+committed to the repository. The script does not run automatically during the
+documentation build, and it needs a display, since it opens <code class="docutils literal notranslate"><span class="pre">napari</span></code> windows.</p>
+<p>Some screenshots, such as <code class="docutils literal notranslate"><span class="pre">napari_video_reader.png</span></code> (a pop-up dialog),
+cannot be made with the script and are still taken by hand.
+Labels that point at <code class="docutils literal notranslate"><span class="pre">napari</span></code>’s layer controls rely on names that are
+private to <code class="docutils literal notranslate"><span class="pre">napari</span></code> and may change between versions.</p>
+<section id="when-the-gui-changes">
+<h4>When the GUI changes<a class="headerlink" href="#when-the-gui-changes" title="Link to this heading">#</a></h4>
+<p>If your PR changes how the GUI looks, regenerate the screenshots
+from the repository root:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>docs/make_gui_screenshots.py
+</pre></div>
+</div>
+<p>Check the images that changed (<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">diff</span> <span class="pre">--stat</span></code>), and commit them
+with your PR. Since <code class="docutils literal notranslate"><span class="pre">napari</span></code> versions draw the GUI slightly differently,
+mention the <code class="docutils literal notranslate"><span class="pre">napari</span></code> version printed by the script in the commit message,
+e.g. “Regenerate GUI screenshots with napari 0.9.2”.
+To see the images in place,
+<a class="reference internal" href="#building-the-documentation-locally"><span class="std std-ref">build the documentation</span></a>.</p>
+</section>
+<section id="adding-a-new-screenshot">
+<h4>Adding a new screenshot<a class="headerlink" href="#adding-a-new-screenshot" title="Link to this heading">#</a></h4>
+<p>Each screenshot is made by one function in the script. To add one,
+write a new function modelled on an existing one (e.g. <code class="docutils literal notranslate"><span class="pre">tracks_sliders</span></code>),
+add it to the <code class="docutils literal notranslate"><span class="pre">SCREENSHOTS</span></code> dictionary at the bottom of the script,
+and run it by name, e.g. <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">docs/make_gui_screenshots.py</span> <span class="pre">tracks_sliders</span></code>.
+Then reference the image in <code class="docutils literal notranslate"><span class="pre">docs/source/user_guide/gui.md</span></code> and commit
+it together with the script change.
+The options for placing labels are documented in the script itself
+(see <code class="docutils literal notranslate"><span class="pre">Label</span></code> and the <code class="docutils literal notranslate"><span class="pre">GUI</span></code> helper methods).</p>
+<p>To keep the screenshots consistent, please follow these conventions:</p>
+<ul class="simple">
+<li><p>Point labels at what the user interacts with.
+For example, point at the header of a <code class="docutils literal notranslate"><span class="pre">movement</span></code> widget section,
+when prompting the user to expand that section.</p></li>
+<li><p>Only draw a box around the target if it would otherwise be unclear
+what the label points at.</p></li>
+<li><p>When a screenshot shows a sequence of steps, number the labels
+(e.g. “1. Load a background layer”).</p></li>
+<li><p>Zoom in on the data as needed, so that keypoints, tracks or
+boxes are clearly visible.</p></li>
+<li><p>Avoid covering the data or the widgets the screenshot is about.</p></li>
+</ul>
+</section>
 </section>
 <section id="cross-referencing-python-objects">
 <h3>Cross-referencing Python objects<a class="headerlink" href="#cross-referencing-python-objects" title="Link to this heading">#</a></h3>
@@ -1889,6 +1946,11 @@ verify that the video is correctly linked to the dataset:</p>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-the-api-reference">Updating the API reference</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-the-examples">Updating the examples</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-gui-screenshots">Updating GUI screenshots</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#when-the-gui-changes">When the GUI changes</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-a-new-screenshot">Adding a new screenshot</a></li>
+</ul>
+</li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cross-referencing-python-objects">Cross-referencing Python objects</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#internal-references">Internal references</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#external-references">External references</a></li>
