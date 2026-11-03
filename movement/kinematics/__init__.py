@@ -19,6 +19,7 @@ from movement.kinematics.orientation import (
     compute_head_direction_vector,
 )
 from movement.kinematics.path import (
+    compute_direction_autocorrelation,
     compute_directional_change,
     compute_path_deviation,
     compute_path_emax,
@@ -29,6 +30,7 @@ from movement.kinematics.path import (
 )
 
 __all__ = [
+    "compute_direction_autocorrelation",
     "compute_forward_displacement",
     "compute_backward_displacement",
     "compute_velocity",

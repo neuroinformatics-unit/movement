@@ -318,6 +318,179 @@ def compute_turning_angle(
     return turning
 
 
+def compute_direction_autocorrelation(
+    data: xr.DataArray,
+    step_length: float | None = None,
+    delta_s_max: int | None = None,
+) -> xr.DataArray:
+    r"""Measure heading similarity at spatial lags along a path.
+
+    Each uninterrupted point track is interpolated at equal distances along
+    its observed path. For a lag of :math:`k` steps, the result is the mean
+    dot product of unit displacement vectors :math:`k` resampled steps apart.
+
+    Parameters
+    ----------
+    data
+        Position data with ``time`` and ``space`` dimensions. Other
+        dimensions, such as ``individual`` and ``keypoint``, are preserved.
+    step_length
+        Arc length between resampled positions, in the spatial units of
+        ``data``. By default, use the mean positive observed step length
+        across all tracks. A single value gives every track a common
+        spatial ``lag`` coordinate.
+    delta_s_max
+        Largest lag in resampled steps. By default, use one quarter of
+        the number of input positions, with a minimum of one.
+
+    Returns
+    -------
+    xarray.DataArray
+        Mean direction autocorrelation for each track, with ``time`` and
+        ``space`` replaced by a ``lag`` coordinate in spatial units.
+        Lags without valid heading pairs have ``NaN`` values.
+
+    Raises
+    ------
+    ValueError
+        If ``step_length`` is not positive and finite, ``delta_s_max`` is
+        not a positive integer, or no positive step exists from which to
+        infer the default ``step_length``.
+
+    Notes
+    -----
+    Missing positions split a track into independent segments. Heading
+    pairs never cross a gap. Repeated positions add no path distance and
+    do not create headings. This is a spatial metric: frame rate does not
+    determine its lag. Resampling may smooth turns shorter than
+    ``step_length``.
+
+    Examples
+    --------
+    >>> from movement.kinematics import compute_direction_autocorrelation
+    >>> correlation = compute_direction_autocorrelation(
+    ...     ds.position.sel(keypoint="centroid"), step_length=2
+    ... )
+
+    """
+    data = _validate_time_points(
+        data, "direction autocorrelation", min_points=3
+    )
+    validate_dims_coords(data, {"space": ["x", "y"]})
+
+    if step_length is None:
+        displacement = data.diff(dim="time")
+        lengths = (displacement**2).sum(dim="space", skipna=False) ** 0.5
+        step_length = float(lengths.where(lengths > 0).mean().compute().item())
+        if not np.isfinite(step_length):
+            raise logger.error(
+                ValueError(
+                    "Cannot infer step_length without a positive observed "
+                    "step. Supply step_length explicitly."
+                )
+            )
+    elif isinstance(step_length, bool) or not isinstance(
+        step_length, (int, float, np.integer, np.floating)
+    ):
+        raise logger.error(
+            ValueError("step_length must be positive and finite.")
+        )
+    else:
+        step_length = float(step_length)
+        if not np.isfinite(step_length) or step_length <= 0:
+            raise logger.error(
+                ValueError("step_length must be positive and finite.")
+            )
+
+    if delta_s_max is None:
+        delta_s_max = max(1, data.sizes["time"] // 4)
+    elif (
+        isinstance(delta_s_max, bool)
+        or not isinstance(delta_s_max, int)
+        or delta_s_max < 1
+    ):
+        raise logger.error(
+            ValueError("delta_s_max must be a positive integer.")
+        )
+
+    if data.chunks is not None:
+        data = data.chunk({"time": -1, "space": -1})
+
+    result = xr.apply_ufunc(
+        _direction_autocorrelation_track,
+        data,
+        input_core_dims=[["time", "space"]],
+        output_core_dims=[["lag"]],
+        kwargs={"step_length": step_length, "delta_s_max": delta_s_max},
+        vectorize=True,
+        dask="parallelized",
+        dask_gufunc_kwargs={"output_sizes": {"lag": delta_s_max}},
+        output_dtypes=[float],
+    )
+    result = result.assign_coords(
+        lag=np.arange(1, delta_s_max + 1) * step_length
+    )
+    result.lag.attrs["long_name"] = "Distance along path"
+    if "units" in data.attrs:
+        result.lag.attrs["units"] = data.attrs["units"]
+    result.name = "direction_autocorrelation"
+    result.attrs["long_name"] = "Direction Autocorrelation"
+    return result
+
+
+def _direction_autocorrelation_track(
+    positions: np.ndarray, step_length: float, delta_s_max: int
+) -> np.ndarray:
+    """Correlate resampled headings within each uninterrupted track segment."""
+    sums = np.zeros(delta_s_max, dtype=float)
+    counts = np.zeros(delta_s_max, dtype=int)
+    valid = np.isfinite(positions).all(axis=-1)
+    boundaries = np.flatnonzero(np.diff(np.r_[False, valid, False]))
+
+    for start, end in boundaries.reshape(-1, 2):
+        points = positions[start:end]
+        lengths = np.linalg.norm(np.diff(points, axis=0), axis=-1)
+        moving = np.r_[True, lengths > 0]
+        points = points[moving]
+        lengths = lengths[lengths > 0]
+        if not lengths.size:
+            continue
+
+        distance = np.r_[0, np.cumsum(lengths)]
+        n_steps = int(np.floor(distance[-1] / step_length))
+        if n_steps < 2:
+            continue
+        grid = np.arange(n_steps + 1) * step_length
+        # Clamp rounding at the final endpoint without extrapolating.
+        grid = np.minimum(grid, distance[-1])
+        resampled = np.column_stack(
+            [
+                np.interp(grid, distance, points[:, axis])
+                for axis in range(points.shape[-1])
+            ]
+        )
+        headings = np.diff(resampled, axis=0)
+        norms = np.linalg.norm(headings, axis=-1)
+        headings = np.divide(
+            headings,
+            norms[:, None],
+            out=np.full_like(headings, np.nan),
+            where=norms[:, None] > 0,
+        )
+        for lag in range(1, min(delta_s_max, n_steps - 1) + 1):
+            dots = np.sum(headings[lag:] * headings[:-lag], axis=-1)
+            finite = np.isfinite(dots)
+            sums[lag - 1] += dots[finite].sum()
+            counts[lag - 1] += finite.sum()
+
+    return np.divide(
+        sums,
+        counts,
+        out=np.full(delta_s_max, np.nan),
+        where=counts > 0,
+    )
+
+
 def compute_path_sinuosity(
     data: xr.DataArray,
     nan_warn_threshold: float = 0.2,
