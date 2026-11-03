@@ -32,6 +32,7 @@ from pathlib import Path
 
 import matplotlib
 import napari
+import numpy as np
 from packaging.version import Version
 from PIL import Image, ImageDraw, ImageFont
 from PIL.PngImagePlugin import PngInfo
@@ -803,6 +804,53 @@ def drawing_regions(out: Path) -> Path:
     return gui.save(out / "napari_drawing_regions.png", labels)
 
 
+def edit_overview(out: Path) -> Path:
+    """Make the screenshot of the GUI parts involved in editing."""
+    gui = GUI(size=(1300, 860))  # bigger, to fit the edit timeline
+    gui.open_video(OCTAGON)
+    gui.load_tracks(OCTAGON, "SLEAP", fps=50)
+    points = gui.layer("points")
+    gui.viewer.layers.selection.active = points
+
+    # Open the edit timeline first: it only records removals it sees
+    gui.expand_only(EDIT_SECTION)
+    gui.window.resizeDocks(
+        [gui.widget._edit_timeline_dock_widget], [170], Qt.Vertical
+    )
+
+    # Remove a few keypoints, so the edit timeline shows some bars
+    for frame in (1500, 3400, 3500, 5200, 7600):
+        in_frame = np.flatnonzero(points.data[:, 0] == frame)
+        points.selected_data = set(in_frame[:2].tolist())
+        points.remove_selected()
+    points.selected_data = set()
+    gui.viewer.help = ""  # clear the key hints left in the status bar
+    gui.viewer.dims.set_current_step(0, 223)
+    settle()
+
+    labels = [
+        Label(gui.canvas, "1. The viewer", side="inside"),
+        Label(
+            gui.rect(gui.section(EDIT_SECTION).toggleButton()),
+            "2. Edit tracked\ndata menu",
+            side="left",
+            box=False,
+        ),
+        Label(
+            gui.rect(gui.widget.edit_timeline_widget),
+            "3. Edit timeline",
+            side="inside",
+        ),
+        Label(
+            gui.rect(gui.section(SAVE_SECTION).toggleButton()),
+            "4. Save tracked\ndata menu",
+            side="left",
+            box=False,
+        ),
+    ]
+    return gui.save(out / "napari_edit_overview.png", labels)
+
+
 SCREENSHOTS: dict[str, Callable[[Path], Path]] = {
     "video_slider": video_slider,
     "poses_layers": poses_layers,
@@ -811,6 +859,7 @@ SCREENSHOTS: dict[str, Callable[[Path], Path]] = {
     "tracks_sliders": tracks_sliders,
     "new_region_layer": new_region_layer,
     "drawing_regions": drawing_regions,
+    "edit_overview": edit_overview,
 }
 
 
