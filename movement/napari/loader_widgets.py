@@ -47,6 +47,7 @@ SUPPORTED_POSES_FILES = {
     "DeepLabCut": ["h5", "csv"],
     "LightningPose": ["csv"],
     "SLEAP": ["h5", "slp"],
+    "COCO": ["json"],
 }
 
 SUPPORTED_BBOXES_FILES = {
