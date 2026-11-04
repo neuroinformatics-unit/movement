@@ -378,7 +378,7 @@ view. Return to the 2D view with time as the leading axis to re-enable editing.
 
 When you edit a keypoint, the `Edit tracked data` menu expands and the
 [edit timeline](target-edit-timeline) appears at the bottom of the window,
-showing a bar for the current frame. The [tracks layer](target-tracks-layer)
+showing a dashed line for the current frame. The [tracks layer](target-tracks-layer)
 updates automatically to stay in sync with the points layer, so trajectories
 always reflect the current keypoint positions.
 
