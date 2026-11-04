@@ -1091,9 +1091,15 @@ and draws labels (text and arrows) on it.
 Labels are placed based on where the widgets they point at are,
 so they follow the widgets if the layout changes.
 
-The screenshots are saved as PNG files in `docs/source/_static/` and
-committed to the repository. The script does not run automatically during the
-documentation build, and it needs a display, since it opens `napari` windows.
+The script also records the short videos of the editing workflow
+(e.g. selecting and moving keypoints). For these, it drives the GUI with
+mouse clicks, drags and key presses, grabs a frame after each step, and
+draws the mouse pointer and a caption on each frame.
+
+The screenshots and videos are saved as PNG and MP4 files in
+`docs/source/_static/` and committed to the repository. The script does not
+run automatically during the documentation build, and it needs a display,
+since it opens `napari` windows.
 
 Some screenshots, such as `napari_video_reader.png` (a pop-up dialog),
 cannot be made with the script and are still taken by hand.
