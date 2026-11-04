@@ -377,8 +377,9 @@ view. Return to the 2D view with time as the leading axis to re-enable editing.
 ### Edit types
 
 When you edit a keypoint, the `Edit tracked data` menu expands and the
-[edit timeline](target-edit-timeline) appears at the bottom of the window,
-showing a dashed line for the current frame. The [tracks layer](target-tracks-layer)
+[edit timeline](target-edit-timeline) appears at the bottom of the window.
+The timeline shows a solid line for the frame you edited, and a dashed
+line for the current frame. The [tracks layer](target-tracks-layer)
 updates automatically to stay in sync with the points layer, so trajectories
 always reflect the current keypoint positions.
 
@@ -408,7 +409,7 @@ set to `NaN`.
 ### Edit timeline
 
 The edit timeline spans all frames of the dataset in the currently selected
-`movement` points layer, and shows a vertical bar for every frame
+`movement` points layer, and shows a solid vertical line for every frame
 containing at least one edited keypoint.
 A dashed line marks the current frame displayed in the viewer and
 moves with the frame slider as you navigate through the frames.
@@ -417,18 +418,18 @@ You can interact with the timeline as follows:
 
 | Action | Effect |
 |---|---|
-| Click a bar | Go to the corresponding edited frame |
-| Scroll up / down | Zoom in / out, centred on the cursor (e.g. to distinguish between bars of adjacent frames) |
+| Click a solid line | Go to the corresponding edited frame |
+| Scroll up / down | Zoom in / out, centred on the cursor (e.g. to tell apart the lines of adjacent frames) |
 | Click and drag | Pan along the timeline (when zoomed in) |
 | Double-click | Reset the view to show all frames |
 
-<video autoplay loop muted playsinline width="100%" aria-label="Clicking a bar, zooming, panning, and resetting the edit timeline">
+<video autoplay loop muted playsinline width="100%" aria-label="Clicking a solid line, zooming, panning, and resetting the edit timeline">
   <source src="../_static/napari_edit_timeline.mp4" type="video/mp4">
 </video>
 
 For datasets with multiple individuals, tick the `Display individuals`
 checkbox in the `Edit tracked data` menu to split the timeline into one
-row per individual. Each row's bars match the colour of that individual's
+row per individual. Each row's lines match the colour of that individual's
 points, showing which individuals were corrected in which frames.
 The checkbox is disabled for single-individual datasets.
 
