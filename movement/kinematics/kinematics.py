@@ -11,6 +11,7 @@ public API may be revised to reflect this distinction more explicitly.
 
 import xarray as xr
 
+from movement.kinematics._units import _get_time_unit, _get_unit
 from movement.utils.logging import logger
 from movement.utils.vector import compute_norm
 from movement.validators.arrays import validate_dims_coords
@@ -36,6 +37,17 @@ def compute_time_derivative(data: xr.DataArray, order: int) -> xr.DataArray:
     -------
     xarray.DataArray
         An xarray DataArray containing the time-derivative of the input data.
+        Input attributes are preserved independently of xarray settings.
+        For supported simple input units and explicitly declared numeric
+        time units, ``units`` becomes ``unit/s`` or ``unit/s^order``
+        (``frame`` replaces ``s`` for frame coordinates). Time units come
+        from ``time.attrs['units']`` or ``data.attrs['time_unit']``.
+        Accepted time labels are s, second, seconds, frame and frames.
+        Conflicting declarations are rejected. Otherwise ``units`` is removed.
+        Supported input labels are m, cm, mm, um, µm, nm, km, px, pixel,
+        pixels, rad, radians, deg and degrees. ``space_unit`` can supply
+        the spatial label when ``units`` is absent. No units are inferred
+        from frame rate or coordinate values, or parsed from compound labels.
 
     See Also
     --------
@@ -52,6 +64,12 @@ def compute_time_derivative(data: xr.DataArray, order: int) -> xr.DataArray:
     result = data
     for _ in range(order):
         result = result.differentiate("time")
+    result.attrs = data.attrs.copy()
+    result.attrs.pop("units", None)
+    unit, time_unit = _get_unit(data), _get_time_unit(data)
+    if unit is not None and time_unit is not None:
+        denominator = time_unit if order == 1 else f"{time_unit}^{order}"
+        result.attrs["units"] = f"{unit}/{denominator}"
     return result
 
 
@@ -65,6 +83,7 @@ def _compute_forward_displacement(data: xr.DataArray) -> xr.DataArray:
     validate_dims_coords(data, {"time": [], "space": []})
     result = data.diff(dim="time", label="lower")
     result = result.reindex_like(data, fill_value=0)
+    result.attrs = data.attrs.copy()
     return result
 
 
@@ -151,6 +170,7 @@ def compute_backward_displacement(data: xr.DataArray) -> xr.DataArray:
     """
     fwd_displacement = _compute_forward_displacement(data)
     backward_displacement = -fwd_displacement.roll(time=1)
+    backward_displacement.attrs = data.attrs.copy()
     backward_displacement.name = "backward_displacement"
     return backward_displacement
 
@@ -259,6 +279,8 @@ def compute_speed(data: xr.DataArray) -> xr.DataArray:
         except ``space`` is removed.
 
     """
-    result = compute_norm(compute_velocity(data))
+    velocity = compute_velocity(data)
+    result = compute_norm(velocity)
+    result.attrs = velocity.attrs.copy()
     result.name = "speed"
     return result
