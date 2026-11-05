@@ -36,3 +36,16 @@ jobs:
         run: |
           conda install -c conda-forge movement napari pyqt
           movement info
+
+  notify_slack:
+    name: Notify Slack on scheduled failure
+    needs: [conda_install_check]
+    if: failure() && github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ravsamhq/notify-slack-action@be814b201e233b2dc673608aa46e5447c8ab13f2 # v2.5.0
+        with:
+          status: failure
+          notify_when: failure
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_NOTIFYBOT_WEBHOOK_URL }}
