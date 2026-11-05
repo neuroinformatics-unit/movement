@@ -520,6 +520,25 @@ type SourceSoftware = Literal[
 ]
 ```
 
+#### Make the format available in the GUI
+
+If the new format holds 2D data and can be loaded with only a file path,
+add it to the `source software` dropdown of the [GUI](target-gui) by appending
+an entry to `SUPPORTED_POSES_FILES` or `SUPPORTED_BBOXES_FILES` in
+`movement.napari.loader_widgets`. Map the software name (as used in
+`SourceSoftware`) to the file suffixes it accepts:
+
+```python
+SUPPORTED_POSES_FILES = {
+    "DeepLabCut": ["h5", "csv"],
+    ...,
+    "MySoftware": ["ext"],  # Newly added software
+}
+```
+
+The GUI calls {func}`~movement.io.load.load_dataset` with the selected
+software name, so no further changes to the widget are needed.
+
 #### Update the Input/Output guide
 
 Finally, update the [](target-io) guide by adding the new format to the [](target-supported-formats) table and documenting it in the [](target-loading-pose-tracks) and/or [](target-loading-bbox-tracks) section(s) with usage examples.
