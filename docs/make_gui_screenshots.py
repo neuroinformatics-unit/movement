@@ -1,25 +1,20 @@
-"""Generate annotated screenshots of the movement napari GUI.
+"""Generate annotated screenshots and videos of the movement napari GUI.
 
 Each screenshot is built by driving the real GUI: load sample data,
 set widget values, grab the window, then draw labels next to chosen
 widgets. Label positions come from the widgets' on-screen geometry,
 so they follow the widgets if the GUI layout changes.
 
-Images are written to ``docs/source/_static``, replacing the existing
-ones. Use ``git diff`` to see which changed, and ``git restore`` to undo.
+Videos (see ``Recording``) drive the GUI with real mouse and keyboard
+events, grab a frame after each step, and draw the mouse pointer and a
+caption on each frame.
 
 Usage::
 
-    python docs/make_gui_screenshots.py                 # all screenshots
+    python docs/make_gui_screenshots.py                 # all of them
     python docs/make_gui_screenshots.py poses_layers    # only some
 
 Requires napari 0.9 or newer.
-
-Not covered (still made by hand): ``napari_video_reader.png`` (a modal
-dialog) and any ``.mp4`` recordings.
-
-See the "Updating GUI screenshots" section of the contributing guide
-for how to add a new screenshot.
 """
 
 import math
@@ -30,13 +25,16 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
+import imageio.v2 as imageio
 import matplotlib
 import napari
+import numpy as np
 from packaging.version import Version
 from PIL import Image, ImageDraw, ImageFont
 from PIL.PngImagePlugin import PngInfo
-from qtpy.QtCore import QPoint, QRect, Qt
-from qtpy.QtGui import QFont, QFontDatabase
+from qtpy.QtCore import QPoint, QPointF, QRect, Qt
+from qtpy.QtGui import QFont, QFontDatabase, QWheelEvent
+from qtpy.QtTest import QTest
 from qtpy.QtWidgets import QApplication, QLayout, QWidget
 
 from movement import sample_data
@@ -307,23 +305,29 @@ class Tooltip:
     text: str
 
 
+def draw_pointer(
+    draw: ImageDraw.ImageDraw, position: QPoint, ratio: float
+) -> None:
+    """Draw a mouse pointer (a white arrow with a black outline)."""
+    x, y = position.x() * ratio, position.y() * ratio
+    pointer = [
+        (0, 0), (0, 17), (4, 13), (7, 20), (10, 19), (7, 12), (12, 12),
+    ]  # fmt: skip
+    draw.polygon(
+        [(x + px * ratio, y + py * ratio) for px, py in pointer],
+        fill="white",
+        outline="black",
+        width=max(1, round(ratio)),
+    )
+
+
 def draw_tooltip(
     draw: ImageDraw.ImageDraw, tooltip: Tooltip, ratio: float
 ) -> None:
     """Draw a mouse pointer and a Qt-style tooltip."""
     x, y = tooltip.position.x() * ratio, tooltip.position.y() * ratio
-
-    # Mouse pointer: a white arrow with a black outline
     s = ratio
-    pointer = [
-        (0, 0), (0, 17), (4, 13), (7, 20), (10, 19), (7, 12), (12, 12),
-    ]  # fmt: skip
-    draw.polygon(
-        [(x + px * s, y + py * s) for px, py in pointer],
-        fill="white",
-        outline="black",
-        width=max(1, round(s)),
-    )
+    draw_pointer(draw, tooltip.position, ratio)
 
     # Tooltip box, offset below-right of the pointer like Qt does
     font = ImageFont.truetype(FONT_PATH, round(13 * ratio))
@@ -344,6 +348,56 @@ def draw_tooltip(
         font=font,
         fill=(240, 241, 242),
         spacing=4,
+    )
+
+
+@dataclass
+class Caption:
+    """Text shown in a video, e.g. the step being demonstrated.
+
+    Parameters
+    ----------
+    text
+        Caption text. Use a newline character for line breaks.
+    area
+        Region the caption is centred in, in window coordinates.
+    where
+        ``"top"`` or ``"bottom"`` of ``area``.
+    """
+
+    text: str
+    area: QRect
+    where: str = "bottom"
+
+
+def draw_caption(
+    draw: ImageDraw.ImageDraw, caption: Caption, ratio: float
+) -> None:
+    """Draw a caption in a see-through box, like the labels."""
+    font = ImageFont.truetype(FONT_PATH, round(FONT_SIZE * ratio))
+    bbox = draw.multiline_textbbox(
+        (0, 0), caption.text, font=font, align="center"
+    )
+    pad, margin = 2 * PADDING * ratio, 16 * ratio
+    width = bbox[2] - bbox[0] + 2 * pad
+    height = bbox[3] - bbox[1] + 2 * pad
+    area = caption.area
+    left = (area.left() + area.width() / 2) * ratio - width / 2
+    if caption.where == "top":
+        top = area.top() * ratio + margin
+    else:
+        top = area.bottom() * ratio - margin - height
+    draw.rounded_rectangle(
+        (left, top, left + width, top + height),
+        radius=PADDING * ratio,
+        fill=TEXT_BACKGROUND,
+    )
+    draw.multiline_text(
+        (left + pad - bbox[0], top + pad - bbox[1]),
+        caption.text,
+        font=font,
+        fill=LINE_COLOR,
+        align="center",
     )
 
 
@@ -505,6 +559,25 @@ class GUI:
             ),
         )
 
+    def timeline_point(self, frame: float, height: float = 0.5) -> QPoint:
+        """Return where ``frame`` appears on the edit timeline.
+
+        ``height`` goes from 0 (bottom of the plot) to 1 (top).
+        """
+        timeline = self.widget.edit_timeline_widget
+        canvas = timeline.canvas
+        # Matplotlib uses physical pixels, counted from the bottom
+        x, y = timeline.ax.transData.transform(
+            (frame, timeline.ax.get_ylim()[0])
+        )
+        top_y = timeline.ax.transData.transform(
+            (frame, timeline.ax.get_ylim()[1])
+        )[1]
+        y = y + (top_y - y) * height
+        ratio = canvas.device_pixel_ratio
+        local = QPoint(round(x / ratio), round(canvas.height() - y / ratio))
+        return canvas.mapTo(self.window, local)
+
     def tooltip_at(self, position: tuple[float, ...]) -> str:
         """Move napari's cursor to ``position`` and return its tooltip text.
 
@@ -520,6 +593,46 @@ class GUI:
         return self.viewer.tooltip.text
 
     # -- output --------------------------------------------------------
+    def render(
+        self,
+        labels: list[Label] | None = None,
+        tooltips: list[Tooltip] | None = None,
+        pointer: QPoint | None = None,
+        caption: Caption | None = None,
+        smoothing: int = SMOOTHING,
+    ) -> Image.Image:
+        """Take a screenshot and draw labels, tooltips, pointer, caption."""
+        # Screenshot of the whole napari window, as an RGBA array
+        array = self.viewer.screenshot(canvas_only=False, flash=False)
+        image = Image.fromarray(array)
+        # Screens with display scaling give more pixels than window size
+        ratio = image.width / self.window.width()
+
+        # Draw on a larger transparent layer, then shrink it onto the
+        # screenshot. Pillow does not smooth diagonal lines, so this
+        # avoids jagged arrows.
+        size = (image.width * smoothing, image.height * smoothing)
+        overlay = Image.new("RGBA", size, (0, 0, 0, 0))
+        draw = ImageDraw.Draw(overlay)
+        window = QRect(0, 0, self.window.width(), self.window.height())
+        draw_labels(draw, labels or [], ratio * smoothing, window)
+        for tooltip in tooltips or []:
+            draw_tooltip(draw, tooltip, ratio * smoothing)
+        if caption is not None:
+            draw_caption(draw, caption, ratio * smoothing)
+        if pointer is not None:
+            draw_pointer(draw, pointer, ratio * smoothing)
+        overlay = overlay.resize(image.size, Image.Resampling.LANCZOS)
+        image = Image.alpha_composite(image.convert("RGBA"), overlay)
+        # Keep the window size, so screens with display scaling give
+        # the same image size as others
+        if ratio != 1:
+            image = image.resize(
+                (self.window.width(), self.window.height()),
+                Image.Resampling.LANCZOS,
+            )
+        return image
+
     def save(
         self,
         path: Path,
@@ -528,31 +641,7 @@ class GUI:
     ) -> Path:
         """Take a screenshot, draw ``labels`` on it and save it to ``path``."""
         settle()
-        # Screenshot of the whole napari window, as an RGBA array
-        array = self.viewer.screenshot(canvas_only=False, flash=False)
-        image = Image.fromarray(array)
-        # Screens with display scaling give more pixels than window size
-        ratio = image.width / self.window.width()
-
-        # Draw the labels on a larger transparent layer, then shrink it
-        # onto the screenshot. Pillow does not smooth diagonal lines, so
-        # this avoids jagged arrows.
-        size = (image.width * SMOOTHING, image.height * SMOOTHING)
-        overlay = Image.new("RGBA", size, (0, 0, 0, 0))
-        draw = ImageDraw.Draw(overlay)
-        window = QRect(0, 0, self.window.width(), self.window.height())
-        draw_labels(draw, labels, ratio * SMOOTHING, window)
-        for tooltip in tooltips or []:
-            draw_tooltip(draw, tooltip, ratio * SMOOTHING)
-        overlay = overlay.resize(image.size, Image.Resampling.LANCZOS)
-        image = Image.alpha_composite(image.convert("RGBA"), overlay)
-        # Save at the window size, so screens with display scaling give
-        # the same image size as others
-        if ratio != 1:
-            image = image.resize(
-                (self.window.width(), self.window.height()),
-                Image.Resampling.LANCZOS,
-            )
+        image = self.render(labels, tooltips)
         info = PngInfo()
         info.add_text("Software", NAPARI_VERSION)
         image.convert("RGB").save(path, pnginfo=info)
@@ -803,6 +892,420 @@ def drawing_regions(out: Path) -> Path:
     return gui.save(out / "napari_drawing_regions.png", labels)
 
 
+def edit_overview(out: Path) -> Path:
+    """Make the screenshot of the GUI parts involved in editing."""
+    gui = GUI(size=(1300, 860))  # bigger, to fit the edit timeline
+    gui.open_video(OCTAGON)
+    gui.load_tracks(OCTAGON, "SLEAP", fps=50)
+    points = gui.layer("points")
+    gui.viewer.layers.selection.active = points
+
+    # Open the edit timeline first: it only records removals it sees
+    gui.expand_only(EDIT_SECTION)
+    gui.window.resizeDocks(
+        [gui.widget._edit_timeline_dock_widget], [170], Qt.Vertical
+    )
+
+    # Remove a few keypoints, so the edit timeline shows some lines
+    for frame in (1500, 3400, 3500, 5200, 7600):
+        in_frame = np.flatnonzero(points.data[:, 0] == frame)
+        points.selected_data = set(in_frame[:2].tolist())
+        points.remove_selected()
+    points.selected_data = set()
+    points.mode = "select"  # show the select tool as active
+    gui.viewer.help = ""  # clear the key hints left in the status bar
+    gui.viewer.dims.set_current_step(0, 223)
+    settle()
+
+    controls = gui.layer_controls(points)
+    labels = [
+        Label(gui.canvas, "1. The viewer", side="inside"),
+        # Below the buttons, one lower than the other so they do not overlap
+        Label(
+            gui.rect(controls.delete_button),
+            "2b. Remove\nkeypoints",
+            side="below",
+            shift=-70,
+        ),
+        Label(
+            gui.rect(controls.select_button),
+            "2a. Select\nkeypoints",
+            side="below",
+            gap=130,
+            shift=15,
+        ),
+        Label(
+            gui.rect(gui.section(EDIT_SECTION).toggleButton()),
+            "3. Edit tracked\ndata menu",
+            side="left",
+            box=False,
+        ),
+        Label(
+            gui.rect(gui.widget.edit_timeline_widget),
+            "4. Edit timeline",
+            side="inside",
+        ),
+        Label(
+            gui.rect(gui.section(SAVE_SECTION).toggleButton()),
+            "5. Save tracked\ndata menu",
+            side="left",
+            box=False,
+        ),
+    ]
+    return gui.save(out / "napari_edit_overview.png", labels)
+
+
+# ----------------------------------------------------------------------
+# Videos
+# ----------------------------------------------------------------------
+VIDEO_FPS = 15
+LEFT = Qt.MouseButton.LeftButton
+SHIFT = Qt.KeyboardModifier.ShiftModifier
+NO_MODIFIER = Qt.KeyboardModifier.NoModifier
+
+
+class Recording:
+    """Record a video of the GUI while driving it with mouse and keys.
+
+    Every action sends real Qt events to the widget under the (drawn)
+    mouse pointer, so napari and the movement widgets respond exactly
+    as they do to a user. A frame is grabbed after each step.
+    """
+
+    def __init__(self, gui: GUI, pointer: QPoint):
+        """Start a recording of ``gui`` with the pointer at ``pointer``."""
+        self.gui = gui
+        self.pointer = pointer
+        self.caption: Caption | None = None
+        self.frames: list[np.ndarray] = []
+
+    # -- frames --------------------------------------------------------
+    def grab(self, repeat: int = 1) -> None:
+        """Add the current view as ``repeat`` video frames."""
+        settle(0.05)
+        self.gui.viewer.help = ""  # no key hints in the status bar
+        # Less smoothing than for images: faster, and video encoding
+        # softens edges anyway
+        image = self.gui.render(
+            pointer=self.pointer, caption=self.caption, smoothing=2
+        )
+        frame = np.asarray(image.convert("RGB"))
+        self.frames.extend([frame] * repeat)
+
+    def hold(self, seconds: float) -> None:
+        """Keep the current view on screen for ``seconds``."""
+        self.grab(max(1, round(seconds * VIDEO_FPS)))
+
+    def say(self, text: str, area: QRect, where: str = "bottom") -> None:
+        """Show ``text`` as the caption from now on."""
+        self.caption = Caption(text, area, where)
+
+    # -- mouse and keyboard --------------------------------------------
+    def _target(self) -> tuple[QWidget, QPoint]:
+        """Return the widget under the pointer and the local position."""
+        # Gaps between panels have no widget: use the window itself
+        widget = self.gui.window.childAt(self.pointer) or self.gui.window
+        return widget, widget.mapFrom(self.gui.window, self.pointer)
+
+    def move(self, target: QPoint, seconds: float = 0.6) -> None:
+        """Glide the pointer to ``target``, sending mouse moves."""
+        start = QPoint(self.pointer)
+        steps = max(1, round(seconds * VIDEO_FPS))
+        for i in range(1, steps + 1):
+            t = i / steps
+            t = t * t * (3 - 2 * t)  # ease in and out
+            self.pointer = start + (target - start) * t
+            widget, local = self._target()
+            QTest.mouseMove(widget, local)
+            self.grab()
+
+    def click(self, modifier=NO_MODIFIER) -> None:
+        """Click where the pointer is."""
+        widget, local = self._target()
+        QTest.mouseClick(widget, LEFT, modifier, local)
+        self.grab()
+
+    def double_click(self) -> None:
+        """Double-click where the pointer is."""
+        widget, local = self._target()
+        QTest.mouseDClick(widget, LEFT, NO_MODIFIER, local)
+        # Qt's test double-click may leave the button pressed: release it
+        QTest.mouseRelease(widget, LEFT, NO_MODIFIER, local)
+        self.grab()
+
+    def drag(self, target: QPoint, seconds: float = 1.0) -> None:
+        """Press at the pointer, glide to ``target`` and release."""
+        widget, local = self._target()
+        QTest.mousePress(widget, LEFT, NO_MODIFIER, local)
+        start = QPoint(self.pointer)
+        steps = max(1, round(seconds * VIDEO_FPS))
+        for i in range(1, steps + 1):
+            self.pointer = start + (target - start) * (i / steps)
+            # Keep sending to the pressed widget, as Qt does while dragging
+            QTest.mouseMove(
+                widget, widget.mapFrom(self.gui.window, self.pointer)
+            )
+            self.grab()
+        QTest.mouseRelease(
+            widget,
+            LEFT,
+            NO_MODIFIER,
+            widget.mapFrom(self.gui.window, self.pointer),
+        )
+        self.grab()
+
+    def scroll(self, steps: int, seconds: float = 1.0) -> None:
+        """Turn the mouse wheel ``steps`` notches (positive is up)."""
+        for _ in range(abs(steps)):
+            widget, local = self._target()
+            event = QWheelEvent(
+                QPointF(local),
+                QPointF(widget.mapToGlobal(local)),
+                QPoint(0, 0),
+                QPoint(0, 120 if steps > 0 else -120),
+                Qt.MouseButton.NoButton,
+                NO_MODIFIER,
+                Qt.ScrollPhase.NoScrollPhase,
+                False,
+            )
+            QApplication.sendEvent(widget, event)
+            self.hold(seconds / abs(steps))
+
+    def press_key(self, key) -> None:
+        """Press ``key`` on the viewer canvas."""
+        canvas = self.gui.viewer.window._qt_viewer.canvas.native
+        QTest.keyClick(canvas, key)
+        self.grab()
+
+    # -- output --------------------------------------------------------
+    def save(self, path: Path) -> Path:
+        """Write the frames to an MP4 video at ``path``."""
+        writer = imageio.get_writer(
+            path,
+            fps=VIDEO_FPS,
+            codec="libx264",
+            quality=7,
+            pixelformat="yuv420p",
+            macro_block_size=16,
+            ffmpeg_params=["-metadata", f"comment={NAPARI_VERSION}"],
+            ffmpeg_log_level="error",
+        )
+        with writer:
+            for frame in self.frames:
+                writer.append_data(frame)
+        self.gui.viewer.close()
+        return path
+
+
+# ----------------------------------------------------------------------
+# Editing videos
+# ----------------------------------------------------------------------
+VIDEO_WINDOW_SIZE = (1200, 720)  # multiples of 16, as video codecs prefer
+EDIT_FRAME = 4500  # both mice fully tracked, apart from each other
+
+
+def editing_gui(frame: int = EDIT_FRAME, individual: str | None = None):
+    """Open the GUI ready for editing, zoomed in on the mice at ``frame``.
+
+    Zooms in on one ``individual`` if given, otherwise on all of them.
+    Returns the GUI and the points layer.
+    """
+    gui = GUI(size=VIDEO_WINDOW_SIZE)
+    gui.open_video(OCTAGON)
+    gui.load_tracks(OCTAGON, "SLEAP", fps=50)
+    points = gui.layer("points")
+    gui.layer("tracks").tail_length = 15  # short tails, to see the points
+    gui.viewer.layers.selection.active = points
+    gui.expand_only(EDIT_SECTION)
+    gui.window.resizeDocks(
+        [gui.widget._edit_timeline_dock_widget], [150], Qt.Vertical
+    )
+    gui.viewer.dims.set_current_step(0, frame)
+    rows = point_rows(points, frame, individual)
+    yx = points.data[rows, 1:]
+    canvas = gui.canvas
+    extent = np.ptp(yx, axis=0) + 80  # data pixels, with a margin
+    gui.viewer.scene.camera.center = yx.mean(axis=0)
+    gui.viewer.scene.camera.zoom = min(
+        canvas.height() / extent[0], canvas.width() / extent[1], 4
+    )
+    points.mode = "select"
+    gui.viewer.help = ""  # no key hints in the status bar
+    settle()
+    return gui, points
+
+
+def point_rows(points, frame: int, individual: str | None = None):
+    """Return the points layer rows in ``frame`` (of one individual)."""
+    rows = points.data[:, 0] == frame
+    if individual is not None:
+        rows &= points.properties["individual"] == individual
+    return np.flatnonzero(rows)
+
+
+def remove_points_in_frames(points, frames, individual=None) -> None:
+    """Remove a few points in each frame, to put lines on the timeline."""
+    for frame in frames:
+        points.selected_data = set(
+            point_rows(points, frame, individual)[:2].tolist()
+        )
+        points.remove_selected()
+    points.selected_data = set()
+
+
+def select_keypoints(out: Path) -> Path:
+    """Record selecting keypoints by clicking and by dragging a box."""
+    gui, points = editing_gui(individual="1")
+    rows = point_rows(points, EDIT_FRAME, "1")
+    at = [gui.world_to_window(*points.data[r, 1:]) for r in rows]
+    rec = Recording(gui, gui.canvas.center())
+    canvas = gui.canvas
+
+    rec.say("1. Click a keypoint to select it.", canvas)
+    rec.hold(0.5)
+    rec.move(at[0])
+    rec.click()
+    rec.hold(1.5)
+
+    rec.say("2. Hold Shift while clicking\nto select more keypoints.", canvas)
+    for p in at[1:3]:
+        rec.move(p)
+        rec.click(SHIFT)
+        rec.hold(0.7)
+    rec.hold(1)
+
+    rec.say("3. Drag a box to select\na group of keypoints.", canvas)
+    # A box around all keypoints of the mouse, starting on empty space
+    xs, ys = [p.x() for p in at], [p.y() for p in at]
+    rec.move(QPoint(min(xs) - 30, min(ys) - 30))
+    rec.drag(QPoint(max(xs) + 30, max(ys) + 30), seconds=1.5)
+    rec.hold(2.5)
+    return rec.save(out / "napari_select_keypoints.mp4")
+
+
+def move_keypoints(out: Path) -> Path:
+    """Record dragging a keypoint to a new position."""
+    gui, points = editing_gui(individual="1")
+    nose = point_rows(points, EDIT_FRAME, "1")[0]
+    start = gui.world_to_window(*points.data[nose, 1:])
+    rec = Recording(gui, gui.canvas.center())
+    canvas = gui.canvas
+
+    rec.say("1. Drag a keypoint to\nits correct position.", canvas)
+    rec.hold(0.5)
+    rec.move(start)
+    rec.hold(0.5)
+    rec.drag(start + QPoint(-60, -45), seconds=1.5)
+    rec.hold(1)
+
+    rec.say(
+        "2. Moved keypoints are shown as rings,\n"
+        "and their frame on the timeline.",
+        canvas,
+    )
+    # Click on empty space to unselect, so the ring is easy to see
+    rec.move(canvas.topLeft() + QPoint(40, 40))
+    rec.click()
+    rec.hold(3)
+    return rec.save(out / "napari_move_keypoints.mp4")
+
+
+def remove_keypoints(out: Path) -> Path:
+    """Record removing selected keypoints with the delete button."""
+    gui, points = editing_gui(individual="1")
+    rows = point_rows(points, EDIT_FRAME, "1")[3:]  # the back half
+    at = [gui.world_to_window(*points.data[r, 1:]) for r in rows]
+    xs, ys = [p.x() for p in at], [p.y() for p in at]
+    rec = Recording(gui, gui.canvas.center())
+    canvas = gui.canvas
+
+    rec.say("Select the keypoints to remove.", canvas)
+    rec.move(QPoint(min(xs) - 30, min(ys) - 30))
+    rec.drag(QPoint(max(xs) + 30, max(ys) + 30), seconds=1)
+    rec.hold(1)
+
+    rec.say(
+        "1. Click × in the layer controls,\nor press Delete, Backspace or 1.",
+        canvas,
+    )
+    delete_button = gui.layer_controls(points).delete_button
+    rec.move(gui.rect(delete_button).center(), seconds=1)
+    rec.hold(0.5)
+    rec.click()
+    rec.hold(0.5)
+
+    rec.say("2. Removed keypoints disappear\nfrom the viewer.", canvas)
+    rec.move(canvas.center(), seconds=1)
+    rec.hold(2.5)
+    return rec.save(out / "napari_remove_keypoints.mp4")
+
+
+# Frames edited before recording the timeline videos. A few are close
+# together, so they only show as separate lines when zoomed in.
+TIMELINE_EDITS = {"1": [1500, 4200, 4212, 6600], "2": [4225, 7800]}
+
+
+def timeline_gui():
+    """Open the GUI for editing, with some edits on the timeline."""
+    gui, points = editing_gui()
+    for individual, frames in TIMELINE_EDITS.items():
+        remove_points_in_frames(points, frames, individual)
+    gui.viewer.reset_view()  # whole arena: the mice move between frames
+    gui.viewer.dims.set_current_step(0, 500)
+    settle()
+    return gui, points
+
+
+def edit_timeline(out: Path) -> Path:
+    """Record using the edit timeline to navigate edited frames."""
+    gui, _ = timeline_gui()
+    rec = Recording(gui, gui.canvas.center())
+    canvas = gui.canvas
+
+    rec.say(
+        "1. Click a solid line to go\nto that edited frame.", canvas, "top"
+    )
+    rec.hold(0.5)
+    for frame in (6600, 1500):
+        rec.move(gui.timeline_point(frame), seconds=1)
+        rec.click()
+        rec.hold(1.5)
+
+    rec.say(
+        "2. Scroll to zoom in or out,\ncentred on the pointer.", canvas, "top"
+    )
+    rec.move(gui.timeline_point(4212), seconds=1)
+    rec.scroll(6, seconds=2)
+    rec.hold(1.5)
+
+    rec.say("3. Click and drag to pan\nalong the timeline.", canvas, "top")
+    rec.drag(rec.pointer + QPoint(-200, 0), seconds=1.5)
+    rec.hold(1.5)
+
+    rec.say("4. Double-click to show\nall frames again.", canvas, "top")
+    rec.double_click()
+    rec.hold(2.5)
+    return rec.save(out / "napari_edit_timeline.mp4")
+
+
+def edit_timeline_individuals(out: Path) -> Path:
+    """Record splitting the edit timeline into one row per individual."""
+    gui, _ = timeline_gui()
+    checkbox = gui.section(EDIT_SECTION).content().show_individuals_checkbox
+    rec = Recording(gui, gui.canvas.center())
+
+    rec.say(
+        "Tick Display individuals to show\none row per individual.",
+        gui.canvas,
+        "top",
+    )
+    rec.hold(1)
+    rec.move(gui.rect(checkbox).topLeft() + QPoint(8, 10), seconds=1)
+    rec.click()
+    rec.hold(3)
+    return rec.save(out / "napari_edit_timeline_individuals.mp4")
+
+
 SCREENSHOTS: dict[str, Callable[[Path], Path]] = {
     "video_slider": video_slider,
     "poses_layers": poses_layers,
@@ -811,22 +1314,34 @@ SCREENSHOTS: dict[str, Callable[[Path], Path]] = {
     "tracks_sliders": tracks_sliders,
     "new_region_layer": new_region_layer,
     "drawing_regions": drawing_regions,
+    "edit_overview": edit_overview,
 }
+
+VIDEOS: dict[str, Callable[[Path], Path]] = {
+    "select_keypoints": select_keypoints,
+    "move_keypoints": move_keypoints,
+    "remove_keypoints": remove_keypoints,
+    "edit_timeline": edit_timeline,
+    "edit_timeline_individuals": edit_timeline_individuals,
+}
+
+# Everything the script can make, by name
+OUTPUTS = {**SCREENSHOTS, **VIDEOS}
 
 
 if __name__ == "__main__":
     # Make the screenshots named on the command line, or all of them
-    names = sys.argv[1:] or list(SCREENSHOTS)
-    unknown = set(names) - set(SCREENSHOTS)
+    names = sys.argv[1:] or list(OUTPUTS)
+    unknown = set(names) - set(OUTPUTS)
     if unknown:
         sys.exit(
             f"Unknown screenshots: {sorted(unknown)}. "
-            f"Choose from: {list(SCREENSHOTS)}."
+            f"Choose from: {list(OUTPUTS)}."
         )
     failed = []
     for name in names:
         try:
-            print(f"Saved {SCREENSHOTS[name](STATIC_PATH)}")
+            print(f"Saved {OUTPUTS[name](STATIC_PATH)}")
         except Exception as e:
             print(f"Failed {name}: {e!r}")
             failed.append(name)
