@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=015bff76"></script>
+    <script src="../_static/documentation_options.js?v=36a3751c"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev81</p>
+    <p class="title logo__title">movement v0.17.1.dev82</p>
   
 </a></div>
     
@@ -809,6 +809,7 @@ In general:</p>
 <li><p>Create validator classes for the file format (recommended).</p></li>
 <li><p>Implement the loader function.</p></li>
 <li><p>Update the <code class="docutils literal notranslate"><span class="pre">SourceSoftware</span></code> type alias.</p></li>
+<li><p>Check GUI compatibility.</p></li>
 <li><p>Update the <a class="reference internal" href="../user_guide/input_output.html#target-io"><span class="std std-ref">Input/Output</span></a> guide.</p></li>
 </ol>
 <section id="create-file-validators">
@@ -1006,6 +1007,21 @@ When adding a new loader, update this type alias to include the new software nam
     <span class="o">...</span><span class="p">,</span>
     <span class="s2">"MySoftware"</span><span class="p">,</span>  <span class="c1"># Newly added software</span>
 <span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="check-gui-compatibility">
+<h4>Check GUI compatibility<a class="headerlink" href="#check-gui-compatibility" title="Link to this heading">#</a></h4>
+<p>The <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">software</span></code> dropdown of the <a class="reference internal" href="../user_guide/gui.html#target-gui"><span class="std std-ref">GUI</span></a> is populated
+automatically from the list of registered loaders.</p>
+<p>If the new format does not hold 2D data or cannot be loaded with just a
+file path and <code class="docutils literal notranslate"><span class="pre">fps</span></code>, exclude it from the GUI by adding it to
+<code class="docutils literal notranslate"><span class="pre">GUI_UNSUPPORTED_SOURCE_SOFTWARE</span></code> in <code class="docutils literal notranslate"><span class="pre">movement.napari.loader_widgets</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">GUI_UNSUPPORTED_SOURCE_SOFTWARE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"Anipose"</span><span class="p">,</span>  <span class="c1"># 3D data, not supported by the napari layers</span>
+    <span class="o">...</span><span class="p">,</span>
+    <span class="s2">"MySoftware"</span><span class="p">,</span>  <span class="c1"># Newly added software, not supported in the GUI</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </section>
@@ -1911,6 +1927,7 @@ verify that the video is correctly linked to the dataset:</p>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#update-sourcesoftware-type-alias">Update SourceSoftware type alias</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#check-gui-compatibility">Check GUI compatibility</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#update-the-input-output-guide">Update the Input/Output guide</a></li>
 </ul>
 </li>
