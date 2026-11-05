@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=a5237b6f"></script>
+    <script src="../_static/documentation_options.js?v=015bff76"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev80</p>
+    <p class="title logo__title">movement v0.17.1.dev81</p>
   
 </a></div>
     
@@ -530,8 +530,9 @@ There are a few reasons an issue might not be actionable yet:</p>
 <li><p>It doesn’t currently fit into the roadmap or the maintainers’ priorities, meaning we may be unable to commit to timely guidance and prompt code reviews.</p></li>
 </ul>
 <p>If you’re unsure whether an issue is ready to work on, just ask!</p>
-<p>Some issues are labelled as <code class="docutils literal notranslate"><span class="pre">good</span> <span class="pre">first</span> <span class="pre">issue</span></code>.
-These are especially suitable if you’re new to the project, and we recommend starting there.</p>
+<p>Before opening a pull request, make sure to read through the
+<a class="reference internal" href="#target-pull-requests"><span class="std std-ref">relevant section</span></a> of this guide as well our
+<a class="reference external" href="https://neuroinformatics.dev/get-involved/ai_policy.html">policy on contributions using AI</a>.</p>
 </section>
 <section id="contribution-workflow">
 <span id="target-contribution-workflow"></span><h2>Contribution workflow<a class="headerlink" href="#contribution-workflow" title="Link to this heading">#</a></h2>
@@ -611,9 +612,19 @@ uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </s
 </ol>
 </section>
 <section id="pull-requests">
-<h3>Pull requests<a class="headerlink" href="#pull-requests" title="Link to this heading">#</a></h3>
-<p>In all cases, please submit code to the main repository via a pull request (PR).
-We recommend, and adhere, to the following conventions:</p>
+<span id="target-pull-requests"></span><h3>Pull requests<a class="headerlink" href="#pull-requests" title="Link to this heading">#</a></h3>
+<p>In all cases, please submit code to the main repository via a pull request (PR).</p>
+<div class="note admonition">
+<p class="admonition-title">Pull request review limits</p>
+<p>To help us give each contribution thoughtful, timely feedback, we limit new contributors
+to one PR marked as “Ready for review” at a time. Draft PRs are welcome for exploring
+ideas and discussing direction, but only PRs marked as ready receive a full review
+from the maintainers. This avoids spreading our attention too thinly.</p>
+<p>That limit doesn’t apply after two of your PRs have been merged, as familiarity with
+the project typically translates to less back-and-forth.
+Team members with write access are also exempt.</p>
+</div>
+<p>We recommend, and adhere, to the following conventions:</p>
 <ul class="simple">
 <li><p>Please submit <em>draft</em> PRs as early as possible to allow for discussion.</p></li>
 <li><p>The PR title should be descriptive e.g. “Add new function to do X” or “Fix bug in Y”.</p></li>
