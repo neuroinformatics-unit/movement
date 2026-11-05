@@ -15,15 +15,14 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest]  # TEMP: restore full matrix
-        python-version: ["3.13"]  # TEMP: restore full matrix
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.12", "3.13", "3.14"]
 
     defaults:
       run:
         shell: bash -l {0}  # Required for conda activation
 
     steps:
-      - run: exit 1  # TEMP: force failure to test Slack notification
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       # pinning to a specific sha1 is recommended by this action's docs
       - uses: conda-incubator/setup-miniconda@be893c923ea9cf1cf7cd510fbdde27c7e18cbdcb # v4.1.0
@@ -41,8 +40,7 @@ jobs:
   notify_slack:
     name: Notify Slack on scheduled failure
     needs: [conda_install_check]
-    # TEMP: drop workflow_dispatch after testing
-    if: failure() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+    if: failure() && github.event_name == 'schedule'
     runs-on: ubuntu-latest
     steps:
       - uses: ravsamhq/notify-slack-action@be814b201e233b2dc673608aa46e5447c8ab13f2 # v2.5.0
