@@ -309,7 +309,8 @@ Implementing a new loader to support additional [file formats](target-supported-
 1. Create validator classes for the file format (recommended).
 2. Implement the loader function.
 3. Update the `SourceSoftware` type alias.
-4. Update the [](target-io) guide.
+4. Check GUI compatibility.
+5. Update the [](target-io) guide.
 
 #### Create file validators
 
@@ -520,24 +521,22 @@ type SourceSoftware = Literal[
 ]
 ```
 
-#### Make the format available in the GUI
+#### Check GUI compatibility
 
-If the new format holds 2D data and can be loaded with only a file path,
-add it to the `source software` dropdown of the [GUI](target-gui) by appending
-an entry to `SUPPORTED_POSES_FILES` or `SUPPORTED_BBOXES_FILES` in
-`movement.napari.loader_widgets`. Map the software name (as used in
-`SourceSoftware`) to the file suffixes it accepts:
+The `source software` dropdown of the [GUI](target-gui) is populated
+automatically from the list of registered loaders.
+
+If the new format does not hold 2D data or cannot be loaded with just a
+file path and `fps`, exclude it from the GUI by adding it to
+`GUI_UNSUPPORTED_SOURCE_SOFTWARE` in `movement.napari.loader_widgets`:
 
 ```python
-SUPPORTED_POSES_FILES = {
-    "DeepLabCut": ["h5", "csv"],
+GUI_UNSUPPORTED_SOURCE_SOFTWARE = {
+    "Anipose",  # 3D data, not supported by the napari layers
     ...,
-    "MySoftware": ["ext"],  # Newly added software
+    "MySoftware",  # Newly added software, not supported in the GUI
 }
 ```
-
-The GUI calls {func}`~movement.io.load.load_dataset` with the selected
-software name, so no further changes to the widget are needed.
 
 #### Update the Input/Output guide
 
