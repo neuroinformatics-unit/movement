@@ -522,6 +522,57 @@ def test_edited_property_round_trip(
     xr.testing.assert_equal(reconstructed_ds, ds)
 
 
+@pytest.mark.parametrize("nan_location", NAN_LOCATIONS)
+def test_removed_point_edited_round_trip(
+    nan_location,
+    valid_poses_path_and_ds,
+    valid_poses_path_and_ds_with_localised_nans,
+    loaded_data_loader,
+):
+    """Test that a removed point keeps ``edited=True`` over a round trip.
+
+    Mirrors :func:`test_edited_property_round_trip`, but the point is
+    removed instead of moved. On reload the removed point is a NaN row,
+    absent from the live layer, so its flag must come from the loaded
+    properties rather than from the live ones.
+    """
+    if nan_location is None:
+        filepath, ds_loaded = valid_poses_path_and_ds
+    else:
+        filepath, ds_loaded = valid_poses_path_and_ds_with_localised_nans(
+            nan_location
+        )
+    loader = loaded_data_loader(filepath, ds_loaded)
+    points, properties = _remove_points(
+        loader,
+        {"time": [2], "individual": ["id_0"], "keypoint": ["centroid"]},
+    )
+
+    ds = napari_layers_to_ds(
+        points_as_napari=points,
+        properties=properties,
+        properties_with_nans=loader.properties,
+        attrs=ds_loaded.attrs,
+    )
+    assert ds["edited"].sel(time=2, individual="id_0", keypoint="centroid")
+
+    # Load the dataset back into napari layers, filter out NaN position
+    # rows as the loader widget does, and convert back again.
+    napari_tracks, _, properties_with_nan = ds_to_napari_layers(ds)
+    valid_point_mask = ~np.any(np.isnan(napari_tracks[:, 2:4]), axis=1)
+    properties_with_nan["position_is_nan"] = ~valid_point_mask
+    napari_points = napari_tracks[valid_point_mask, 1:]
+    properties = properties_with_nan.iloc[valid_point_mask].reset_index(
+        drop=True
+    )
+
+    reconstructed_ds = napari_layers_to_ds(
+        napari_points, properties, properties_with_nan, attrs=ds.attrs
+    )
+
+    xr.testing.assert_equal(reconstructed_ds, ds)
+
+
 def _target_points_to_remove(target, ds):
     """Expand the ``"all"`` shorthand in a removal target into the
     dataset's actual coordinate values for ``time``/``individual``/
