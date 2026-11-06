@@ -2,6 +2,8 @@
 
 import json
 
+import pytest
+
 from movement.roi import (
     LineOfInterest,
     PolygonOfInterest,
@@ -26,6 +28,18 @@ class TestROICollectionSerialization:
 
         assert data["type"] == "FeatureCollection"
         assert len(data["features"]) == 2
+
+    def test_save_rois_overwrite_behavior(self, unit_square, tmp_path):
+        file_path = tmp_path / "rois.geojson"
+        file_path.write_text("old contents")
+
+        save_rois([unit_square], file_path)
+        assert json.loads(file_path.read_text())["type"] == "FeatureCollection"
+
+        file_path.write_text("preserve these contents")
+        with pytest.raises(FileExistsError):
+            save_rois([unit_square], file_path, overwrite=False)
+        assert file_path.read_text() == "preserve these contents"
 
     def test_collection_round_trip(
         self, unit_square, segment_of_y_equals_x, tmp_path

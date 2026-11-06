@@ -13,7 +13,7 @@ from movement.roi.line import LineOfInterest
 from movement.roi.polygon import PolygonOfInterest
 from movement.validators.files import (
     ValidROICollectionGeoJSON,
-    validate_file_path,
+    _validate_file_path,
 )
 
 if TYPE_CHECKING:
@@ -23,10 +23,11 @@ if TYPE_CHECKING:
 # Type alias for collections of RoIs
 type ROICollection = Sequence[BaseRegionOfInterest]
 
-
 def save_rois(
     rois: ROICollection,
     file: str | Path,
+    *,
+    overwrite: bool = True,  # <-- ADDED
 ) -> None:
     """Save a collection of regions of interest (RoIs) to a GeoJSON file.
 
@@ -41,6 +42,17 @@ def save_rois(
     file
         Path to the output file.
         Should have a ``.geojson`` or a ``.json`` extension.
+    overwrite
+        If True (default), an existing target file will be overwritten
+        provided it is writable. If False, a ``FileExistsError`` is raised
+        if the target file already exists.
+
+    Raises
+    ------
+    FileExistsError
+        If the target file exists and ``overwrite=False``.
+    PermissionError
+        If the target file exists, ``overwrite=True``, but is not writable.
 
     See Also
     --------
@@ -58,8 +70,10 @@ def save_rois(
     >>> save_rois([square, diagonal], "/path/to/rois.geojson")
 
     """
-    valid_path = validate_file_path(
-        file, permission="w", suffixes=ValidROICollectionGeoJSON.suffixes
+    valid_path = _validate_file_path(
+        file,
+        overwrite=overwrite,
+        suffixes=ValidROICollectionGeoJSON.suffixes,
     )
 
     features = [
