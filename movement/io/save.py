@@ -167,9 +167,10 @@ def register_writer(
             # the input path is only a filename template and may not be an
             # output target.
             validate_overwrite = kwargs.get("overwrite", True)
-            if target_software == "LightningPose" or kwargs.get(
-                "split_individuals"
-            ) is True:
+            if (
+                target_software == "LightningPose"
+                or kwargs.get("split_individuals") is True
+            ):
                 validate_overwrite = True
             valid_file = _validate_file_path(
                 file,

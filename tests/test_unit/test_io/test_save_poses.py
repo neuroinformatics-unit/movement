@@ -195,6 +195,7 @@ def test_to_dlc_file_valid_dataset(
         file_path = val.get("file_path") if isinstance(val, dict) else val
         save_poses.to_dlc_file(valid_poses_dataset, file_path)
 
+
 @pytest.mark.parametrize("writer", ["dlc", "lp", "sleap"])
 def test_pose_writers_overwrite_existing_file_by_default(
     writer, valid_poses_dataset, tmp_path
@@ -226,6 +227,7 @@ def test_pose_writers_overwrite_existing_file_by_default(
         for output_path in output_paths
     )
 
+
 @pytest.mark.parametrize("writer", ["dlc", "lp", "sleap"])
 def test_pose_writers_can_reject_existing_file(
     writer, valid_poses_dataset, tmp_path
@@ -255,6 +257,7 @@ def test_pose_writers_can_reject_existing_file(
     assert all(
         output_path.read_text() == "keep me" for output_path in output_paths
     )
+
 
 @pytest.mark.parametrize("overwrite", [True, False])
 def test_to_dlc_file_split_outputs_overwrite_behavior(

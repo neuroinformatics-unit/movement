@@ -149,6 +149,7 @@ def test_to_via_tracks_file_overwrite_behavior(valid_bboxes_dataset, tmp_path):
         )
     assert output_path.read_text() == "preserve these contents"
 
+
 @pytest.mark.parametrize(
     "image_file_prefix",
     [None, "test_video"],
