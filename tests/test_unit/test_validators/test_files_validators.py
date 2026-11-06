@@ -21,10 +21,10 @@ from movement.validators.files import (
     ValidSleapAnalysis,
     ValidSleapLabels,
     ValidVIATracksCSV,
-    _validate_file_path,
     _hdf5_validator,
     _if_instance_of,
     _json_validator,
+    _validate_file_path,
     validate_file_path,
 )
 from tests.fixtures.coco import COCO_KEYPOINT_RESULT_1, COCO_KEYPOINT_RESULT_2
