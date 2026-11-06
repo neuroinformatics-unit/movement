@@ -10,7 +10,7 @@ from attrs import field, frozen, validators
 
 from movement.utils.logging import logger
 from movement.validators.datasets import DS_TYPE_VALIDATORS, DsType
-from movement.validators.files import validate_file_path
+from movement.validators.files import _validate_file_path
 
 type TargetSoftware = Literal[
     "movement",
@@ -163,8 +163,18 @@ def register_writer(
             ds: xr.Dataset, file: str | Path, *args: P.args, **kwargs: P.kwargs
         ) -> None:
             _validate_ds_type(ds, target_software)
-            valid_file = validate_file_path(
-                file, permission="w", suffixes=suffixes
+            # Split writers validate their generated paths inside the writer;
+            # the input path is only a filename template and may not be an
+            # output target.
+            validate_overwrite = kwargs.get("overwrite", True)
+            if target_software == "LightningPose" or kwargs.get(
+                "split_individuals"
+            ) is True:
+                validate_overwrite = True
+            valid_file = _validate_file_path(
+                file,
+                overwrite=validate_overwrite,
+                suffixes=suffixes,
             )
             return writer_fn(ds, valid_file, *args, **kwargs)
 

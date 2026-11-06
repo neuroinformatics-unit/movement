@@ -21,6 +21,7 @@ from movement.validators.files import (
     ValidSleapAnalysis,
     ValidSleapLabels,
     ValidVIATracksCSV,
+    _validate_file_path,
     _hdf5_validator,
     _if_instance_of,
     _json_validator,
@@ -38,7 +39,7 @@ from tests.fixtures.coco import COCO_KEYPOINT_RESULT_1, COCO_KEYPOINT_RESULT_2
         ("new_csv_file", "w", None, does_not_raise()),
         ("unreadable_file", "r", None, pytest.raises(PermissionError)),
         ("unwriteable_file", "w", None, pytest.raises(PermissionError)),
-        ("fake_h5_file", "w", None, pytest.raises(FileExistsError)),
+        ("fake_h5_file", "w", None, does_not_raise()),
         (
             "wrong_extension_file",
             "r",
@@ -78,6 +79,41 @@ def test_validate_file_path(
             suffixes=suffixes,
         )
         assert isinstance(validated_file, Path)
+
+
+@pytest.mark.parametrize("overwrite", [True, False])
+def test_validate_file_path_nonexistent_write_target(tmp_path, overwrite):
+    path = tmp_path / "new.csv"
+    assert _validate_file_path(path, overwrite=overwrite) == path
+
+
+def test_validate_file_path_overwrite_existing_file(tmp_path):
+    path = tmp_path / "existing.csv"
+    path.write_text("old")
+    assert _validate_file_path(path) == path
+    assert _validate_file_path(path, overwrite=True) == path
+
+
+def test_validate_file_path_rejects_existing_file_when_overwrite_disabled(
+    tmp_path,
+):
+    path = tmp_path / "existing.csv"
+    path.write_text("old")
+    with pytest.raises(FileExistsError):
+        _validate_file_path(path, overwrite=False)
+
+
+def test_validate_file_path_rejects_read_only_existing_file(
+    tmp_path, monkeypatch
+):
+    path = tmp_path / "readonly.csv"
+    path.write_text("old")
+    monkeypatch.setattr(
+        "movement.validators.files.os.access",
+        lambda target, mode: False if Path(target) == path else True,
+    )
+    with pytest.raises(PermissionError):
+        _validate_file_path(path, overwrite=True)
 
 
 @pytest.mark.parametrize(
