@@ -245,9 +245,7 @@ def to_dlc_file(
 
         derived_paths = []
         for indiv in individuals:
-            derived = file_path.with_name(
-                f"{file_path.stem}_{indiv}{suffix}"
-            )
+            derived = file_path.with_name(f"{file_path.stem}_{indiv}{suffix}")
             _validate_file_path(
                 derived, overwrite=overwrite, suffixes={".csv", ".h5"}
             )
@@ -394,6 +392,7 @@ def to_sleap_analysis_file(
                 f.create_dataset(key, data=val)
     logger.info(f"Saved poses dataset to {file_path}.")
 
+
 @register_writer("LightningPose", ds_type="poses", suffixes={".csv"})
 def to_lp_file(
     ds: xr.Dataset,
@@ -403,6 +402,7 @@ def to_lp_file(
 ) -> None:
     """Save a ``movement`` dataset to LightningPose-style files."""
     to_dlc_file(ds, file, split_individuals=True, overwrite=overwrite)
+
 
 def to_nwb_file_object(
     ds: xr.Dataset, config: NWBFileSaveConfig | None = None

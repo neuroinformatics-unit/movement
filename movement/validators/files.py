@@ -38,6 +38,7 @@ class ValidFile(Protocol):
 
     overwrite: bool
 
+
 # --- Composable attrs validators --- #
 
 
@@ -126,7 +127,9 @@ def _file_is_writable(value: Path, *, overwrite: bool = True) -> None:
                 )
             # writable → allow overwrite, proceed
         else:
-            raise logger.error(FileExistsError(f"File {value} already exists."))
+            raise logger.error(
+                FileExistsError(f"File {value} already exists.")
+            )
     else:
         # File does not exist → check parent dir is writable
         if not os.access(value.parent, os.W_OK):
@@ -367,6 +370,7 @@ def validate_file_path(
     except (OSError, ValueError) as error:
         logger.error(error)
         raise
+
 
 def _validate_file_path(
     path: Path | str,

@@ -17,6 +17,7 @@ from movement.validators.files import _validate_file_path
 if TYPE_CHECKING:
     import _csv
 
+
 @register_writer("VIA-tracks", ds_type="bboxes", suffixes={".csv"})
 def to_via_tracks_file(
     ds: xr.Dataset,

@@ -23,6 +23,7 @@ if TYPE_CHECKING:
 # Type alias for collections of RoIs
 type ROICollection = Sequence[BaseRegionOfInterest]
 
+
 def save_rois(
     rois: ROICollection,
     file: str | Path,
