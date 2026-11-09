@@ -7,7 +7,6 @@ from unittest.mock import MagicMock, Mock
 import numpy as np
 import pandas as pd
 import pytest
-import xarray as xr
 from attrs import define, field
 
 from movement.validators.files import (
@@ -942,4 +941,4 @@ def test_movement_netcdf_validator(input, expected_context, request):
     file = request.getfixturevalue(input)
     with expected_context:
         validated = ValidMovementNetCDF(file=file)
-        assert isinstance(validated.dataset, xr.Dataset)
+        assert validated.file == Path(file)

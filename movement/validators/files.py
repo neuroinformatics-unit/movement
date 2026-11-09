@@ -1249,19 +1249,15 @@ class ValidMovementNetCDF:
     )
     """Path to the movement netCDF (.nc) file to validate."""
 
-    dataset: xr.Dataset = field(init=False)
-    """Validated movement Dataset from the netCDF file."""
-
     def __attrs_post_init__(self) -> None:
-        """Load the netCDF file into an xarray Dataset after validation."""
-        ds = xr.open_dataset(self.file)
-        ds_type = ds.attrs.get("ds_type", None)
-        if ds_type not in DS_TYPE_VALIDATORS:
-            raise logger.error(
-                ValueError(
-                    f"The netCDF file has an unknown 'ds_type' attribute: "
-                    f"{ds_type}."
+        """Validate the dimensions and variables of the dataset."""
+        with xr.open_dataset(self.file) as ds:
+            ds_type = ds.attrs.get("ds_type", None)
+            if ds_type not in DS_TYPE_VALIDATORS:
+                raise logger.error(
+                    ValueError(
+                        f"The netCDF file has an unknown 'ds_type' "
+                        f"attribute: {ds_type}."
+                    )
                 )
-            )
-        DS_TYPE_VALIDATORS[ds_type].validate(ds)
-        self.dataset = ds
+            DS_TYPE_VALIDATORS[ds_type].validate(ds)
