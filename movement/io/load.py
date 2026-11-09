@@ -19,7 +19,7 @@ import xarray as xr
 from attrs import field, fields, frozen, validators
 
 from movement.utils.logging import logger
-from movement.validators.files import ValidFile
+from movement.validators.files import ValidFile, ValidMovementNetCDF
 
 TInputFile = TypeVar("TInputFile", Path, str, pynwb.file.NWBFile)
 P = ParamSpec("P")
@@ -31,6 +31,7 @@ type SourceSoftware = Literal[
     "NWB",
     "VIA-tracks",
     "COCO",
+    "movement",
 ]
 AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE: Final = "DeepLabCut/LightningPose"
 
@@ -434,7 +435,7 @@ def load_dataset(
             )
         )
 
-    if source_software == "NWB":
+    if source_software in ["NWB", "movement"]:
         if fps is not None:
             warnings.warn(
                 "The fps argument is ignored when loading from an NWB file. "
@@ -564,4 +565,25 @@ def rename_legacy_dimensions(ds: xr.Dataset) -> xr.Dataset:
             f"{list(rename_map.values())}"
         )
         ds = ds.rename(rename_map)
+    return ds
+
+
+@register_loader("movement", file_validators=[ValidMovementNetCDF])
+def _from_netcdf_file(file: str | Path) -> xr.Dataset:
+    """Load a ``movement`` dataset from a movement netCDF (.nc) file.
+
+    Parameters
+    ----------
+    file
+        Path to the netCDF file containing the ``movement`` dataset.
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` dataset containing pose tracks or bounding box tracks,
+        confidence scores, and associated metadata.
+    """
+    valid_file = cast("ValidMovementNetCDF", file)
+    ds = valid_file.dataset
+    logger.info(f"Loaded dataset from {valid_file.file}:\n{ds}")
     return ds
