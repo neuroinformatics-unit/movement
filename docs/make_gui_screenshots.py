@@ -38,6 +38,7 @@ from qtpy.QtTest import QTest
 from qtpy.QtWidgets import QApplication, QLayout, QWidget
 
 from movement import sample_data
+from movement.napari.layer_wiring import sync_tracks_layer
 from movement.napari.meta_widget import MovementMetaWidget
 
 # The script uses napari APIs added in 0.9 (e.g. viewer.scene.camera)
@@ -1102,6 +1103,7 @@ class Recording:
 # ----------------------------------------------------------------------
 VIDEO_WINDOW_SIZE = (1200, 720)  # multiples of 16, as video codecs prefer
 EDIT_FRAME = 4500  # both mice fully tracked, apart from each other
+CLOSEUP_INDIVIDUAL = "2"  # red points, easier to see than the purple ones
 
 
 def editing_gui(frame: int = EDIT_FRAME, individual: str | None = None):
@@ -1153,10 +1155,28 @@ def remove_points_in_frames(points, frames, individual=None) -> None:
     points.selected_data = set()
 
 
+# (y, x) offset in data pixels for the fake nose error: off to one side
+NOSE_ERROR = (-10, 30)
+
+
+def misplace_keypoint(points, row: int, offset) -> None:
+    """Shift a keypoint away from its tracked position, to fake an error.
+
+    The data event is blocked so the shift does not count as an edit,
+    and the tracks layer is updated by hand to match.
+    """
+    data = points.data.copy()
+    data[row, 1:] += offset
+    with points.events.data.blocker():
+        points.data = data
+    sync_tracks_layer(points, [row])
+    settle()
+
+
 def select_keypoints(out: Path) -> Path:
     """Record selecting keypoints by clicking and by dragging a box."""
-    gui, points = editing_gui(individual="1")
-    rows = point_rows(points, EDIT_FRAME, "1")
+    gui, points = editing_gui(individual=CLOSEUP_INDIVIDUAL)
+    rows = point_rows(points, EDIT_FRAME, CLOSEUP_INDIVIDUAL)
     at = [gui.world_to_window(*points.data[r, 1:]) for r in rows]
     rec = Recording(gui, gui.canvas.center())
     canvas = gui.canvas
@@ -1185,17 +1205,20 @@ def select_keypoints(out: Path) -> Path:
 
 def move_keypoints(out: Path) -> Path:
     """Record dragging a keypoint to a new position."""
-    gui, points = editing_gui(individual="1")
-    nose = point_rows(points, EDIT_FRAME, "1")[0]
-    start = gui.world_to_window(*points.data[nose, 1:])
+    gui, points = editing_gui(individual=CLOSEUP_INDIVIDUAL)
+    nose = point_rows(points, EDIT_FRAME, CLOSEUP_INDIVIDUAL)[0]
+    # The tracking is good here, so fake an error for the drag to fix
+    correct = gui.world_to_window(*points.data[nose, 1:])
+    misplace_keypoint(points, nose, NOSE_ERROR)
+    wrong = gui.world_to_window(*points.data[nose, 1:])
     rec = Recording(gui, gui.canvas.center())
     canvas = gui.canvas
 
     rec.say("1. Drag a keypoint to\nits correct position.", canvas)
     rec.hold(0.5)
-    rec.move(start)
+    rec.move(wrong)
     rec.hold(0.5)
-    rec.drag(start + QPoint(-60, -45), seconds=1.5)
+    rec.drag(correct, seconds=1.5)
     rec.hold(1)
 
     rec.say(
@@ -1212,8 +1235,9 @@ def move_keypoints(out: Path) -> Path:
 
 def remove_keypoints(out: Path) -> Path:
     """Record removing selected keypoints with the delete button."""
-    gui, points = editing_gui(individual="1")
-    rows = point_rows(points, EDIT_FRAME, "1")[3:]  # the back half
+    gui, points = editing_gui(individual=CLOSEUP_INDIVIDUAL)
+    # The back half of the mouse
+    rows = point_rows(points, EDIT_FRAME, CLOSEUP_INDIVIDUAL)[4:]
     at = [gui.world_to_window(*points.data[r, 1:]) for r in rows]
     xs, ys = [p.x() for p in at], [p.y() for p in at]
     rec = Recording(gui, gui.canvas.center())
