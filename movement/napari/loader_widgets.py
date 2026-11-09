@@ -25,7 +25,6 @@ from movement.io.load import (
     SourceSoftware,
     get_supported_source_software,
     load_dataset,
-    rename_legacy_dimensions,
 )
 from movement.napari.convert import ds_to_napari_layers
 from movement.napari.layer_styles import BoxesStyle, PointsStyle, TracksStyle
@@ -45,18 +44,17 @@ from movement.napari.layer_wiring import (
     update_frame_slider_range,
 )
 from movement.utils.logging import logger
-from movement.validators.datasets import DS_TYPE_VALIDATORS
 
 # Registered source software that the GUI cannot load (yet)
 GUI_UNSUPPORTED_SOURCE_SOFTWARE: set[SourceSoftware] = {
     "Anipose",  # 3D data, not supported by the napari layers
-    "NWB",  # data can be 3D, fps read from file, loader keys not configurable
+    "NWB",  # data can be 3D, loader keys not configurable
 }
 
-# Allowed file suffixes for each supported third-party source software,
+# Allowed file suffixes for each supported source software/format
 # derived from the loaders registered via ``register_loader``
-SUPPORTED_THIRD_PARTY_FILES: dict[str, list[str]] = {
-    sw: sorted(suffix.lstrip(".") for suffix in suffixes)
+SUPPORTED_FILES: dict[str, list[str]] = {
+    sw: sorted(suffixes)
     for sw, suffixes in sorted(
         get_supported_source_software().items(),
         key=lambda item: item[0].lower(),
@@ -64,13 +62,10 @@ SUPPORTED_THIRD_PARTY_FILES: dict[str, list[str]] = {
     if sw not in GUI_UNSUPPORTED_SOURCE_SOFTWARE
 }
 
-SUPPORTED_NETCDF_FILES = {
-    "movement (netCDF)": ["nc"],
-}
-
-SUPPORTED_DATA_FILES = {
-    **SUPPORTED_THIRD_PARTY_FILES,
-    **SUPPORTED_NETCDF_FILES,
+# Source software for which to disable the fps spinbox (fps is read from file)
+FPS_DISABLED_SOURCE_SOFTWARE: set[SourceSoftware] = {
+    "movement",
+    "NWB",
 }
 
 # Source software preselected in the dropdown
@@ -103,7 +98,7 @@ class DataLoader(QWidget):
         """Create a combo box for selecting the source software."""
         self.source_software_combo = QComboBox()
         self.source_software_combo.setObjectName("source_software_combo")
-        self.source_software_combo.addItems(SUPPORTED_DATA_FILES.keys())
+        self.source_software_combo.addItems(SUPPORTED_FILES.keys())
         self.source_software_combo.setCurrentText(DEFAULT_SOURCE_SOFTWARE)
         self.layout().addRow("source software:", self.source_software_combo)
 
@@ -152,14 +147,13 @@ class DataLoader(QWidget):
 
     def _on_source_software_changed(self, current_text: str):
         """Enable/disable the fps spinbox based on source software."""
-        is_netcdf = current_text in SUPPORTED_NETCDF_FILES
-        # Disable fps box if netCDF
-        self.fps_spinbox.setEnabled(not is_netcdf)
+        fps_in_file_attr = current_text in FPS_DISABLED_SOURCE_SOFTWARE
+        # Disable fps box if fps is read from file (e.g. movement, NWB)
+        self.fps_spinbox.setEnabled(not fps_in_file_attr)
 
-        if is_netcdf:
+        if fps_in_file_attr:
             self.fps_spinbox.setToolTip(
-                "The fps (frames per second) is read directly \n"
-                "from the netCDF file attributes."
+                "The fps (frames per second) is read directly \nfrom the file."
             )
         else:
             self.fps_spinbox.setToolTip(self.fps_default_tooltip)
@@ -174,8 +168,8 @@ class DataLoader(QWidget):
     def _on_browse_clicked(self):
         """Open a file dialog to select a file."""
         file_suffixes = (
-            "*." + suffix
-            for suffix in SUPPORTED_DATA_FILES[
+            "*" + suffix
+            for suffix in SUPPORTED_FILES[
                 self.source_software_combo.currentText()
             ]
         )
@@ -196,8 +190,13 @@ class DataLoader(QWidget):
     def _on_load_clicked(self):
         """Load the file and add as a Points and Tracks layers."""
         # Get input data
-        self.fps = self.fps_spinbox.value()
         self.source_software = self.source_software_combo.currentText()
+        # Pass fps only if not read from file (avoids load_dataset warning)
+        self.fps = (
+            None
+            if self.source_software in FPS_DISABLED_SOURCE_SOFTWARE
+            else self.fps_spinbox.value()
+        )
         self.file_path = self.file_path_edit.text()
         self.file_name = Path(self.file_path).name
 
@@ -206,14 +205,20 @@ class DataLoader(QWidget):
             show_warning("No file path specified.")
             return
 
-        # Format data for napari layers
-        success = self._format_data_for_layers()
-        if not success:
-            return  # Stop execution if formatting/validation failed
+        # Load the dataset
+        try:
+            ds = load_dataset(self.file_path, self.source_software, self.fps)
+        except Exception as e:
+            show_error(f"Failed to load dataset from '{self.file_path}': {e}")
+            return
 
-        # Update self.fps in case the file loading changed the spinbox value
-        self.fps = self.fps_spinbox.value()
+        # Show the dataset's fps in the spinbox
+        self.fps = ds.attrs.get("fps")
+        if self.fps is not None:
+            self.fps_spinbox.setValue(self.fps)
 
+        # Format the data for the napari layers
+        self._format_data_for_layers(ds)
         logger.info("Converted dataset to a napari Tracks array.")
         logger.debug(f"Tracks array shape: {self.data.shape}")
         if self.data_bboxes is not None:
@@ -235,75 +240,16 @@ class DataLoader(QWidget):
         # Set the frame slider position
         self._set_initial_state()
 
-    def _format_data_for_layers(self) -> bool:
-        """Extract data required for the creation of the napari layers.
-
-        Returns True if the data was successfully extracted, False otherwise.
-        """
-        ds: xr.Dataset | None
-        if self.source_software not in SUPPORTED_NETCDF_FILES:
-            ds = self._load_third_party_file()
-        else:
-            ds = self._load_netcdf_file()
-            if ds is None:
-                return False
-            if "fps" in ds.attrs:
-                self.fps_spinbox.setValue(ds.attrs["fps"])
-
+    def _format_data_for_layers(self, ds: xr.Dataset) -> None:
+        """Extract data required for the creation of the napari layers."""
         # Convert to napari arrays
         self.data, self.data_bboxes, self.properties = ds_to_napari_layers(ds)
         self.ds_attrs = ds.attrs
-
         # Find rows that do not contain NaN values
         self.data_not_nan = ~np.any(np.isnan(self.data), axis=1)
         # Record which points had a NaN position originally as a property
         # This is used to reconstruct a dataset on save
         self.properties["position_is_nan"] = ~self.data_not_nan
-        return True
-
-    def _load_third_party_file(self) -> xr.Dataset:
-        """Load a third-party file as a ``movement`` dataset.
-
-        Validation is handled by the loader functions.
-        """
-        ds = load_dataset(self.file_path, self.source_software, self.fps)
-        return ds
-
-    def _load_netcdf_file(self) -> xr.Dataset | None:
-        """Load and validate a netCDF file as a ``movement`` dataset.
-
-        If the file cannot be opened or does not contain a valid
-        ``movement`` dataset, an appropriate error message is shown
-        to the user and ``None`` is returned.
-        """
-        try:
-            ds = xr.open_dataset(self.file_path)
-        except Exception as e:
-            show_error(f"Error opening netCDF file: {e}")
-            return None
-
-        ds = rename_legacy_dimensions(ds)
-
-        ds_type = ds.attrs.get("ds_type", None)
-        if ds_type not in DS_TYPE_VALIDATORS:
-            show_error(
-                f"The netCDF file has an unknown 'ds_type' attribute: "
-                f"{ds_type}."
-            )
-            return None
-
-        validator = DS_TYPE_VALIDATORS[ds_type]
-
-        try:
-            validator.validate(ds)
-        except (ValueError, TypeError) as e:
-            show_error(
-                f"The netCDF file does not appear to be a valid "
-                f"movement {ds_type} dataset: {e}"
-            )
-            return None
-
-        return ds
 
     def _set_common_color_property(self):
         """Set the color property for the Points and Tracks layers.
