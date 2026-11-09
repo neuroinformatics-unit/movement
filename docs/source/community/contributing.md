@@ -687,7 +687,7 @@ and is structured as follows:
   that `napari` layer constructors expect.
 
 If your changes affect how the GUI looks, remember to also
-[update the GUI screenshots](target-gui-screenshots) in the user guide.
+[update the GUI screenshots and videos](target-gui-screenshots-videos) in the user guide.
 
 #### Where should a layer callback live?
 
@@ -1080,20 +1080,24 @@ Subtitle (one-line summary).
 #   studying {SUBJECT}.
 ```
 
-(target-gui-screenshots)=
-### Updating GUI screenshots
+(target-gui-screenshots-videos)=
+### Updating GUI screenshots and videos
 
-Most screenshots in the [GUI guide](target-gui) are made by the
-`docs/make_gui_screenshots.py` script, rather than taken by hand.
-The script opens `napari` with the `movement` widget, loads
-[sample data](#sample-data), sets up the GUI, takes a screenshot,
-and draws labels (text and arrows) on it.
-Labels are placed based on where the widgets they point at are,
-so they follow the widgets if the layout changes.
+Most screenshots and videos in the [GUI guide](target-gui) are made by the
+`docs/make_gui_media.py` script, rather than by hand.
 
-The screenshots are saved as PNG files in `docs/source/_static/` and
-committed to the repository. The script does not run automatically during the
-documentation build, and it needs a display, since it opens `napari` windows.
+- **Screenshots** (PNG): the script opens `napari` with the `movement`
+  widget, loads [sample data](#sample-data), sets up the GUI, grabs the
+  window, and draws labels (text and arrows) on it.
+  Labels are placed based on where the widgets they point at are,
+  so they follow the widgets if the layout changes.
+- **Videos** (MP4): the script sets up the GUI in the same way, then drives
+  it with mouse clicks, drags and key presses. It grabs a frame after each
+  step, and draws the mouse pointer and a caption on each frame.
+
+Both are saved in `docs/source/_static/` and committed to the repository.
+The script does not run automatically during the documentation build, and
+it needs a display, since it opens `napari` windows.
 
 Some screenshots, such as `napari_video_reader.png` (a pop-up dialog),
 cannot be made with the script and are still taken by hand.
@@ -1102,43 +1106,55 @@ private to `napari` and may change between versions.
 
 #### When the GUI changes
 
-If your PR changes how the GUI looks, regenerate the screenshots
+If your PR changes how the GUI looks, regenerate all screenshots and videos
 from the repository root:
 
 ```sh
-python docs/make_gui_screenshots.py
+python docs/make_gui_media.py
 ```
 
-Check the images that changed (`git diff --stat`), and commit them
+Check which files changed (`git diff --stat`), and commit them
 with your PR. Since `napari` versions draw the GUI slightly differently,
 mention the `napari` version printed by the script in the commit message,
-e.g. "Regenerate GUI screenshots with napari 0.9.2".
-To see the images in place,
+e.g. "Regenerate GUI screenshots and videos with napari 0.9.2".
+To see them in place,
 [build the documentation](#building-the-documentation-locally).
 
-#### Adding a new screenshot
+#### Adding a new screenshot or video
 
-Each screenshot is made by one function in the script. To add one,
-write a new function modelled on an existing one (e.g. `tracks_sliders`),
-add it to the `SCREENSHOTS` dictionary at the bottom of the script,
-and run it by name, e.g. `python docs/make_gui_screenshots.py tracks_sliders`.
-Then reference the image in `docs/source/user_guide/gui.md` and commit
-it together with the script change.
-The options for placing labels are documented in the script itself
-(see `Label` and the `GUI` helper methods).
+Each screenshot or video is made by one function in the script, which
+saves the file and returns its path. To add one:
 
-To keep the screenshots consistent, please follow these conventions:
+1. Write a new function, modelled on an existing one:
+   - For a screenshot, e.g. `tracks_sliders`. The options for placing
+     labels are documented in the script itself (see `Label` and the
+     `GUI` helper methods).
+   - For a video, e.g. `edit_timeline`. Videos are recorded with the
+     `Recording` class, whose methods each perform one step and grab
+     the resulting frames: `move`, `click`, `double_click`, `drag`,
+     `scroll` and `press_key` act on the GUI, `say` sets the caption,
+     `hold` keeps the current view on screen, and `save` writes the MP4 file.
+2. Add the function to the `SCREENSHOTS` or `VIDEOS` dictionary
+   at the bottom of the script.
+3. Run it by name, e.g. `python docs/make_gui_media.py tracks_sliders`
+   or `python docs/make_gui_media.py edit_timeline`.
+4. Reference the new file in `docs/source/user_guide/gui.md`
+   and commit it together with the script change.
 
-- Point labels at what the user interacts with.
-  For example, point at the header of a `movement` widget section,
-  when prompting the user to expand that section.
+To keep screenshots and videos consistent, please follow these conventions:
+
+- Point labels, or the mouse pointer in videos, at what the user
+  interacts with. For example, point at the header of a `movement`
+  widget section, when prompting the user to expand that section.
 - Only draw a box around the target if it would otherwise be unclear
   what the label points at.
-- When a screenshot shows a sequence of steps, number the labels
-  (e.g. "1. Load a background layer").
+- When a screenshot or video shows a sequence of steps, number the labels
+  or captions (e.g. "1. Load a background layer").
 - Zoom in on the data as needed, so that keypoints, tracks or
   boxes are clearly visible.
-- Avoid covering the data or the widgets the screenshot is about.
+- Avoid covering the data or the widgets the screenshot or video is about.
+- In videos, keep each step on screen long enough to read its caption
+  (see `Recording.hold`).
 
 ### Cross-referencing Python objects
 
