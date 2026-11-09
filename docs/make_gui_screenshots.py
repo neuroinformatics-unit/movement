@@ -12,7 +12,7 @@ caption on each frame.
 Usage::
 
     python docs/make_gui_screenshots.py                 # all of them
-    python docs/make_gui_screenshots.py poses_layers    # only some
+    python docs/make_gui_screenshots.py poses_layers    # only some, by name
 
 Requires napari 0.9 or newer.
 """
@@ -1216,13 +1216,13 @@ def move_keypoints(out: Path) -> Path:
 
     rec.say("Drag a keypoint to\nits correct position.", canvas)
     rec.hold(0.5)
-    rec.move(start)
+    rec.move(wrong)
     rec.hold(0.5)
-    rec.drag(start + QPoint(-60, -45), seconds=1.5)
+    rec.drag(correct, seconds=1.5)
     rec.hold(1)
 
     rec.say(
-        "Moved keypoints are shown as rings."
+        "Moved keypoints are shown as rings.",
         canvas,
     )
     # Click on empty space to unselect, so the ring is easy to see
@@ -1353,13 +1353,12 @@ OUTPUTS = {**SCREENSHOTS, **VIDEOS}
 
 
 if __name__ == "__main__":
-    # Make the screenshots named on the command line, or all of them
+    # Make the screenshots and videos named on the command line, or all
     names = sys.argv[1:] or list(OUTPUTS)
     unknown = set(names) - set(OUTPUTS)
     if unknown:
         sys.exit(
-            f"Unknown screenshots: {sorted(unknown)}. "
-            f"Choose from: {list(OUTPUTS)}."
+            f"Unknown names: {sorted(unknown)}. Choose from: {list(OUTPUTS)}."
         )
     failed = []
     for name in names:
@@ -1369,8 +1368,8 @@ if __name__ == "__main__":
             print(f"Failed {name}: {e!r}")
             failed.append(name)
         finally:
-            # Close the viewer even if the screenshot failed halfway
+            # Close the viewer even if this one failed halfway
             napari.Viewer.close_all()
     print(f"Made with {NAPARI_VERSION}")
     if failed:
-        sys.exit(f"Failed screenshots: {failed}")
+        sys.exit(f"Failed: {failed}")
