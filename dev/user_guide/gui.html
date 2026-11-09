@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=92dbf105"></script>
+    <script src="../_static/documentation_options.js?v=595261c8"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev83</p>
+    <p class="title logo__title">movement v0.17.1.dev84</p>
   
 </a></div>
     
@@ -512,7 +512,8 @@
 motion tracks. Currently, you can use it to
 visualise 2D <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement datasets</span></a>
 as points, tracks, and rectangular bounding boxes (if defined) overlaid on
-video frames, as well as to define regions of interest (RoIs).</p>
+video frames, to manually <a class="reference internal" href="#target-edit-tracked-data"><span class="std std-ref">correct tracking errors</span></a>,
+and to define regions of interest (RoIs).</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">napari</span></code> plugin is shipped with the <code class="docutils literal notranslate"><span class="pre">movement</span></code> package starting from
 version <code class="docutils literal notranslate"><span class="pre">0.1.0</span></code>.  To use it, you need to
 <a class="reference internal" href="installation.html#target-installation"><span class="std std-ref">install the package</span></a> with a method that
@@ -600,8 +601,8 @@ to extract a still frame from a video.</p>
 as a single 2D frame without a slider.</p>
 </section>
 </section>
-<section id="load-the-tracked-dataset">
-<h2>Load the tracked dataset<a class="headerlink" href="#load-the-tracked-dataset" title="Link to this heading">#</a></h2>
+<section id="load-tracked-data">
+<span id="target-load-tracked-data"></span><h2>Load tracked data<a class="headerlink" href="#load-tracked-data" title="Link to this heading">#</a></h2>
 <p>Now you are ready to load some motion tracks over your chosen background layer.</p>
 <p>On the right-hand side of the window you should see
 an expanded <code class="docutils literal notranslate"><span class="pre">Load</span> <span class="pre">tracked</span> <span class="pre">data</span></code> menu. You can load data from
@@ -651,7 +652,7 @@ after processing, as expected.</p>
 <li><p>From the <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">software</span></code> dropdown menu select the name of the tracking software you used to generate the data (e.g. “DeepLabCut”), or choose “movement (netCDF)”.</p></li>
 <li><p>Set the <code class="docutils literal notranslate"><span class="pre">fps</span></code> (frames per second) of the video the data refers to. This only changes the time units shown when you hover over a keypoint. An unknown <code class="docutils literal notranslate"><span class="pre">fps</span></code> can be set to <code class="docutils literal notranslate"><span class="pre">1</span></code>, which makes the displayed time equal to the frame index.
 The <code class="docutils literal notranslate"><span class="pre">fps</span></code> option is disabled when loading a netCDF file because the <code class="docutils literal notranslate"><span class="pre">fps</span></code> is directly read from the file’s attributes.</p></li>
-<li><p>Select the file containing the tracked data. You can paste the path to the file directly in the text box, or you can use the file browser button.</p></li>
+<li><p>Specify the file containing the tracked data. You can paste the path to the file directly in the text box, or click <code class="docutils literal notranslate"><span class="pre">Browse</span></code> to use the file browser.</p></li>
 <li><p>Click <code class="docutils literal notranslate"><span class="pre">Load</span></code>.</p></li>
 </ol>
 <p>The data will be loaded into the viewer as a
@@ -664,7 +665,7 @@ By default, the data is added at the top of the layer list and the points layer 
 <p><img alt="napari with bboxes dataset loaded" src="../_images/napari_bboxes_layers.png" /></p>
 <p>Note the additional bounding boxes layer that is loaded for bounding boxes datasets. For both poses and bounding boxes datasets, you can toggle the visibility of any of these layers by clicking on the eye icon.</p>
 <section id="the-points-layer">
-<h3>The points layer<a class="headerlink" href="#the-points-layer" title="Link to this heading">#</a></h3>
+<span id="target-points-layer"></span><h3>The points layer<a class="headerlink" href="#the-points-layer" title="Link to this heading">#</a></h3>
 <p>The points layer shows the data for the current frame.</p>
 <p>The keypoints are represented as points, colour-coded by
 keypoint for single-individual datasets, or by individual for
@@ -699,7 +700,7 @@ in sync.</p>
 </div>
 </section>
 <section id="the-tracks-layer">
-<h3>The tracks layer<a class="headerlink" href="#the-tracks-layer" title="Link to this heading">#</a></h3>
+<span id="target-tracks-layer"></span><h3>The tracks layer<a class="headerlink" href="#the-tracks-layer" title="Link to this heading">#</a></h3>
 <p>The tracks layer allows us to visualise data before and after the current frame.
 Remember that the current frame is determined by the position of the frame slider.</p>
 <p>The trajectory made up of all positions of a keypoint on all frames before the current frame is called <em>tail</em>.
@@ -744,6 +745,190 @@ an internal napari track ID, rather than the individual or the keypoint ID. This
 </ul>
 <p>You can find all the <a class="reference external" href="https://napari.org/stable/guides/preferences.html">keyboard shortcuts</a> in the top menu of the
 <code class="docutils literal notranslate"><span class="pre">napari</span></code> window, under <code class="docutils literal notranslate"><span class="pre">Preferences</span> <span class="pre">&gt;</span> <span class="pre">Shortcuts</span></code>.</p>
+</div>
+</section>
+</section>
+<section id="edit-tracked-data">
+<span id="target-edit-tracked-data"></span><h2>Edit tracked data<a class="headerlink" href="#edit-tracked-data" title="Link to this heading">#</a></h2>
+<p>Pose estimation models occasionally produce errors such as mis-localised
+keypoints and false-positive detections in the background, which automated
+post-processing (e.g. <a class="reference internal" href="../examples/filter_and_interpolate.html#sphx-glr-examples-filter-and-interpolate-py"><span class="std std-ref">filtering or interpolation</span></a>)
+cannot fully resolve.
+The <code class="docutils literal notranslate"><span class="pre">movement</span></code> GUI lets you correct these prediction errors by interactively
+<a class="reference internal" href="#target-edit-types"><span class="std std-ref">editing the keypoints</span></a> on the
+<a class="reference internal" href="#target-points-layer"><span class="std std-ref">points layer</span></a> created when you
+<a class="reference internal" href="#target-load-tracked-data"><span class="std std-ref">load the tracked dataset</span></a>.</p>
+<p>Editing involves the following parts of the GUI:</p>
+<ul class="simple">
+<li><p>The viewer, where you select and edit keypoints on the points layer.</p></li>
+<li><p>The <a class="reference internal" href="#target-select-keypoints"><span class="std std-ref">select</span></a> and
+<a class="reference internal" href="#target-remove-keypoints"><span class="std std-ref">remove</span></a> buttons in the layer controls panel,
+which let you pick keypoints and delete them.
+Adding new keypoints is not yet supported.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">Edit</span> <span class="pre">tracked</span> <span class="pre">data</span></code> menu on the right-hand side of the window,
+which holds the <a class="reference internal" href="#target-edit-types"><span class="std std-ref">editing options</span></a> and the buttons to
+<a class="reference internal" href="#target-reset-edits"><span class="std std-ref">reset edits</span></a>. Expanding or collapsing it shows or
+hides the edit timeline.</p></li>
+<li><p>The <a class="reference internal" href="#target-edit-timeline"><span class="std std-ref">edit timeline</span></a> at the bottom of the
+window, which provides a visual summary of all edited frames and lets
+you navigate to them.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">Save</span> <span class="pre">tracked</span> <span class="pre">data</span></code> menu, which lets you
+<a class="reference internal" href="#target-save-edits"><span class="std std-ref">save your changes</span></a> to a file.</p></li>
+</ul>
+<p><img alt="napari GUI elements involved in editing tracked data" src="../_images/napari_edit_overview.png" /></p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Editing is currently supported for poses datasets only.
+While the keypoints in bounding boxes datasets are editable, saving any
+changes is not yet supported and will result in an error.</p>
+</div>
+<section id="select-keypoints">
+<span id="target-select-keypoints"></span><h3>Select keypoints<a class="headerlink" href="#select-keypoints" title="Link to this heading">#</a></h3>
+<p>To start editing:</p>
+<ol class="arabic simple">
+<li><p>Select the points layer in the layer list.</p></li>
+<li><p>Use the frame slider to go to the frame you want to correct.</p></li>
+<li><p>In the layer controls panel, activate the <em>Select points</em> tool
+(the arrowhead icon, or press <code class="docutils literal notranslate"><span class="pre">S</span></code> or <code class="docutils literal notranslate"><span class="pre">3</span></code>).</p></li>
+</ol>
+<p>With the <em>Select points</em> tool active, you can select keypoints directly in the
+viewer using one of the following methods:</p>
+<ul class="simple">
+<li><p>Click a keypoint to select it.</p></li>
+<li><p>Hold <code class="docutils literal notranslate"><span class="pre">Shift</span></code> while clicking to select multiple keypoints.</p></li>
+<li><p>Drag a selection box to select a group of keypoints.</p></li>
+</ul>
+<video autoplay loop muted playsinline width="100%" aria-label="Selecting keypoints by clicking, Shift-clicking, and dragging a selection box">
+  <source src="../_static/napari_select_keypoints.mp4" type="video/mp4">
+</video>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Editing is disabled whenever the frame slider is controlling a non-time
+dimension, e.g. after changing the order of the viewer axes or switching to 3D
+view. Return to the 2D view with time as the leading axis to re-enable editing.</p>
+</div>
+</section>
+<section id="edit-types">
+<span id="target-edit-types"></span><h3>Edit types<a class="headerlink" href="#edit-types" title="Link to this heading">#</a></h3>
+<p>When you edit a keypoint, the <code class="docutils literal notranslate"><span class="pre">Edit</span> <span class="pre">tracked</span> <span class="pre">data</span></code> menu expands and the
+<a class="reference internal" href="#target-edit-timeline"><span class="std std-ref">edit timeline</span></a> appears at the bottom of the window.
+The timeline shows a solid line for the frame you edited, and a dashed
+line for the current frame. The <a class="reference internal" href="#target-tracks-layer"><span class="std std-ref">tracks layer</span></a>
+updates automatically to stay in sync with the points layer, so trajectories
+always reflect the current keypoint positions.</p>
+<section id="move-keypoints">
+<h4>Move keypoints<a class="headerlink" href="#move-keypoints" title="Link to this heading">#</a></h4>
+<p>To move the selected keypoint(s), drag them to the correct position.
+Moved keypoints are shown as rings. Their confidence is set to <code class="docutils literal notranslate"><span class="pre">NaN</span></code>, because the model’s score no longer applies.</p>
+<p>Once a keypoint is moved, a boolean <code class="docutils literal notranslate"><span class="pre">edited</span></code> property is added to all points in the layer: it is <code class="docutils literal notranslate"><span class="pre">True</span></code> for moved keypoints and <code class="docutils literal notranslate"><span class="pre">False</span></code> for all others. Hover over a point to check: a moved keypoint’s tooltip shows <code class="docutils literal notranslate"><span class="pre">edited:</span> <span class="pre">True</span></code>.</p>
+<video autoplay loop muted playsinline width="100%" aria-label="Dragging a keypoint to a new position, after which it is shown as a ring">
+  <source src="../_static/napari_move_keypoints.mp4" type="video/mp4">
+</video>
+</section>
+<section id="remove-keypoints">
+<span id="target-remove-keypoints"></span><h4>Remove keypoints<a class="headerlink" href="#remove-keypoints" title="Link to this heading">#</a></h4>
+<p>To remove the selected keypoint(s), click the ✕ icon in the layer controls
+panel, or press <code class="docutils literal notranslate"><span class="pre">Delete</span></code>, <code class="docutils literal notranslate"><span class="pre">Backspace</span></code>, or <code class="docutils literal notranslate"><span class="pre">1</span></code>.
+Removed keypoints disappear from the viewer, and their confidence scores are
+set to <code class="docutils literal notranslate"><span class="pre">NaN</span></code>.</p>
+<video autoplay loop muted playsinline width="100%" aria-label="Removing selected keypoints, which then disappear from the viewer">
+  <source src="../_static/napari_remove_keypoints.mp4" type="video/mp4">
+</video>
+</section>
+</section>
+<section id="edit-timeline">
+<span id="target-edit-timeline"></span><h3>Edit timeline<a class="headerlink" href="#edit-timeline" title="Link to this heading">#</a></h3>
+<p>The edit timeline spans all frames of the dataset in the currently selected
+<code class="docutils literal notranslate"><span class="pre">movement</span></code> points layer, and shows a solid vertical line for every frame
+containing at least one edited keypoint.
+A dashed line marks the current frame displayed in the viewer and
+moves with the frame slider as you navigate through the frames.</p>
+<p>You can interact with the timeline as follows:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Action</p></th>
+<th class="head"><p>Effect</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Click a solid line</p></td>
+<td><p>Go to the corresponding edited frame</p></td>
+</tr>
+<tr class="row-odd"><td><p>Scroll up / down</p></td>
+<td><p>Zoom in / out, centred on the cursor (e.g. to tell apart the lines of adjacent frames)</p></td>
+</tr>
+<tr class="row-even"><td><p>Click and drag</p></td>
+<td><p>Pan along the timeline (when zoomed in)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Double-click</p></td>
+<td><p>Reset the view to show all frames</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<video autoplay loop muted playsinline width="100%" aria-label="Clicking a solid line, zooming, panning, and resetting the edit timeline">
+  <source src="../_static/napari_edit_timeline.mp4" type="video/mp4">
+</video>
+<p>For datasets with multiple individuals, tick the <code class="docutils literal notranslate"><span class="pre">Display</span> <span class="pre">individuals</span></code>
+checkbox in the <code class="docutils literal notranslate"><span class="pre">Edit</span> <span class="pre">tracked</span> <span class="pre">data</span></code> menu to split the timeline into one
+row per individual. Each row’s lines match the colour of that individual’s
+points, showing which individuals were corrected in which frames.
+The checkbox is disabled for single-individual datasets.</p>
+<video autoplay loop muted playsinline width="100%" aria-label="Ticking Display individuals to split the edit timeline into one row per individual">
+  <source src="../_static/napari_edit_timeline_individuals.mp4" type="video/mp4">
+</video>
+</section>
+<section id="reset-edits">
+<span id="target-reset-edits"></span><h3>Reset edits<a class="headerlink" href="#reset-edits" title="Link to this heading">#</a></h3>
+<p>If you want to discard your corrections, the <code class="docutils literal notranslate"><span class="pre">Edit</span> <span class="pre">tracked</span> <span class="pre">data</span></code> menu
+provides two buttons:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Reset</span> <span class="pre">current</span> <span class="pre">frame</span></code> reverts all edits made to keypoints in the
+frame currently shown in the viewer. Edits in other frames are kept.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reset</span> <span class="pre">all</span> <span class="pre">frames</span></code> restores all edited keypoints in the loaded dataset.
+You will be asked to confirm before the edits are discarded.</p></li>
+</ul>
+<p>Both buttons restore the dataset to the state it was in when you
+<a class="reference internal" href="#target-load-tracked-data"><span class="std std-ref">loaded it</span></a> into the viewer. This means
+that if you <a class="reference internal" href="#target-save-edits"><span class="std std-ref">resumed an editing session</span></a> from a
+saved file, the edits already saved in that file are kept, and their
+keypoints are still marked as edited.
+Resetting does not change the file on disk, unless you
+<a class="reference internal" href="#target-save-edits"><span class="std std-ref">save</span></a> them.</p>
+</section>
+<section id="save-edits">
+<span id="target-save-edits"></span><h3>Save edits<a class="headerlink" href="#save-edits" title="Link to this heading">#</a></h3>
+<p>To save your edits to a file:</p>
+<ol class="arabic simple">
+<li><p>Select the <code class="docutils literal notranslate"><span class="pre">movement</span></code> points layer that contains the edits in the layer list.</p></li>
+<li><p>Expand the <code class="docutils literal notranslate"><span class="pre">Save</span> <span class="pre">tracked</span> <span class="pre">data</span></code> menu and click <code class="docutils literal notranslate"><span class="pre">Save</span></code>
+(enabled only when a <code class="docutils literal notranslate"><span class="pre">movement</span></code> points layer is selected).</p></li>
+<li><p>In the dialog that opens, choose a location and enter a file name.
+The data is currently saved in <code class="docutils literal notranslate"><span class="pre">movement</span></code>’s native
+<a class="reference internal" href="input_output.html#target-netcdf"><span class="std std-ref">netCDF</span></a> format.</p></li>
+</ol>
+<p>The saved file contains a valid
+<a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement poses dataset</span></a> with:</p>
+<ul class="simple">
+<li><p>the corrected <code class="docutils literal notranslate"><span class="pre">position</span></code> values; removed keypoints are stored as <code class="docutils literal notranslate"><span class="pre">NaN</span></code>;</p></li>
+<li><p>the <code class="docutils literal notranslate"><span class="pre">confidence</span></code> values, with all edited keypoints stored as <code class="docutils literal notranslate"><span class="pre">NaN</span></code>;</p></li>
+<li><p>a boolean <code class="docutils literal notranslate"><span class="pre">edited</span></code> data variable, with dimensions
+<code class="docutils literal notranslate"><span class="pre">(time,</span> <span class="pre">keypoint,</span> <span class="pre">individual)</span></code>, storing <code class="docutils literal notranslate"><span class="pre">True</span></code> for every edited keypoint and <code class="docutils literal notranslate"><span class="pre">False</span></code> for all others.</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">edited</span></code> variable is included only if at least one keypoint was edited.
+Keypoints or individuals that end up with no data in any frame
+(e.g. because all their points were removed) are dropped from the saved
+dataset. Frames are never dropped: a frame whose points were all removed
+is kept, with <code class="docutils literal notranslate"><span class="pre">NaN</span></code> values.</p>
+<p>To resume editing later, <a class="reference internal" href="#target-load-tracked-data"><span class="std std-ref">load</span></a> the saved
+<code class="docutils literal notranslate"><span class="pre">.nc</span></code> file in the GUI: all previous edits are restored, so you can pick
+up exactly where you left off.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Because the edits are saved in the <code class="docutils literal notranslate"><span class="pre">edited</span></code> variable, you can use them in
+your analysis, for example to report how many keypoints were corrected by
+hand, or to compare results with and without the corrected frames.
+See <a class="reference internal" href="input_output.html#target-netcdf"><span class="std std-ref">Native saving and loading with netCDF</span></a> for how to load the file in Python.</p>
 </div>
 </section>
 </section>
@@ -992,10 +1177,22 @@ belonging to the selected layer.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#load-an-image">Load an image</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-the-tracked-dataset">Load the tracked dataset</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-tracked-data">Load tracked data</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-points-layer">The points layer</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-tracks-layer">The tracks layer</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-boxes-layer">The boxes layer</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#edit-tracked-data">Edit tracked data</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#select-keypoints">Select keypoints</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#edit-types">Edit types</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#move-keypoints">Move keypoints</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#remove-keypoints">Remove keypoints</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#edit-timeline">Edit timeline</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reset-edits">Reset edits</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#save-edits">Save edits</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-regions-of-interest">Define regions of interest</a><ul class="nav section-nav flex-column">
