@@ -1248,7 +1248,7 @@ def remove_keypoints(out: Path) -> Path:
     rec.hold(1)
 
     rec.say(
-        "1. Click × in the layer controls,\nor press Delete, Backspace or 1.",
+        "Click × in the layer controls,\nor press Delete, Backspace or 1.",
         canvas,
     )
     delete_button = gui.layer_controls(points).delete_button
@@ -1257,7 +1257,7 @@ def remove_keypoints(out: Path) -> Path:
     rec.click()
     rec.hold(0.5)
 
-    rec.say("2. Removed keypoints disappear\nfrom the viewer.", canvas)
+    rec.say("Removed keypoints disappear\nfrom the viewer.", canvas)
     rec.move(canvas.center(), seconds=1)
     rec.hold(2.5)
     return rec.save(out / "napari_remove_keypoints.mp4")
