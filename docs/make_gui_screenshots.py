@@ -919,35 +919,35 @@ def edit_overview(out: Path) -> Path:
 
     controls = gui.layer_controls(points)
     labels = [
-        Label(gui.canvas, "1. The viewer", side="inside"),
+        Label(gui.canvas, "The viewer", side="inside"),
         # Below the buttons, one lower than the other so they do not overlap
         Label(
             gui.rect(controls.delete_button),
-            "2b. Remove\nkeypoints",
+            "Remove\nkeypoints",
             side="below",
             shift=-70,
         ),
         Label(
             gui.rect(controls.select_button),
-            "2a. Select\nkeypoints",
+            "Select\nkeypoints",
             side="below",
             gap=130,
             shift=15,
         ),
         Label(
             gui.rect(gui.section(EDIT_SECTION).toggleButton()),
-            "3. Edit tracked\ndata menu",
+            "Edit tracked\ndata menu",
             side="left",
             box=False,
         ),
         Label(
             gui.rect(gui.widget.edit_timeline_widget),
-            "4. Edit timeline",
+            "Edit timeline",
             side="inside",
         ),
         Label(
             gui.rect(gui.section(SAVE_SECTION).toggleButton()),
-            "5. Save tracked\ndata menu",
+            "Save tracked\ndata menu",
             side="left",
             box=False,
         ),
