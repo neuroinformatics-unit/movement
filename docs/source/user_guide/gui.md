@@ -460,7 +460,8 @@ Both buttons restore the dataset to the state it was in when you
 that if you [resumed an editing session](target-save-edits) from a
 saved file, the edits already saved in that file are kept, and their
 keypoints are still marked as edited.
-Resetting does not change the file on disk.
+Resetting does not change the file on disk, unless you
+[save](target-save-edits) them.
 
 
 (target-save-edits)=
