@@ -1091,9 +1091,9 @@ and draws labels (text and arrows) on it.
 Labels are placed based on where the widgets they point at are,
 so they follow the widgets if the layout changes.
 
-The script also records the short videos of the editing workflow
-(e.g. selecting and moving keypoints). For these, it drives the GUI with
-mouse clicks, drags and key presses, grabs a frame after each step, and
+The script also records the short videos shown in the guide.
+For these, it drives the GUI with mouse clicks, drags and
+key presses, grabs a frame after each step, and
 draws the mouse pointer and a caption on each frame.
 
 The screenshots and videos are saved as PNG and MP4 files in
