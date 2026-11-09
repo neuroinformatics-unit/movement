@@ -459,9 +459,7 @@ Both buttons restore the dataset to the state it was in when you
 that if you [resumed an editing session](target-save-edits) from a
 saved file, the edits already saved in that file are kept, and their
 keypoints are still marked as edited.
-
-Resetting does not change the file on disk. To keep the restored state,
-[save the dataset](target-save-edits) again.
+Resetting does not change the file on disk.
 
 Individual edits cannot be undone one at a time: you can only reset
 a whole frame or the whole dataset.
