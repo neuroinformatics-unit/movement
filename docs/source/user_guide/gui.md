@@ -182,7 +182,6 @@ To load tracked data in `napari`:
 1. From the `source software` dropdown menu select the name of the tracking software you used to generate the data (e.g. "DeepLabCut"), or choose "movement (netCDF)".
 2. Set the `fps` (frames per second) of the video the data refers to. This only changes the time units shown when you hover over a keypoint. An unknown `fps` can be set to `1`, which makes the displayed time equal to the frame index.
 The `fps` option is disabled when loading a netCDF file because the `fps` is directly read from the file's attributes.
-1. Select the file containing the tracked data. You can paste the path to the file directly in the text box, or you can use the file browser button.
 3. Specify the file containing the tracked data. You can paste the path to the file directly in the text box, or click `Browse` to use the file browser.
 4. Click `Load`.
 
