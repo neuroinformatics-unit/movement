@@ -572,3 +572,17 @@ def invalid_dstype_netcdf_file(tmp_path_factory, valid_netcdf_file):
     ds.to_netcdf(invalid_path)
 
     yield str(invalid_path)
+
+
+@pytest.fixture(scope="session")
+def legacy_dims_netcdf_file(tmp_path_factory, valid_netcdf_file):
+    """Create a netCDF file with the plural dimension names used by
+    movement < 0.17.0 ("keypoints", "individuals").
+    """
+    ds = xr.load_dataset(valid_netcdf_file).rename(
+        {"keypoint": "keypoints", "individual": "individuals"}
+    )
+    temp_dir = tmp_path_factory.mktemp("invalid_netcdf")
+    legacy_path = temp_dir / "legacy_dims_file.nc"
+    ds.to_netcdf(legacy_path)
+    yield str(legacy_path)

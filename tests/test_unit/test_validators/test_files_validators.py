@@ -931,6 +931,10 @@ def test_coco_annotations_validator_invalid_categories(
             pytest.raises(ValueError, match="unknown 'ds_type' attribute"),
         ),
         (
+            "legacy_dims_netcdf_file",
+            pytest.raises(ValueError, match="legacy dimension names"),
+        ),
+        (
             "anipose_csv_file",
             pytest.raises(ValueError, match="Expected file with suffix"),
         ),
