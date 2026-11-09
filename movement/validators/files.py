@@ -12,6 +12,7 @@ import jsonschema
 import numpy as np
 import orjson
 import pandas as pd
+import xarray as xr
 from attrs import Attribute, converters, define, field, validators
 from pynwb import NWBFile
 
@@ -22,6 +23,7 @@ from movement.validators._json_schemas import (
     ROI_COLLECTION_SCHEMA,
     ROI_TYPE_TO_GEOMETRY,
 )
+from movement.validators.datasets import DS_TYPE_VALIDATORS
 
 DEFAULT_FRAME_REGEXP = r"(0\d*)\.\w+$"
 JSON_SUFFIX = ".json"
@@ -1218,3 +1220,48 @@ class ValidROICollectionGeoJSON:
 
     data: dict = field(init=False, factory=dict)
     """Parsed JSON data from the file, available after validation."""
+
+
+@define
+class ValidMovementNetCDF:
+    """Class for validating movement netCDF (.nc) files.
+
+    The validator ensures that the file:
+
+    - is a valid netCDF (.nc) file, and
+    - contains the expected dimensions and variables for a ``movement``
+      dataset.
+
+    Raises
+    ------
+    ValueError
+        If the file is not a valid netCDF file or does not match the expected
+        structure for a ``movement`` dataset.
+
+    """
+
+    suffixes: ClassVar[set[str]] = {".nc"}
+    """Expected suffix(es) for the file."""
+
+    file: Path = field(
+        converter=Path,
+        validator=_file_validator(permission="r", suffixes=suffixes),
+    )
+    """Path to the movement netCDF (.nc) file to validate."""
+
+    dataset: xr.Dataset = field(init=False)
+    """Validated movement Dataset from the netCDF file."""
+
+    def __attrs_post_init__(self) -> None:
+        """Load the netCDF file into an xarray Dataset after validation."""
+        ds = xr.open_dataset(self.file)
+        ds_type = ds.attrs.get("ds_type", None)
+        if ds_type not in DS_TYPE_VALIDATORS:
+            raise logger.error(
+                ValueError(
+                    f"The netCDF file has an unknown 'ds_type' attribute: "
+                    f"{ds_type}."
+                )
+            )
+        DS_TYPE_VALIDATORS[ds_type].validate(ds)
+        self.dataset = ds

@@ -65,6 +65,7 @@ def test_register_loader_decorator(
         ("Anipose", "movement.io.load_poses.from_anipose_file"),
         ("NWB", "movement.io.load_poses.from_nwb_file"),
         ("VIA-tracks", "movement.io.load_bboxes.from_via_tracks_file"),
+        ("movement", "movement.io.load._from_netcdf_file"),
         ("Unknown", None),
     ],
 )
@@ -85,13 +86,15 @@ def test_load_dataset_delegates_correctly(
             load._LOADER_REGISTRY,
             {source_software: load._LoaderEntry(mock_loader)},
         )
-        if source_software == "NWB" and fps is not None:
+        if source_software in ["NWB", "movement"] and fps is not None:
             with pytest.warns(UserWarning, match="fps argument is ignored"):
                 load.load_dataset("some_file", source_software, fps)
         else:
             load.load_dataset("some_file", source_software, fps)
         expected_call_args = (
-            ("some_file", fps) if source_software != "NWB" else ("some_file",)
+            ("some_file", fps)
+            if source_software not in ["NWB", "movement"]
+            else ("some_file",)
         )
         mock_loader.assert_called_with(*expected_call_args)
 
@@ -112,6 +115,7 @@ def test_load_dataset_delegates_correctly(
         ("sleap_slp_file", "SLEAP", None, does_not_raise()),
         ("dlc_h5_file", "DeepLabCut", None, does_not_raise()),
         ("anipose_csv_file", "Anipose", None, does_not_raise()),
+        ("valid_netcdf_file", "movement", None, does_not_raise()),
         ("nwbfile_object", "NWB", None, does_not_raise()),
         (
             "dlc_csv_file",
@@ -239,15 +243,15 @@ def test_infer_source_software(
 
 
 def test_infer_source_software_raises_for_unsupported_format(
-    valid_netcdf_file,
+    wrong_extension_file,
 ):
     """Test inference fails for a file format not supported by load_dataset.
 
-    Here we use a valid netCDF file, which is not one of our supported
+    Here we use a txt file, which is not one of our supported
     third-party formats, and hence doesn't have a corresponding file validator.
     """
     with pytest.raises(ValueError, match="Could not infer source_software"):
-        load.infer_source_software(valid_netcdf_file)
+        load.infer_source_software(wrong_extension_file)
 
 
 @pytest.mark.parametrize(

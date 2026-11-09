@@ -7,6 +7,7 @@ from unittest.mock import MagicMock, Mock
 import numpy as np
 import pandas as pd
 import pytest
+import xarray as xr
 from attrs import define, field
 
 from movement.validators.files import (
@@ -16,6 +17,7 @@ from movement.validators.files import (
     ValidCOCOKeypointResults,
     ValidDeepLabCutCSV,
     ValidDeepLabCutH5,
+    ValidMovementNetCDF,
     ValidNWBFile,
     ValidROICollectionGeoJSON,
     ValidSleapAnalysis,
@@ -915,3 +917,29 @@ def test_coco_annotations_validator_invalid_categories(
     file = coco_keypoint_annotations_file(categories)
     with pytest.raises(ValueError, match=match):
         ValidCOCOKeypointAnnotations(file=file)
+
+
+@pytest.mark.parametrize(
+    "input, expected_context",
+    [
+        ("valid_netcdf_file", does_not_raise()),
+        (
+            "invalid_netcdf_file_missing_confidence",
+            pytest.raises(ValueError, match="Missing required data variables"),
+        ),
+        (
+            "invalid_dstype_netcdf_file",
+            pytest.raises(ValueError, match="unknown 'ds_type' attribute"),
+        ),
+        (
+            "anipose_csv_file",
+            pytest.raises(ValueError, match="Expected file with suffix"),
+        ),
+    ],
+)
+def test_movement_netcdf_validator(input, expected_context, request):
+    """Test ValidMovementNetCDF with a valid movement netCDF file."""
+    file = request.getfixturevalue(input)
+    with expected_context:
+        validated = ValidMovementNetCDF(file=file)
+        assert isinstance(validated.dataset, xr.Dataset)
