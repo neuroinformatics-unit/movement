@@ -370,7 +370,7 @@ def load_dataset(
     fps: float | None = None,
     **kwargs,
 ) -> xr.Dataset:
-    """Create a ``movement`` dataset from any supported third-party file.
+    """Create a ``movement`` dataset from any supported file format.
 
     Parameters
     ----------
@@ -391,9 +391,9 @@ def load_dataset(
     fps
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
-        This argument is ignored when ``source_software`` is "NWB", as the
-        frame rate will be directly read or estimated from metadata in
-        the NWB file.
+        This argument is ignored when ``source_software`` is "NWB" or
+        "movement", as the frame rate will be directly read or estimated
+        from metadata in the file.
     **kwargs
         Additional keyword arguments to pass to the software-specific
         loading functions in modules listed under "See Also".
@@ -438,9 +438,9 @@ def load_dataset(
     if source_software in ["NWB", "movement"]:
         if fps is not None:
             warnings.warn(
-                "The fps argument is ignored when loading from an NWB file. "
-                "The frame rate will be directly read or estimated from "
-                "metadata in the file.",
+                "The fps argument is ignored when loading from an NWB or "
+                "movement netCDF file. The frame rate will be directly read "
+                "or estimated from metadata in the file.",
                 UserWarning,
                 stacklevel=2,
             )
@@ -539,7 +539,7 @@ def rename_legacy_dimensions(ds: xr.Dataset) -> xr.Dataset:
 
     >>> import xarray as xr
     >>> from movement.io.load import rename_legacy_dimensions
-    >>> ds = xr.open_dataset("old_dataset.nc")
+    >>> ds = xr.load_dataset("old_dataset.nc")
     >>> ds = rename_legacy_dimensions(ds)
     >>> ds.to_netcdf("new_dataset.nc")
 
@@ -584,6 +584,7 @@ def _from_netcdf_file(file: str | Path) -> xr.Dataset:
         confidence scores, and associated metadata.
     """
     valid_file = cast("ValidMovementNetCDF", file)
-    ds = valid_file.dataset
-    logger.info(f"Loaded dataset from {valid_file.file}:\n{ds}")
+    file_path = valid_file.file
+    ds = xr.load_dataset(file_path)
+    logger.info(f"Loaded dataset from {file_path}:\n{ds}")
     return ds
