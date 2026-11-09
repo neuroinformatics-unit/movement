@@ -469,9 +469,9 @@ def load_multiview_dataset(
     fps
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
-        This argument is ignored when ``source_software`` is "NWB", as the
-        frame rate will be directly read or estimated from metadata in
-        the NWB file.
+        This argument is ignored when ``source_software`` is "NWB" or
+        "movement", as the frame rate will be directly read or estimated from
+        metadata in the file.
     **kwargs
         Additional keyword arguments to pass to the software-specific
         loading functions in modules listed under "See Also".
