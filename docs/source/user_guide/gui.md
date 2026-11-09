@@ -479,7 +479,7 @@ The saved file contains a valid
 [movement poses dataset](target-poses-and-bboxes-dataset) with:
 
 - the corrected `position` values; removed keypoints are stored as `NaN`;
-- the `confidence` values, with moved and removed keypoints stored as `NaN`;
+- the `confidence` values, with all edited keypoints stored as `NaN`;
 - a boolean `edited` data variable, with dimensions
   `(time, keypoint, individual)`, storing `True` for every edited keypoint and `False` for all others.
 
