@@ -328,25 +328,30 @@ The `movement` GUI lets you correct these prediction errors by interactively
 
 Editing involves the following parts of the GUI:
 
-- **The viewer**, where you select and edit keypoints on the points layer.
-- **The `Edit tracked data` menu** on the right-hand side of the window,
+- The viewer, where you select and edit keypoints on the points layer.
+- The [select](target-select-keypoints) and
+  [remove](target-remove-keypoints) buttons in the layer controls panel,
+  which let you pick keypoints and delete them.
+  Adding new keypoints is not yet supported.
+- The `Edit tracked data` menu on the right-hand side of the window,
   which holds the [editing options](target-edit-types) and the buttons to
   [reset edits](target-reset-edits). Expanding or collapsing it shows or
   hides the edit timeline.
-- **The [edit timeline](target-edit-timeline)** at the bottom of the
+- The [edit timeline](target-edit-timeline) at the bottom of the
   window, which provides a visual summary of all edited frames and lets
   you navigate to them.
-- **The `Save tracked data` menu**, which lets you
+- The `Save tracked data` menu, which lets you
   [save your changes](target-save-edits) to a file.
 
 ![napari GUI elements involved in editing tracked data](../_static/napari_edit_overview.png)
 
 :::{warning}
-Editing is currently supported for **poses datasets** only.
+Editing is currently supported for poses datasets only.
 While the keypoints in bounding boxes datasets are editable, saving any
 changes is not yet supported and will result in an error.
 :::
 
+(target-select-keypoints)=
 ### Select keypoints
 
 To start editing:
@@ -385,7 +390,7 @@ always reflect the current keypoint positions.
 
 #### Move keypoints
 
-To **move** the selected keypoint(s), drag them to the correct position.
+To move the selected keypoint(s), drag them to the correct position.
 Moved keypoints are shown as rings. Their confidence is set to `NaN`, because the model's score no longer applies.
 
 Once a keypoint is moved, a boolean `edited` property is added to all points in the layer: it is `True` for moved keypoints and `False` for all others. Hover over a point to check: a moved keypoint's tooltip shows `edited: True`.
@@ -394,9 +399,10 @@ Once a keypoint is moved, a boolean `edited` property is added to all points in 
   <source src="../_static/napari_move_keypoints.mp4" type="video/mp4">
 </video>
 
+(target-remove-keypoints)=
 #### Remove keypoints
 
-To **remove** the selected keypoint(s), click the ✕ icon in the layer controls
+To remove the selected keypoint(s), click the ✕ icon in the layer controls
 panel, or press `Delete`, `Backspace`, or `1`.
 Removed keypoints disappear from the viewer, and their confidence scores are
 set to `NaN`.
