@@ -450,7 +450,7 @@ The checkbox is disabled for single-individual datasets.
 If you want to discard your corrections, the `Edit tracked data` menu
 provides two buttons:
 
-- `Reset current frame` restores the moved or removed keypoints in the
+- `Reset current frame` reverts all edits made to keypoints in the
   frame currently shown in the viewer. Edits in other frames are kept.
 - `Reset all frames` restores all edited keypoints in the loaded dataset.
   You will be asked to confirm before the edits are discarded.
