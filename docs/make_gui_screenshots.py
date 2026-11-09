@@ -1214,16 +1214,15 @@ def move_keypoints(out: Path) -> Path:
     rec = Recording(gui, gui.canvas.center())
     canvas = gui.canvas
 
-    rec.say("1. Drag a keypoint to\nits correct position.", canvas)
+    rec.say("Drag a keypoint to\nits correct position.", canvas)
     rec.hold(0.5)
-    rec.move(wrong)
+    rec.move(start)
     rec.hold(0.5)
-    rec.drag(correct, seconds=1.5)
+    rec.drag(start + QPoint(-60, -45), seconds=1.5)
     rec.hold(1)
 
     rec.say(
-        "2. Moved keypoints are shown as rings,\n"
-        "and their frame on the timeline.",
+        "Moved keypoints are shown as rings."
         canvas,
     )
     # Click on empty space to unselect, so the ring is easy to see
