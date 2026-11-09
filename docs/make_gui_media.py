@@ -11,8 +11,8 @@ caption on each frame.
 
 Usage::
 
-    python docs/make_gui_screenshots.py                 # all of them
-    python docs/make_gui_screenshots.py poses_layers    # only some, by name
+    python docs/make_gui_media.py                 # all of them
+    python docs/make_gui_media.py poses_layers    # only some, by name
 
 Requires napari 0.9 or newer.
 """
@@ -50,7 +50,8 @@ if Version(napari.__version__) < Version(MIN_NAPARI_VERSION):
         f'    uv pip install -U "napari[all]>={MIN_NAPARI_VERSION}"'
     )
 
-# Recorded in each image, since napari versions draw the GUI differently
+# Recorded in each screenshot and video, as napari versions draw the GUI
+# differently
 NAPARI_VERSION = f"napari {napari.__version__}"
 
 DEFAULT_WINDOW_SIZE = (1100, 660)
@@ -72,7 +73,7 @@ FONT_PATH = (
     Path(matplotlib.get_data_path()) / "fonts" / "ttf" / "DejaVuSans.ttf"
 )
 
-# Images are saved next to the other docs images
+# Screenshots and videos are saved next to the other docs images
 STATIC_PATH = Path(__file__).resolve().parent / "source" / "_static"
 
 OCTAGON = "SLEAP_two-mice_octagon.analysis.h5"
@@ -421,8 +422,8 @@ class GUI:
         self.window.resize(*size)
         self.widget = MovementMetaWidget(self.viewer)
         self.viewer.window.add_dock_widget(self.widget, name="movement")
-        # Open and close widget sections instantly, so screenshots never
-        # catch a section halfway through its animation
+        # Open and close widget sections instantly, so the GUI is never
+        # captured with a section halfway through its animation
         for section in self.widget.collapsible_widgets:
             section.setDuration(0)
         settle()
@@ -985,7 +986,7 @@ class Recording:
         """Add the current view as ``repeat`` video frames."""
         settle(0.05)
         self.gui.viewer.help = ""  # no key hints in the status bar
-        # Less smoothing than for images: faster, and video encoding
+        # Less smoothing than for screenshots: faster, and video encoding
         # softens edges anyway
         image = self.gui.render(
             pointer=self.pointer, caption=self.caption, smoothing=2

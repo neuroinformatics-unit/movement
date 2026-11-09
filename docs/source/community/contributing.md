@@ -1084,7 +1084,7 @@ Subtitle (one-line summary).
 ### Updating GUI screenshots and videos
 
 Most screenshots and videos in the [GUI guide](target-gui) are made by the
-`docs/make_gui_screenshots.py` script, rather than by hand.
+`docs/make_gui_media.py` script, rather than by hand.
 
 - **Screenshots** (PNG): the script opens `napari` with the `movement`
   widget, loads [sample data](#sample-data), sets up the GUI, grabs the
@@ -1110,7 +1110,7 @@ If your PR changes how the GUI looks, regenerate all screenshots and videos
 from the repository root:
 
 ```sh
-python docs/make_gui_screenshots.py
+python docs/make_gui_media.py
 ```
 
 Check which files changed (`git diff --stat`), and commit them
@@ -1136,8 +1136,8 @@ saves the file and returns its path. To add one:
      `hold` keeps the current view on screen, and `save` writes the MP4 file.
 2. Add the function to the `SCREENSHOTS` or `VIDEOS` dictionary
    at the bottom of the script.
-3. Run it by name, e.g. `python docs/make_gui_screenshots.py tracks_sliders`
-   or `python docs/make_gui_screenshots.py edit_timeline`.
+3. Run it by name, e.g. `python docs/make_gui_media.py tracks_sliders`
+   or `python docs/make_gui_media.py edit_timeline`.
 4. Reference the new file in `docs/source/user_guide/gui.md`
    and commit it together with the script change.
 
