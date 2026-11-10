@@ -6,11 +6,13 @@ import xarray as xr
 
 from movement.filtering import (
     filter_by_confidence,
+    filter_by_region,
     interpolate_over_time,
     rolling_filter,
     savgol_filter,
 )
 from movement.io import load_poses
+from movement.roi import PolygonOfInterest
 
 # Dataset fixtures
 list_valid_datasets_without_nans = [
@@ -323,3 +325,127 @@ def test_filter_by_confidence_on_proofread_data(
         0 if keep_points_with_nan_confidence else ds.position.size
     )
     assert helpers.count_nans(position_filtered) == expected_n_nans
+
+
+@pytest.fixture
+def points_around_unit_square():
+    """Points inside, outside, on the boundary of the unit square, and NaN.
+
+    The data has ``time``, ``space`` and ``individual`` dimensions,
+    with one point per time step for a single individual.
+    """
+    return xr.DataArray(
+        np.array([[0.5, 0.5], [2.0, 2.0], [1.0, 0.5], [np.nan, np.nan]])[
+            ..., np.newaxis
+        ],
+        dims=["time", "space", "individual"],
+        coords={"time": np.arange(4), "space": ["x", "y"]},
+    )
+
+
+@pytest.mark.parametrize(
+    "invert, include_boundary, expected_kept",
+    [
+        pytest.param(False, True, [True, False, True, False], id="default"),
+        pytest.param(
+            False, False, [True, False, False, False], id="exclude boundary"
+        ),
+        pytest.param(True, True, [False, True, False, False], id="invert"),
+        pytest.param(
+            True,
+            False,
+            [False, True, True, False],
+            id="invert, exclude boundary",
+        ),
+    ],
+)
+def test_filter_by_region(
+    points_around_unit_square,
+    unit_square,
+    invert,
+    include_boundary,
+    expected_kept,
+):
+    """Test that points outside (or inside, if inverted) the region
+    are converted to NaN, and that existing NaNs remain NaN.
+    """
+    filtered = filter_by_region(
+        points_around_unit_square,
+        unit_square,
+        invert=invert,
+        include_boundary=include_boundary,
+        print_report=True,
+    )
+    kept = filtered.notnull().all("space").squeeze("individual")
+    np.testing.assert_array_equal(kept.values, expected_kept)
+    xr.testing.assert_equal(
+        filtered.where(kept), points_around_unit_square.where(kept)
+    )
+
+
+def test_filter_by_region_multiple_regions(
+    points_around_unit_square, unit_square
+):
+    """Test that a point is kept if it falls inside any of the regions."""
+    square_around_2_2 = PolygonOfInterest(
+        [(1.5, 1.5), (1.5, 2.5), (2.5, 2.5), (2.5, 1.5)]
+    )
+    filtered = filter_by_region(
+        points_around_unit_square, [unit_square, square_around_2_2]
+    )
+    kept = filtered.notnull().all("space").squeeze("individual")
+    np.testing.assert_array_equal(kept.values, [True, True, True, False])
+
+
+def test_filter_by_region_with_hole(unit_square_with_hole):
+    """Test that points inside a region's hole are dropped."""
+    data = xr.DataArray(
+        np.array([[0.1, 0.1], [0.5, 0.5]]),
+        dims=["time", "space"],
+        coords={"space": ["x", "y"]},
+    )
+    filtered = filter_by_region(data, unit_square_with_hole)
+    np.testing.assert_array_equal(
+        filtered.notnull().all("space").values, [True, False]
+    )
+
+
+@pytest.mark.parametrize(
+    "regions",
+    [
+        pytest.param([], id="empty list"),
+        pytest.param("unit square", id="string"),
+        pytest.param(["unit square"], id="list of strings"),
+    ],
+)
+def test_filter_by_region_invalid_regions(points_around_unit_square, regions):
+    """Test that an error is raised if regions are not polygons."""
+    with pytest.raises(TypeError, match="regions must be a PolygonOfInterest"):
+        filter_by_region(points_around_unit_square, regions)
+
+
+@pytest.mark.parametrize(
+    "data, expected_match",
+    [
+        pytest.param(
+            xr.DataArray(np.zeros((3, 2)), dims=["time", "individual"]),
+            "must contain",
+            id="no space dimension",
+        ),
+        pytest.param(
+            xr.DataArray(
+                np.array([[0.5, 0.5, 10.0], [2.0, 2.0, 0.0]]),
+                dims=["time", "space"],
+                coords={"space": ["x", "y", "z"]},
+            ),
+            "must only contain",
+            id="3D data",
+        ),
+    ],
+)
+def test_filter_by_region_invalid_data(unit_square, data, expected_match):
+    """Test that an error is raised if the data does not have exactly
+    the x and y coordinates in the space dimension.
+    """
+    with pytest.raises(ValueError, match=expected_match):
+        filter_by_region(data, unit_square)
