@@ -48,6 +48,7 @@ class ValidFile(Protocol):
     file: Path | NWBFile
     """Path to the file to validate or an NWBFile object."""
 
+
 # --- Composable attrs validators --- #
 
 
