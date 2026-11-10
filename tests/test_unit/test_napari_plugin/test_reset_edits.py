@@ -29,6 +29,7 @@ def loaded_poses_layers():
     props = {
         "confidence": np.array([0.1, 0.2, 0.3, 0.4]),
         "individual": np.array(["a", "a", "b", "b"]),
+        "time": data[:, 1].copy(),
         "edited": np.array([True, False, False, False]),
     }
     loaded_props = pd.DataFrame(props).assign(position_is_nan=False)
@@ -168,7 +169,7 @@ def test_reset_controls_and_timeline(loaded_poses_layers, qtbot, monkeypatch):
     controls.reset_all_button.click()
     np.testing.assert_array_equal(tracks.data, original)
     np.testing.assert_array_equal(timeline._edited_frames, [0])
-    assert timeline._removed_points == []
+    assert wiring.removed_points(points)[0].size == 0
     viewer.layers.remove(tracks)
     qtbot.waitUntil(lambda: not controls.reset_all_button.isEnabled())
 
@@ -195,13 +196,13 @@ def test_reset_inactive_pose_keeps_active_timeline(loaded_poses_layers, qtbot):
     viewer.layers.selection.active = other
     other.remove([3])
     assert timeline.active_layer is other
-    removed_points = timeline._removed_points.copy()
-    assert removed_points == [(1, "b")]
+    # frame 0 was edited at load, frame 1 has the point just removed
+    qtbot.waitUntil(lambda: list(timeline._edited_frames) == [0, 1])
 
     wiring.reset_edits(points)
 
     assert timeline.active_layer is other
-    assert timeline._removed_points == removed_points
+    np.testing.assert_array_equal(timeline._edited_frames, [0, 1])
 
 
 def test_reset_controls_without_loaded_pose(qtbot):
@@ -325,4 +326,4 @@ def test_reset_in_docked_widget(
     points.remove([0])
     widget.edit_controls.reset_all_button.click()
     np.testing.assert_array_equal(tracks.data, original)
-    assert widget.edit_timeline_widget._removed_points == []
+    assert wiring.removed_points(points)[0].size == 0

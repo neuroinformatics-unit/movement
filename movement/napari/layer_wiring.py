@@ -15,7 +15,7 @@ can be closed).
 
 import warnings
 from functools import partial
-from weakref import WeakSet
+from weakref import WeakKeyDictionary, WeakSet
 
 import numpy as np
 import pandas as pd
@@ -80,6 +80,72 @@ def active_movement_points_layer(viewer):
         if is_movement_points_layer(layer):
             return getattr(layer, "__wrapped__", layer)
     return None
+
+
+# Per-layer cache of the loaded-state point keys used by removed_points.
+# The loaded state never changes, so these only need computing once.
+_LOADED_POINT_KEYS: WeakKeyDictionary = WeakKeyDictionary()
+
+
+def _loaded_point_keys(layer: Points, loaded: pd.DataFrame):
+    """Encode each loaded point's (frame, keypoint, individual) as an int.
+
+    Returns the keys, the frame index of each loaded point, the id-column
+    lookups needed to encode live points the same way, and the number of
+    possible keys.
+    """
+    cached = _LOADED_POINT_KEYS.get(layer)
+    if cached is not None:
+        return cached
+    times = np.sort(loaded["time"].unique())
+    frames = np.searchsorted(times, loaded["time"].to_numpy())
+    keys = frames.astype(np.int64)
+    lookups = []
+    for col in ("keypoint", "individual"):
+        if col in loaded:
+            codes, uniques = pd.factorize(loaded[col])
+            keys = keys * len(uniques) + codes
+            lookups.append((col, pd.Index(uniques)))
+    n_keys = len(times) * int(np.prod([len(u) for _, u in lookups]))
+    cached = (keys, frames, lookups, n_keys)
+    _LOADED_POINT_KEYS[layer] = cached
+    return cached
+
+
+def removed_points(layer: Points) -> tuple[np.ndarray, np.ndarray]:
+    """Return the frames and individuals of points removed from ``layer``.
+
+    A point counts as removed if it is missing from the live layer and was
+    either present at load time (removed in this session, the rule
+    :func:`~movement.napari.convert.napari_layers_to_ds` applies on save)
+    or flagged as ``edited`` at load time (removed in an earlier session).
+    """
+    loaded = layer.metadata.get(POINTS_PROPERTIES_KEY)
+    if loaded is None:
+        return np.array([], dtype=int), np.array([], dtype=object)
+    loaded_keys, loaded_frames, lookups, n_keys = _loaded_point_keys(
+        layer, loaded
+    )
+    live_keys = layer.data[:, 0].astype(np.int64)
+    valid = live_keys >= 0
+    for col, uniques in lookups:
+        codes = uniques.get_indexer(layer.features[col])
+        valid &= codes >= 0
+        live_keys = live_keys * len(uniques) + codes
+    valid &= live_keys < n_keys
+    present_now = np.zeros(n_keys, dtype=bool)
+    present_now[live_keys[valid]] = True
+
+    removable = ~loaded["position_is_nan"].to_numpy()
+    if "edited" in loaded:
+        removable |= loaded["edited"].to_numpy(dtype=bool)
+    removed = removable & ~present_now[loaded_keys]
+    individuals = (
+        loaded["individual"].to_numpy()[removed]
+        if "individual" in loaded
+        else np.full(removed.sum(), None)
+    )
+    return loaded_frames[removed], individuals
 
 
 # ---- Callbacks with viewer lifetime --------------------
