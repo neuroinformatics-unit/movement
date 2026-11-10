@@ -110,7 +110,7 @@ def test_validate_file_path_rejects_read_only_existing_file(
     path.write_text("old")
     monkeypatch.setattr(
         "movement.validators.files.os.access",
-        lambda target, mode: False if Path(target) == path else True,
+        lambda target, mode: Path(target) != path,
     )
     with pytest.raises(PermissionError):
         _validate_file_path(path, overwrite=True)
