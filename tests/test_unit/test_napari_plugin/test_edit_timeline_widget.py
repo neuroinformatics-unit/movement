@@ -14,6 +14,7 @@ from movement.napari.edit_timeline_widget import (
     MIN_VISIBLE_FRAMES,
     EditTimelineWidget,
 )
+from movement.napari.layer_wiring import removed_points
 from movement.napari.loader_widgets import POINTS_PROPERTIES_KEY
 
 
@@ -305,11 +306,19 @@ def test_reselecting_the_active_layer_is_a_noop(
     redraw.assert_not_called()
 
 
-def test_reconstruct_previously_removed_points_without_a_layer():
-    """No layer means nothing to reconstruct."""
-    assert (
-        EditTimelineWidget._reconstruct_previously_removed_points(None) == []
+def _layer_with_loaded_state(properties, live_rows):
+    """Mock a Points layer whose live rows are a subset of ``properties``."""
+    return Mock(
+        metadata={POINTS_PROPERTIES_KEY: properties},
+        data=np.array([[i, 0.0, 0.0] for i in live_rows]).reshape(-1, 3),
+        features=properties.iloc[live_rows].reset_index(drop=True),
     )
+
+
+def test_removed_points_without_loaded_state():
+    """A layer without loaded state has no removed points."""
+    frames, individuals = removed_points(Mock(metadata={}))
+    assert frames.size == individuals.size == 0
 
 
 @pytest.mark.parametrize(
@@ -321,47 +330,64 @@ def test_reconstruct_previously_removed_points_without_a_layer():
         pytest.param([0.0, 0.5, 1.0], 2, id="removed_at_last_frame"),
     ],
 )
-def test_reconstruct_removed_point_maps_time_to_frame_index(
-    times, removed_idx
+@pytest.mark.parametrize("earlier_session", [True, False])
+def test_removed_point_maps_time_to_frame_index(
+    times, removed_idx, earlier_session
 ):
-    """A saved removal reconstructs at its frame index, not its time.
+    """A removed point is reported at its frame index, not its time.
 
     The timeline is indexed by integer frame, but a row's ``time`` is in
-    seconds when ``fps`` is set. A point removed and saved from a dataset
-    with ``fps != 1`` must map back to its ordinal frame position.
+    seconds when ``fps`` is set. This holds both for points removed in
+    this session (present at load, missing now) and for points removed
+    in an earlier session (NaN and ``edited`` at load).
     """
     n = len(times)
-    is_removed = [i == removed_idx for i in range(n)]
+    removed_before_load = [
+        earlier_session and i == removed_idx for i in range(n)
+    ]
     properties = pd.DataFrame(
         {
             "time": times,
             "individual": ["id_0"] * n,
-            "position_is_nan": is_removed,
-            "edited": is_removed,
+            "position_is_nan": removed_before_load,
+            "edited": removed_before_load,
         }
     )
-    layer = Mock(metadata={POINTS_PROPERTIES_KEY: properties})
+    live_rows = [i for i in range(n) if i != removed_idx]
+    layer = _layer_with_loaded_state(properties, live_rows)
 
-    result = EditTimelineWidget._reconstruct_previously_removed_points(layer)
+    frames, individuals = removed_points(layer)
 
-    assert result == [(removed_idx, "id_0")]
+    assert list(zip(frames, individuals, strict=True)) == [
+        (removed_idx, "id_0")
+    ]
 
 
-def test_reconstruct_previously_removed_points_without_any_removed_ones():
-    """Edited points that were never removed leave nothing to reconstruct."""
+@pytest.mark.parametrize(
+    "position_is_nan, edited",
+    [
+        pytest.param(False, True, id="edited_but_present"),
+        pytest.param(True, False, id="missing_at_load_unedited"),
+    ],
+)
+def test_removed_points_ignores_points_not_removed(position_is_nan, edited):
+    """Dragged points still present, and points missing at load without
+    an ``edited`` flag (i.e. never tracked), are not reported as removed.
+    """
     properties = pd.DataFrame(
         {
             "time": [0, 1],
             "individual": ["id_0", "id_0"],
-            "position_is_nan": [False, False],
-            "edited": [True, False],
+            "position_is_nan": [position_is_nan, False],
+            "edited": [edited, False],
         }
     )
-    layer = Mock(metadata={POINTS_PROPERTIES_KEY: properties})
+    live_rows = [1] if position_is_nan else [0, 1]
+    layer = _layer_with_loaded_state(properties, live_rows)
 
-    assert (
-        EditTimelineWidget._reconstruct_previously_removed_points(layer) == []
-    )
+    frames, _ = removed_points(layer)
+
+    assert frames.size == 0
 
 
 def test_layer_data_changed_ignores_other_layers(
@@ -376,8 +402,11 @@ def test_layer_data_changed_ignores_other_layers(
     redraw.assert_not_called()
 
 
-def test_moving_a_point_defers_a_redraw(loader_with_edited_point, mocker):
-    """A live drag on the active layer redraws the bars once Qt catches up.
+@pytest.mark.parametrize("action", [ActionType.CHANGED, ActionType.REMOVED])
+def test_editing_a_point_defers_a_redraw(
+    loader_with_edited_point, mocker, action
+):
+    """A drag or removal on the active layer redraws once Qt catches up.
 
     The redraw is deferred via ``QTimer.singleShot`` so that
     ``DataLoader``'s own handler (which sets the ``edited`` property
@@ -392,33 +421,10 @@ def test_moving_a_point_defers_a_redraw(loader_with_edited_point, mocker):
     redraw = mocker.spy(edit_timeline_widget, "_redraw_bars")
 
     edit_timeline_widget._on_layer_data_changed(
-        Mock(
-            source=edit_timeline_widget.active_layer, action=ActionType.CHANGED
-        )
+        Mock(source=edit_timeline_widget.active_layer, action=action)
     )
 
     redraw.assert_called_once()
-
-
-def test_removing_a_point_captures_it_and_redraws(loader_with_edited_point):
-    """Removing a point on the active layer snapshots it, then redraws.
-
-    The row is about to be deleted from the layer entirely, so its
-    identity is captured while the data is still intact (``REMOVING``
-    fires before the removal actually happens).
-    """
-    edit_timeline_widget = EditTimelineWidget(loader_with_edited_point.viewer)
-    assert edit_timeline_widget._removed_points == []
-
-    edit_timeline_widget._on_layer_data_changed(
-        Mock(
-            source=edit_timeline_widget.active_layer,
-            action=ActionType.REMOVING,
-            data_indices=(0,),
-        )
-    )
-
-    assert len(edit_timeline_widget._removed_points) == 1
 
 
 def test_step_changed_leaves_playhead_alone_without_a_current_step(
@@ -550,3 +556,35 @@ def test_bar_color_lookup_falls_back_without_individual_property(
     color_of = edit_timeline_widget._bar_color_lookup()
 
     assert color_of("id_0") == edit_timeline_widget._edit_bar_color
+
+
+@pytest.mark.parametrize(
+    "timeline_before_removal",
+    [
+        pytest.param(False, id="first_edit_is_removal"),
+        pytest.param(True, id="timeline_recreated"),
+    ],
+)
+def test_removal_shown_whenever_timeline_is_created(
+    valid_poses_path_and_ds,
+    loaded_data_loader,
+    remove_point,
+    timeline_before_removal,
+):
+    """A removal is flagged on a timeline created after it happened.
+
+    Covers a removal made before any timeline exists (e.g. the first edit
+    auto-expanding the edit section), and a timeline that was closed and
+    recreated after the removal.
+    """
+    filepath, ds = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds)
+    if timeline_before_removal:
+        old_timeline = EditTimelineWidget(loader.viewer)
+    remove_point(loader, frame=3, keypoint="centroid", individual="id_0")
+    if timeline_before_removal:
+        old_timeline.deleteLater()
+
+    timeline = EditTimelineWidget(loader.viewer)
+
+    np.testing.assert_array_equal(timeline._edited_frames, [3])
