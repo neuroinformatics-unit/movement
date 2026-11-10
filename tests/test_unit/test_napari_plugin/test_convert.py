@@ -460,21 +460,21 @@ def test_edited_pose_napari_layers(
 
 
 @pytest.mark.parametrize("nan_location", NAN_LOCATIONS)
-def test_edited_property_round_trip(
+def test_dragged_point_round_trip(
     nan_location,
     valid_poses_path_and_ds,
     valid_poses_path_and_ds_with_localised_nans,
     loaded_data_loader,
     move_point,
 ):
-    """Test that an ``edited`` variable survives a full round trip.
+    """Test that a dragged point keeps ``edited=True`` over a round trip.
 
-    Once a dataset has been reconstructed with an ``edited`` variable
-    (e.g. from a previous napari editing session), it must be possible
+    Once a point has been dragged in napari and the dataset has been
+    reconstructed with an ``edited`` variable, it must be possible
     to load it back into napari via :func:`ds_to_napari_layers`, and
     to convert it back again via :func:`napari_layers_to_ds`, without
-    losing the ``edited`` flags. This simulates reopening a
-    previously-edited dataset in a new napari session.
+    losing the ``edited`` flag. This simulates reopening a dataset
+    with dragged points in a new napari session.
     """
     if nan_location is None:
         filepath, ds_loaded = valid_poses_path_and_ds
@@ -523,7 +523,7 @@ def test_edited_property_round_trip(
 
 
 @pytest.mark.parametrize("nan_location", NAN_LOCATIONS)
-def test_removed_point_edited_round_trip(
+def test_removed_point_round_trip(
     nan_location,
     valid_poses_path_and_ds,
     valid_poses_path_and_ds_with_localised_nans,
@@ -531,7 +531,7 @@ def test_removed_point_edited_round_trip(
 ):
     """Test that a removed point keeps ``edited=True`` over a round trip.
 
-    Mirrors :func:`test_edited_property_round_trip`, but the point is
+    Mirrors :func:`test_dragged_point_round_trip`, but the point is
     removed instead of moved. On reload the removed point is a NaN row,
     absent from the live layer, so its flag must come from the loaded
     properties rather than from the live ones.
