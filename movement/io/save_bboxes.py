@@ -23,7 +23,7 @@ def to_via_tracks_file(
     ds: xr.Dataset,
     file: str | Path,
     *,
-    overwrite: bool = True,  # <-- ADDED
+    overwrite: bool = True,
     track_ids_from_trailing_numbers: bool = True,
     frame_n_digits: int | None = None,
     image_file_prefix: str | None = None,
@@ -37,10 +37,9 @@ def to_via_tracks_file(
         The ``movement`` bounding boxes dataset to export.
     file
         Path where the VIA tracks .csv file [1]_ will be saved.
-    overwrite
-        If True (default), an existing target file will be overwritten
-        provided it is writable. If False, a ``FileExistsError`` is raised
-        if the target file already exists.
+    overwrite : bool, default True
+        Whether to overwrite an existing writable target file. If False, a
+        ``FileExistsError`` is raised if the target file already exists.
     track_ids_from_trailing_numbers
         If True, extract track IDs from the numbers at the end of the
         individuals' names (e.g. `mouse_1` -> track ID 1). If False, the
@@ -160,7 +159,7 @@ def to_via_tracks_file(
         map_individual_to_track_id,
         img_filename_template,
     )
-    logger.info(f"Saved bounding boxes dataset to {file}.")
+    logger.info(f"Saved bounding box dataset to {file}.")
 
 
 def _get_image_filename_template(

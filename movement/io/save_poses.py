@@ -213,12 +213,12 @@ def to_dlc_file(
         Whether to save individuals to separate files or to the same file.
         Defaults to ``"auto"``: split only when the dataset has one
         individual, matching the previous behavior.
-    overwrite
-        If True (default), an existing target file will be overwritten
-        provided it is writable. If False, a ``FileExistsError`` is raised
-        if any target file already exists. When ``split_individuals=True``,
-        all derived paths are validated *before* any file is written, so
-        the operation fails atomically rather than partially overwriting.
+    overwrite : bool, default True
+        Whether to overwrite existing writable target files. If False, a
+        ``FileExistsError`` is raised if any target file already exists.
+        When ``split_individuals=True``, all derived paths are validated
+        before any file is written, so the operation fails atomically rather
+        than partially overwriting.
 
     Raises
     ------
@@ -226,6 +226,27 @@ def to_dlc_file(
         If a target file exists and ``overwrite=False``.
     PermissionError
         If a target file exists, ``overwrite=True``, but is not writable.
+
+    See Also
+    --------
+    to_dlc_style_df : Convert a dataset to DeepLabCut-style DataFrame(s).
+
+    Notes
+    -----
+    If ``split_individuals`` is True, each individual is saved to a separate
+    single-animal DeepLabCut file without an ``individuals`` column level. For
+    multiple individuals, each name is appended to the filename stem. For a
+    single individual, the requested file path is used as is. If
+    ``split_individuals`` is False, all individuals are saved to one
+    multi-animal file with an ``individuals`` column level. If set to
+    ``"auto"``, splitting is enabled only when the dataset contains one
+    individual.
+
+    Examples
+    --------
+    >>> from movement.io import load_poses, save_poses
+    >>> ds = load_poses.from_sleap_file("/path/to/file_sleap.analysis.h5")
+    >>> save_poses.to_dlc_file(ds, "/path/to/file_dlc.h5")
 
     """
     file_path = Path(file)
@@ -251,10 +272,10 @@ def to_dlc_file(
             )
             derived_paths.append((indiv, derived))
 
-        # Reuse the public converter instead of a non-existent _build_columns
         df_dict = to_dlc_style_df(ds, split_individuals=True)
         for indiv, derived in derived_paths:
             _save_dlc_df(derived, df_dict[indiv], overwrite=overwrite)
+            logger.info(f"Saved poses dataset to {derived}.")
     elif split_individuals:
         _validate_file_path(
             file_path, overwrite=overwrite, suffixes={".csv", ".h5"}
@@ -262,12 +283,14 @@ def to_dlc_file(
         individual = ds.individual.values[0]
         df_dict = to_dlc_style_df(ds, split_individuals=True)
         _save_dlc_df(file_path, df_dict[individual], overwrite=overwrite)
+        logger.info(f"Saved poses dataset to {file_path}.")
     else:
         _validate_file_path(
             file_path, overwrite=overwrite, suffixes={".csv", ".h5"}
         )
         df = to_dlc_style_df(ds, split_individuals=False)
         _save_dlc_df(file_path, df, overwrite=overwrite)
+        logger.info(f"Saved poses dataset to {file_path}.")
 
 
 @register_writer("SLEAP", ds_type="poses", suffixes={".h5"})
@@ -286,10 +309,9 @@ def to_sleap_analysis_file(
         and associated metadata.
     file
         Path to the output .h5 file.
-    overwrite
-        If True (default), an existing target file will be overwritten
-        provided it is writable. If False, a ``FileExistsError`` is raised
-        if the target file already exists.
+    overwrite : bool, default True
+        Whether to overwrite an existing writable target file. If False, a
+        ``FileExistsError`` is raised if the target file already exists.
 
     Raises
     ------
@@ -330,8 +352,6 @@ def to_sleap_analysis_file(
 
     # Validate before doing any work
     _validate_file_path(file_path, overwrite=overwrite, suffixes={".h5"})
-
-    # (building the tracks arrays and writing them with h5py/pandas)
 
     ds = _remove_unoccupied_tracks(ds)
     # Target shapes:
@@ -400,7 +420,41 @@ def to_lp_file(
     *,
     overwrite: bool = True,
 ) -> None:
-    """Save a ``movement`` dataset to LightningPose-style files."""
+    """Save a ``movement`` dataset to LightningPose-style CSV file(s).
+
+    Parameters
+    ----------
+    ds
+        ``movement`` dataset containing pose tracks and confidence scores.
+    file
+        Path to the output CSV file. For datasets with multiple individuals,
+        each individual's name is appended to the filename stem and a
+        separate CSV file is written per individual.
+    overwrite : bool, default True
+        Whether to overwrite existing writable output files. If False, a
+        ``FileExistsError`` is raised if any target file already exists.
+
+    Raises
+    ------
+    FileExistsError
+        If an output file exists and ``overwrite=False``.
+    PermissionError
+        If an existing output file is not writable.
+
+    See Also
+    --------
+    to_dlc_file : Save pose data in DeepLabCut format.
+
+    Notes
+    -----
+    LightningPose saves pose estimation outputs as CSV files using the
+    single-animal DeepLabCut format. This function calls
+    :func:`movement.io.save_poses.to_dlc_file` with
+    ``split_individuals=True``. For multiple individuals, each individual's
+    name is appended to the file stem. For a single individual, the requested
+    file path is used as is.
+
+    """
     to_dlc_file(ds, file, split_individuals=True, overwrite=overwrite)
 
 
