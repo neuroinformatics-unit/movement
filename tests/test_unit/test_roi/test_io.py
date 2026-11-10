@@ -30,6 +30,7 @@ class TestROICollectionSerialization:
         assert len(data["features"]) == 2
 
     def test_save_rois_overwrite_behavior(self, unit_square, tmp_path):
+        """Test that saving ROIs overwrites an existing file by default."""
         file_path = tmp_path / "rois.geojson"
         file_path.write_text("old contents")
 
