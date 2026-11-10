@@ -61,3 +61,14 @@ def test_normal(
     else:
         computed_normal = segment.normal(point)
         assert np.allclose(computed_normal, expected_normal)
+
+
+def test_normal_with_default_point() -> None:
+    """Test that ``normal`` uses the origin when no point is given.
+
+    Regression test: calling ``normal`` without arguments used to raise
+    ``ValueError`` because the broadcastable wrapper unpacked the positional
+    arguments unconditionally, making the documented default unreachable.
+    """
+    segment = LineOfInterest([(0.0, 0.0), (1.0, 0.0)])
+    assert np.allclose(segment.normal(), (0.0, -1.0))
