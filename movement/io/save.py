@@ -258,8 +258,8 @@ def save_dataset(
         supported = ", ".join(_WRITER_REGISTRY)
         raise logger.error(
             ValueError(
-                f"Unsupported target_software for saving: "
-                f"'{target_software}'. Supported values are: {supported}."
+                f"Unsupported target_software: '{target_software}'. "
+                f"Supported values are: {supported}."
             )
         )
     _WRITER_REGISTRY[target_software].writer(ds, file, **kwargs)

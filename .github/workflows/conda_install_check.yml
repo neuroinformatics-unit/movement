@@ -23,9 +23,9 @@ jobs:
         shell: bash -l {0}  # Required for conda activation
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       # pinning to a specific sha1 is recommended by this action's docs
-      - uses: conda-incubator/setup-miniconda@8ee1f361103df19b6f8c8655fd3967a8ecb162d5 # v4.0.1
+      - uses: conda-incubator/setup-miniconda@be893c923ea9cf1cf7cd510fbdde27c7e18cbdcb # v4.1.0
         with:
           python-version: ${{ matrix.python-version }}
           auto-update-conda: true
@@ -34,5 +34,18 @@ jobs:
           activate-environment: "movement-test"
       - name: Check conda installation
         run: |
-          conda install -c conda-forge movement napari pyqt
+          conda install -c conda-forge movement napari pyqt6
           movement info
+
+  notify_slack:
+    name: Notify Slack on scheduled failure
+    needs: [conda_install_check]
+    if: failure() && github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: ":x: *${{ github.workflow }}* failed in ${{ github.repository }} — <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View run>"

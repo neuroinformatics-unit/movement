@@ -30,6 +30,7 @@ type SourceSoftware = Literal[
     "Anipose",
     "NWB",
     "VIA-tracks",
+    "COCO",
 ]
 AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE: Final = "DeepLabCut/LightningPose"
 
@@ -425,9 +426,14 @@ def load_dataset(
         return ds
 
     if source_software not in _LOADER_REGISTRY:
+        supported = ", ".join(_LOADER_REGISTRY)
         raise logger.error(
-            ValueError(f"Unsupported source software: {source_software}")
+            ValueError(
+                f"Unsupported source_software: '{source_software}'. "
+                f"Supported values are: {supported}."
+            )
         )
+
     if source_software == "NWB":
         if fps is not None:
             warnings.warn(
@@ -475,6 +481,11 @@ def load_multiview_dataset(
         ``movement`` dataset containing data concatenated along a new
         ``view`` dimension.
 
+    See Also
+    --------
+    movement.io.load_poses
+    movement.io.load_bboxes
+
     Notes
     -----
     The attributes of the resulting dataset will be taken from the first
@@ -484,11 +495,6 @@ def load_multiview_dataset(
     All input views must share identical ``time`` coordinates. If they
     do not, :func:`xarray.concat` raises a :class:`ValueError` naming
     the offending dimension. This is enforced via ``join="exact"``.
-
-    See Also
-    --------
-    movement.io.load_poses
-    movement.io.load_bboxes
 
     """
     views_list = list(file_dict.keys())

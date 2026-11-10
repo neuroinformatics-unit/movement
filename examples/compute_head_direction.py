@@ -397,3 +397,7 @@ ax.set_title("Forward vector angle - head-to-snout angle", pad=25)
 # %%
 # For the majority of the time, the two methods
 # differ less than 20 degrees (2 histogram bins).
+#
+# .. seealso::
+#   The :ref:`sphx_glr_examples_compute_angular_derivatives.py` example,
+#   which builds on the head direction computed here.

@@ -33,13 +33,13 @@ jobs:
     name: Build Sphinx Docs
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/cache@v6
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.movement/*
           key: cached-test-data-${{ runner.os }}
           restore-keys: cached-test-data
-      - uses: neuroinformatics-unit/actions/build_sphinx_docs@main
+      - uses: neuroinformatics-unit/actions/build_sphinx_docs@v3
         with:
           python-version: 3.13
           use-make: true
@@ -59,7 +59,7 @@ jobs:
       (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     steps:
-      - uses: neuroinformatics-unit/actions/deploy_sphinx_docs_multiversion@main
+      - uses: neuroinformatics-unit/actions/deploy_sphinx_docs_multiversion@v3
         with:
           secret_input: ${{ secrets.GITHUB_TOKEN }}
           use-make: true

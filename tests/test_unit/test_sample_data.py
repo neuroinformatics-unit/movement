@@ -1,6 +1,7 @@
 """Test suite for the sample_data module."""
 
 import logging
+from contextlib import nullcontext as does_not_raise
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -10,9 +11,13 @@ from requests.exceptions import RequestException
 from xarray import Dataset
 
 from movement.sample_data import (
+    DATA_URL,
+    HTTP_DATA_URL,
     SAMPLE_DATA,
+    _download_metadata_file,
     _fetch_and_unzip,
     _fetch_metadata,
+    _fetch_with_http_fallback,
     _hide_pooch_hash_logs,
     fetch_dataset,
     fetch_dataset_paths,
@@ -143,6 +148,87 @@ def test_fetch_metadata(tmp_path, caplog, download_fails, local_exists):
             metadata = _fetch_metadata(metadata_file_name, data_dir=tmp_path)
             assert local_file_path.is_file()
             validate_metadata(metadata)
+
+
+@pytest.mark.parametrize(
+    "side_effect, expectation",
+    [
+        pytest.param(
+            [RequestException, "file"],
+            does_not_raise(),
+            id="http_succeeds",
+        ),
+        pytest.param(
+            [RequestException, RequestException],
+            pytest.raises(RequestException),
+            id="http_fails",
+        ),
+    ],
+)
+def test_download_metadata_file_http_fallback(
+    tmp_path, side_effect, expectation
+):
+    """Test that the metadata download is retried over HTTP if HTTPS fails."""
+    with (
+        patch(
+            "movement.sample_data.pooch.retrieve", side_effect=side_effect
+        ) as mock_retrieve,
+        expectation,
+    ):
+        _download_metadata_file("metadata.yaml", data_dir=tmp_path)
+    assert [c.kwargs["url"] for c in mock_retrieve.call_args_list] == [
+        f"{DATA_URL}/metadata.yaml",
+        f"{HTTP_DATA_URL}/metadata.yaml",
+    ]
+
+
+@pytest.mark.parametrize(
+    "start_url, side_effect, expectation, end_url",
+    [
+        pytest.param(
+            DATA_URL,
+            ["file"],
+            does_not_raise(),
+            DATA_URL,
+            id="https_succeeds",
+        ),
+        pytest.param(
+            DATA_URL,
+            [RequestException, "file"],
+            does_not_raise(),
+            HTTP_DATA_URL,
+            id="https_fails",
+        ),
+        pytest.param(
+            DATA_URL,
+            [ValueError],
+            pytest.raises(ValueError),
+            DATA_URL,
+            id="hash_mismatch",
+        ),
+        pytest.param(
+            HTTP_DATA_URL,
+            [RequestException],
+            pytest.raises(RequestException),
+            HTTP_DATA_URL,
+            id="already_http",
+        ),
+    ],
+)
+def test_fetch_with_http_fallback(
+    monkeypatch, start_url, side_effect, expectation, end_url
+):
+    """Test that registry downloads switch to HTTP only on request errors,
+    and are not retried once HTTP is already in use.
+    """
+    monkeypatch.setattr(SAMPLE_DATA, "base_url", f"{start_url}/")
+    mock_fetch = MagicMock(side_effect=side_effect)
+    monkeypatch.setattr(SAMPLE_DATA, "fetch", mock_fetch)
+    with expectation:
+        _fetch_with_http_fallback("poses/file.h5")
+    # each side effect corresponds to exactly one fetch attempt
+    assert mock_fetch.call_count == len(side_effect)
+    assert SAMPLE_DATA.base_url == f"{end_url}/"
 
 
 def test_list_datasets(sample_dataset_names):

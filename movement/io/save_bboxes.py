@@ -222,7 +222,7 @@ def _check_frame_required_digits(
     # Compute minimum number of digits required to represent the
     # largest frame number
     if ds.time_unit == "seconds":
-        max_frame_number = max((ds.time.values * ds.fps).astype(int))
+        max_frame_number = max(np.rint(ds.time.values * ds.fps).astype(int))
     else:
         max_frame_number = max(ds.time.values)
     min_required_digits = len(str(max_frame_number))
@@ -363,7 +363,7 @@ def _write_via_tracks_csv(
 
     # Get time values in frames
     if ds.time_unit == "seconds":
-        time_in_frames = (ds.time.values * ds.fps).astype(int)
+        time_in_frames = np.rint(ds.time.values * ds.fps).astype(int)
     else:
         time_in_frames = ds.time.values
 

@@ -346,11 +346,9 @@ def test_regions_style_colors(color, expected_rgb):
 
 
 @pytest.mark.parametrize("n_shapes", [1, 3])
-def test_regions_style_set_color_all_shapes(
-    make_napari_viewer_proxy, n_shapes
-):
+def test_regions_style_set_color_all_shapes(headless_napari_viewer, n_shapes):
     """Test that set_color_all_shapes applies colors to all shapes."""
-    viewer = make_napari_viewer_proxy()
+    viewer = headless_napari_viewer
 
     # Create shapes data (rectangles)
     shapes_data = [
@@ -380,10 +378,10 @@ def test_regions_style_set_color_all_shapes(
 
 
 def test_regions_style_set_color_all_shapes_empty_layer(
-    make_napari_viewer_proxy,
+    headless_napari_viewer,
 ):
     """Test that set_color_all_shapes handles empty layers gracefully."""
-    viewer = make_napari_viewer_proxy()
+    viewer = headless_napari_viewer
     layer = viewer.add_shapes()
     # Assert it's an empty layer
     assert len(layer.data) == 0
@@ -404,12 +402,12 @@ def test_regions_style_set_color_all_shapes_empty_layer(
     ],
 )
 def test_regions_style_set_style_for_new_shapes(
-    make_napari_viewer_proxy, selected_data
+    headless_napari_viewer, selected_data
 ):
     """Test that set_style_for_new_shapes runs without error,
     regardless of whether the layer is selected or not.
     """
-    viewer = make_napari_viewer_proxy()
+    viewer = headless_napari_viewer
 
     # Create a shape
     shapes_data = [[[0, 0], [0, 10], [10, 10], [10, 0]]]

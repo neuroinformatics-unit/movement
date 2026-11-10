@@ -1,6 +1,10 @@
 """Valid and invalid file fixtures.
 
-Note: NWB file fixtures are in tests/fixtures/nwb.py.
+Notes
+-----
+- NWB file fixtures are in tests/fixtures/nwb.py.
+- COCO file fixtures are in tests/fixtures/coco.py.
+
 """
 
 import os
