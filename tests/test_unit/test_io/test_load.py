@@ -34,8 +34,12 @@ class StubValidFile:
     "file_validators, expected_file_type",
     [(None, str), (StubValidFile, StubValidFile)],
 )
-def test_register_loader_decorator(file_validators, expected_file_type):
+def test_register_loader_decorator(
+    file_validators, expected_file_type, mocker
+):
     """Test register_loader with and without file validators."""
+    # Restore the registry after the test so StubSoftware doesn't leak
+    mocker.patch.dict(load._LOADER_REGISTRY)
 
     @load.register_loader("StubSoftware", file_validators=file_validators)
     def stub_loader_fn(

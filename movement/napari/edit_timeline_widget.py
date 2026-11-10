@@ -68,8 +68,9 @@ class EditControlsWidget(QWidget):
         self.viewer = napari_viewer
         instructions = QLabel(
             "Use the points layer controls to move or delete keypoints. "
-            "Frames with edited points are flagged as coloured bars on the "
-            "timeline below. Click a bar to jump to an edited frame."
+            "Frames with edited points are flagged as solid lines on the "
+            "timeline below, and the current frame as a dashed line. "
+            "Click a solid line to jump to an edited frame."
         )
         instructions.setWordWrap(True)
 
@@ -165,15 +166,15 @@ class EditControlsWidget(QWidget):
 class EditTimelineWidget(QWidget):
     """Dock widget flagging frames with edited points.
 
-    Draws a vertical bar for every frame that contains an edited point
-    on the currently active ``movement`` Points layer. By default all
-    bars share one lane and are drawn in a single colour (the napari
-    theme's ``current`` colour). With :meth:`set_show_individuals` on, bars
-    are split into one lane per individual (separated by thin horizontal
+    Draws a solid vertical line for every frame that contains an edited
+    point on the currently active ``movement`` Points layer. By default all
+    lines share one lane and are drawn in a single colour (the napari
+    theme's ``current`` colour). With :meth:`set_show_individuals` on,
+    lines are split into one lane per individual (separated by thin horizontal
     rules) and coloured per individual to match the ``face_color`` of
-    that individual's points in the Points layer. A playhead
-    line marks the frame currently shown in the viewer. Scroll to zoom
-    in/out on the timeline, and click a bar to jump to that frame.
+    that individual's points in the Points layer. A dashed line marks
+    the frame currently shown in the viewer. Scroll to zoom in/out on
+    the timeline, and click a solid line to jump to that frame.
     """
 
     def __init__(self, napari_viewer: Viewer, parent=None):
@@ -321,12 +322,12 @@ class EditTimelineWidget(QWidget):
 
     @staticmethod
     def _reconstruct_previously_removed_points(layer):
-        """Restore removed-point bars from a previously-saved session.
+        """Restore removed-point lines from a previously-saved session.
 
         A point removed and saved in an earlier session comes back as a
         NaN row, dropped from the live layer entirely -- so there is no
         ``REMOVING`` event to capture it from this session. Reconstruct
-        those bars from ``POINTS_PROPERTIES_KEY``, the full properties
+        those lines from ``POINTS_PROPERTIES_KEY``, the full properties
         table (including NaN rows) stashed on the layer at load time.
         Points edited without being removed need no such reconstruction,
         since they're still live rows and ``_redraw_bars`` already reads
@@ -378,7 +379,7 @@ class EditTimelineWidget(QWidget):
             QTimer.singleShot(0, self._redraw_bars)
 
     def _on_edits_reset(self, event):
-        """Drop the removed-point bars of the reset frame(s).
+        """Drop the removed-point lines of the reset frame(s).
 
         Restored points are live rows again, so only the points removed
         and saved in an earlier session remain flagged as removed.
@@ -415,7 +416,7 @@ class EditTimelineWidget(QWidget):
         self.canvas.draw_idle()
 
     def _redraw_bars(self):
-        """Redraw the per-individual lanes of edited-frame bars."""
+        """Redraw the per-individual lanes of edited-frame lines."""
         for artist in (*self._bars, *self._lane_dividers):
             artist.remove()
         self._bars = []
@@ -503,12 +504,13 @@ class EditTimelineWidget(QWidget):
         self._on_step_changed()
 
     def _bar_color_lookup(self):
-        """Return an ``individual -> bar colour`` function.
+        """Return an ``individual -> line colour`` function.
 
-        With lanes collapsed, every bar is the single ``self._edit_bar_color``
-        (the napari theme's ``current`` colour). With individuals displayed,
-        each bar takes its individual's colour read straight from the Points
-        layer's ``face_color``, so bars match the viewer exactly. An
+        With lanes collapsed, every line is the single
+        ``self._edit_bar_color`` (the napari theme's ``current`` colour).
+        With individuals displayed, each line takes its individual's colour
+        read straight from the Points layer's ``face_color``, so lines match
+        the viewer exactly. An
         individual with no live point left to read a colour from falls back
         to ``self._edit_bar_color``.
         """
@@ -601,7 +603,7 @@ class EditTimelineWidget(QWidget):
         """Jump the viewer to the edited frame nearest the click.
 
         Double-clicking resets the timeline to the full frame range.
-        Clicks too far from any edited-frame bar are ignored.
+        Clicks too far from any edited-frame line are ignored.
         """
         if event.dblclick:
             self._reset_xlim()

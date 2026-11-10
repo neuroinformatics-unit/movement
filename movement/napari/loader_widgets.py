@@ -21,7 +21,12 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
-from movement.io.load import load_dataset, rename_legacy_dimensions
+from movement.io.load import (
+    SourceSoftware,
+    get_supported_source_software,
+    load_dataset,
+    rename_legacy_dimensions,
+)
 from movement.napari.convert import ds_to_napari_layers
 from movement.napari.layer_styles import BoxesStyle, PointsStyle, TracksStyle
 from movement.napari.layer_wiring import (
@@ -42,15 +47,21 @@ from movement.napari.layer_wiring import (
 from movement.utils.logging import logger
 from movement.validators.datasets import DS_TYPE_VALIDATORS
 
-# Allowed file suffixes for each supported source software
-SUPPORTED_POSES_FILES = {
-    "DeepLabCut": ["h5", "csv"],
-    "LightningPose": ["csv"],
-    "SLEAP": ["h5", "slp"],
+# Registered source software that the GUI cannot load (yet)
+GUI_UNSUPPORTED_SOURCE_SOFTWARE: set[SourceSoftware] = {
+    "Anipose",  # 3D data, not supported by the napari layers
+    "NWB",  # data can be 3D, fps read from file, loader keys not configurable
 }
 
-SUPPORTED_BBOXES_FILES = {
-    "VIA-tracks": ["csv"],
+# Allowed file suffixes for each supported third-party source software,
+# derived from the loaders registered via ``register_loader``
+SUPPORTED_THIRD_PARTY_FILES: dict[str, list[str]] = {
+    sw: sorted(suffix.lstrip(".") for suffix in suffixes)
+    for sw, suffixes in sorted(
+        get_supported_source_software().items(),
+        key=lambda item: item[0].lower(),
+    )
+    if sw not in GUI_UNSUPPORTED_SOURCE_SOFTWARE
 }
 
 SUPPORTED_NETCDF_FILES = {
@@ -58,10 +69,12 @@ SUPPORTED_NETCDF_FILES = {
 }
 
 SUPPORTED_DATA_FILES = {
-    **SUPPORTED_POSES_FILES,
-    **SUPPORTED_BBOXES_FILES,
+    **SUPPORTED_THIRD_PARTY_FILES,
     **SUPPORTED_NETCDF_FILES,
 }
+
+# Source software preselected in the dropdown
+DEFAULT_SOURCE_SOFTWARE: SourceSoftware = "DeepLabCut"
 
 
 class DataLoader(QWidget):
@@ -91,6 +104,7 @@ class DataLoader(QWidget):
         self.source_software_combo = QComboBox()
         self.source_software_combo.setObjectName("source_software_combo")
         self.source_software_combo.addItems(SUPPORTED_DATA_FILES.keys())
+        self.source_software_combo.setCurrentText(DEFAULT_SOURCE_SOFTWARE)
         self.layout().addRow("source software:", self.source_software_combo)
 
     def _create_fps_widget(self):
