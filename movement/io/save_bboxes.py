@@ -12,6 +12,7 @@ import xarray as xr
 
 from movement.io.save import register_writer
 from movement.utils.logging import logger
+from movement.validators.files import _validate_file_path
 
 if TYPE_CHECKING:
     import _csv
@@ -21,6 +22,8 @@ if TYPE_CHECKING:
 def to_via_tracks_file(
     ds: xr.Dataset,
     file: str | Path,
+    *,
+    overwrite: bool = True,  # <-- ADDED
     track_ids_from_trailing_numbers: bool = True,
     frame_n_digits: int | None = None,
     image_file_prefix: str | None = None,
@@ -34,6 +37,10 @@ def to_via_tracks_file(
         The ``movement`` bounding boxes dataset to export.
     file
         Path where the VIA tracks .csv file [1]_ will be saved.
+    overwrite
+        If True (default), an existing target file will be overwritten
+        provided it is writable. If False, a ``FileExistsError`` is raised
+        if the target file already exists.
     track_ids_from_trailing_numbers
         If True, extract track IDs from the numbers at the end of the
         individuals' names (e.g. `mouse_1` -> track ID 1). If False, the
@@ -51,6 +58,13 @@ def to_via_tracks_file(
     image_file_suffix
         Suffix to add to every image filename holding the file extension.
         Strings with or without the dot are accepted. Default is '.png'.
+
+    Raises
+    ------
+    FileExistsError
+        If the target file exists and ``overwrite=False``.
+    PermissionError
+        If the target file exists, ``overwrite=True``, but is not writable.
 
     Notes
     -----
@@ -121,6 +135,9 @@ def to_via_tracks_file(
     ... )
 
     """
+    # Validate the output path before doing any work
+    _validate_file_path(file, overwrite=overwrite, suffixes={".csv"})
+
     # Check the number of digits required to represent the frame numbers
     frame_n_digits = _check_frame_required_digits(
         ds=ds, frame_n_digits=frame_n_digits

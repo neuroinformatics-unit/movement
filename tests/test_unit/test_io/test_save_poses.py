@@ -11,9 +11,9 @@ from movement.io import load_poses, save_poses
 output_files = [
     {
         "file_fixture": "fake_h5_file",
-        "to_dlc_file_expected_exception": pytest.raises(FileExistsError),
-        "to_sleap_file_expected_exception": pytest.raises(FileExistsError),
-        "to_lp_file_expected_exception": pytest.raises(FileExistsError),
+        "to_dlc_file_expected_exception": does_not_raise(),
+        "to_sleap_file_expected_exception": does_not_raise(),
+        "to_lp_file_expected_exception": pytest.raises(ValueError),
         # invalid file path
     },
     {
@@ -193,6 +193,101 @@ def test_to_dlc_file_valid_dataset(
         val = request.getfixturevalue(file_fixture)
         file_path = val.get("file_path") if isinstance(val, dict) else val
         save_poses.to_dlc_file(valid_poses_dataset, file_path)
+
+
+@pytest.mark.parametrize("writer", ["dlc", "lp", "sleap"])
+def test_pose_writers_overwrite_existing_file_by_default(
+    writer, valid_poses_dataset, tmp_path
+):
+    suffix = ".csv" if writer == "lp" else ".h5"
+    path = tmp_path / f"existing{suffix}"
+    output_paths = (
+        [
+            tmp_path / f"existing_{ind}{suffix}"
+            for ind in valid_poses_dataset.individual.values
+        ]
+        if writer == "lp" and valid_poses_dataset.sizes["individual"] > 1
+        else [path]
+    )
+    for output_path in output_paths:
+        output_path.write_text("old contents")
+    function = getattr(
+        save_poses,
+        {
+            "dlc": "to_dlc_file",
+            "lp": "to_lp_file",
+            "sleap": "to_sleap_analysis_file",
+        }[writer],
+    )
+    function(valid_poses_dataset, path)
+    assert all(output_path.stat().st_size > 0 for output_path in output_paths)
+    assert all(
+        output_path.read_bytes() != b"old contents"
+        for output_path in output_paths
+    )
+
+
+@pytest.mark.parametrize("writer", ["dlc", "lp", "sleap"])
+def test_pose_writers_can_reject_existing_file(
+    writer, valid_poses_dataset, tmp_path
+):
+    suffix = ".csv" if writer == "lp" else ".h5"
+    path = tmp_path / f"existing{suffix}"
+    output_paths = (
+        [
+            tmp_path / f"existing_{ind}{suffix}"
+            for ind in valid_poses_dataset.individual.values
+        ]
+        if writer == "lp" and valid_poses_dataset.sizes["individual"] > 1
+        else [path]
+    )
+    for output_path in output_paths:
+        output_path.write_text("keep me")
+    function = getattr(
+        save_poses,
+        {
+            "dlc": "to_dlc_file",
+            "lp": "to_lp_file",
+            "sleap": "to_sleap_analysis_file",
+        }[writer],
+    )
+    with pytest.raises(FileExistsError):
+        function(valid_poses_dataset, path, overwrite=False)
+    assert all(
+        output_path.read_text() == "keep me" for output_path in output_paths
+    )
+
+
+@pytest.mark.parametrize("overwrite", [True, False])
+def test_to_dlc_file_split_outputs_overwrite_behavior(
+    valid_poses_dataset, tmp_path, overwrite
+):
+    if valid_poses_dataset.sizes["individual"] < 2:
+        pytest.skip("requires a multi-individual dataset")
+    path = tmp_path / "dataset.h5"
+    outputs = [
+        tmp_path / f"dataset_{ind}.h5"
+        for ind in valid_poses_dataset.individual.values
+    ]
+    if overwrite:
+        for output in outputs:
+            output.write_text("existing")
+        save_poses.to_dlc_file(
+            valid_poses_dataset, path, split_individuals=True
+        )
+        assert all(output.stat().st_size > 0 for output in outputs)
+        assert all(output.read_bytes() != b"existing" for output in outputs)
+    else:
+        outputs[-1].write_text("existing")
+        with pytest.raises(FileExistsError):
+            save_poses.to_dlc_file(
+                valid_poses_dataset,
+                path,
+                split_individuals=True,
+                overwrite=False,
+            )
+        assert not outputs[0].exists()
+        assert outputs[-1].read_text() == "existing"
 
 
 @pytest.mark.parametrize(
