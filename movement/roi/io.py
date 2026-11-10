@@ -28,7 +28,7 @@ def save_rois(
     rois: ROICollection,
     file: str | Path,
     *,
-    overwrite: bool = True,  # <-- ADDED
+    overwrite: bool = True,
 ) -> None:
     """Save a collection of regions of interest (RoIs) to a GeoJSON file.
 
@@ -43,10 +43,9 @@ def save_rois(
     file
         Path to the output file.
         Should have a ``.geojson`` or a ``.json`` extension.
-    overwrite
-        If True (default), an existing target file will be overwritten
-        provided it is writable. If False, a ``FileExistsError`` is raised
-        if the target file already exists.
+    overwrite : bool, default True
+        Whether to overwrite an existing writable target file. If False, a
+        ``FileExistsError`` is raised if the target file already exists.
 
     Raises
     ------

@@ -28,16 +28,25 @@ JSON_SUFFIX = ".json"
 
 
 class ValidFile(Protocol):
-    """Protocol for file validation classes."""
+    """Protocol for file validators used to validate input files.
+
+    Output paths are validated by :func:`_validate_file_path`, which permits
+    overwriting existing writable files by default. Pass ``overwrite=False``
+    to that function to reject an existing destination.
+
+    Attributes
+    ----------
+    suffixes : ClassVar[set[str]]
+        Expected suffix(es) for the file.
+    file : Path | NWBFile
+        Path to the file to validate or an NWBFile object.
+    """
 
     suffixes: ClassVar[set[str]]
     """Expected suffix(es) for the file."""
 
     file: Path | NWBFile
     """Path to the file to validate or an NWBFile object."""
-
-    overwrite: bool
-
 
 # --- Composable attrs validators --- #
 
@@ -54,7 +63,7 @@ def _file_validator(
 
     - is not a directory,
     - exists if it is meant to be read,
-    - does not exist if it is meant to be written,
+    - is writable if it is meant to be written,
     - has the expected access permission(s), and
     - has one of the expected suffix(es).
 
@@ -68,13 +77,27 @@ def _file_validator(
     suffixes
         Expected suffix(es) for the file.
         If None (default), this check is skipped.
+    overwrite : bool, default True
+        Whether an existing writable file may be overwritten when
+        ``permission`` includes ``"w"``. If False, an existing file raises
+        ``FileExistsError``.
 
     Raises
     ------
+    TypeError
+        If the value is not a :class:`pathlib.Path` object.
+    IsADirectoryError
+        If the value points to a directory.
+    FileNotFoundError
+        If the file does not exist when ``permission`` includes ``"r"``.
     FileExistsError
-        If the file exists and ``overwrite=False``.
+        If the file exists, ``permission`` includes ``"w"``, and
+        ``overwrite=False``.
     PermissionError
-        If the file exists, ``overwrite=True``, but is not writable.
+        If the file exists and is not writable, or the parent directory is
+        not writable for a new output file.
+    ValueError
+        If ``permission`` is invalid or the file has an unexpected suffix.
 
     """
     v = [
@@ -125,13 +148,11 @@ def _file_is_writable(value: Path, *, overwrite: bool = True) -> None:
                         f"File {value} already exists and is not writable."
                     )
                 )
-            # writable → allow overwrite, proceed
         else:
             raise logger.error(
                 FileExistsError(f"File {value} already exists.")
             )
     else:
-        # File does not exist → check parent dir is writable
         if not os.access(value.parent, os.W_OK):
             raise logger.error(
                 PermissionError(
@@ -145,7 +166,18 @@ def _file_is_accessible(
     expected_permission: Literal["r", "w", "rw"],
     overwrite: bool = True,
 ) -> Callable[[Any, Any, Path], None]:
-    """Ensure the file can be accessed with the expected permission(s)."""
+    """Return a validator for expected file permissions.
+
+    Parameters
+    ----------
+    expected_permission : {"r", "w", "rw"}
+        Permissions the file must support: reading, writing, or both.
+    overwrite : bool, default True
+        Whether an existing writable file is allowed when write permission
+        is required. If False, an existing destination raises
+        ``FileExistsError``.
+
+    """
     if expected_permission not in {"r", "w", "rw"}:
         raise logger.error(
             ValueError(
@@ -384,16 +416,16 @@ def _validate_file_path(
     ----------
     path
         Output file path.
-    overwrite
-        If ``True`` (default), allow overwriting an existing writable file.
-        If ``False``, raise ``FileExistsError`` when the file already exists.
+    overwrite : bool, default True
+        Whether to allow overwriting an existing writable file. If False,
+        raise ``FileExistsError`` when the file already exists.
     suffixes
         Optional set of expected file suffixes.
 
     Returns
     -------
     Path
-        The validated (resolved) path.
+        The validated path.
 
     Raises
     ------
