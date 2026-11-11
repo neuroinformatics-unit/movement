@@ -19,7 +19,8 @@ def _construct_properties_dataframe(ds: xr.Dataset) -> pd.DataFrame:
         data["keypoint"] = ds.coords["keypoint"].values
         desired_order.insert(1, "keypoint")
     if "edited" in ds:
-        data["edited"] = ds["edited"].values.flatten()
+        edited = ds["edited"].fillna(False).astype(bool)
+        data["edited"] = edited.values.flatten()
         desired_order.append("edited")
 
     # sort
