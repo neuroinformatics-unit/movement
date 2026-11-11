@@ -350,7 +350,7 @@ def to_sleap_analysis_file(ds: xr.Dataset, file: str | Path) -> None:
     n_individuals = len(individual_names)
     keypoint_names = ds.keypoint.values.tolist()
     # Compute frame indices from fps, if set
-    fps = getattr(ds, "fps", None)
+    fps = ds.attrs.get("fps")
     if fps is not None:
         frame_idxs = np.rint(ds.time.values * fps).astype(int).tolist()
     else:
@@ -370,7 +370,7 @@ def to_sleap_analysis_file(ds: xr.Dataset, file: str | Path) -> None:
         point_scores = ds.confidence.data.T
     else:
         instance_scores = ds.confidence.data.T
-    source_file = getattr(ds, "source_file", None)
+    source_file = ds.attrs.get("source_file")
     labels_path = (
         source_file
         if source_file is not None and Path(source_file).suffix == ".slp"
