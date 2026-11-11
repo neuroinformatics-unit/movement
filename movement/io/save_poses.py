@@ -290,6 +290,158 @@ def to_lp_file(
     to_dlc_file(ds, file, split_individuals=True)
 
 
+def to_anipose_style_df(ds: xr.Dataset) -> pd.DataFrame:
+    """Convert a ``movement`` dataset to an Anipose-style DataFrame.
+
+    Parameters
+    ----------
+    ds
+        ``movement`` dataset containing pose tracks, confidence scores,
+        and associated metadata. Must contain a single individual.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Anipose-style DataFrame with columns as in Anipose 3D
+        triangulation .csv files.
+
+    Raises
+    ------
+    ValueError
+        If the dataset contains more than one individual.
+
+    Notes
+    -----
+    Each keypoint contributes six columns in Anipose triangulation-file
+    order: ``<keypoint>_x``, ``<keypoint>_y``, ``<keypoint>_z``,
+    ``<keypoint>_error``, ``<keypoint>_ncams``, ``<keypoint>_score``;
+    followed by the ``M_00`` ... ``M_22``, ``center_0``, ...,
+    ``center_2`` and ``fnum`` columns.
+
+    ``movement`` does not store the per-keypoint ``_error`` and
+    ``_ncams`` values, nor the triangulation ``M_*`` and ``center_*``
+    entries, so those columns are written as NaN. ``fnum`` is derived
+    from the time coordinate (frame numbers if ``fps`` is unset,
+    otherwise ``time * fps``). Datasets without a ``z`` coordinate are
+    written with NaN ``_z`` columns, since Anipose is a 3D format.
+
+    See Also
+    --------
+    to_anipose_file : Save dataset to Anipose .csv file(s).
+
+    """
+    ValidPosesInputs.validate(ds)
+    if ds.sizes["individual"] > 1:
+        raise logger.error(
+            ValueError(
+                "The Anipose format holds a single individual per file, "
+                f"but this dataset has {ds.sizes['individual']} "
+                "individuals. Use to_anipose_file to save each "
+                "individual to a separate file, or select one "
+                "individual first, e.g. ds.sel(individual=...)."
+            )
+        )
+    single_ind_ds = ds.isel(individual=0)
+    n_frames = ds.sizes["time"]
+    keypoints = ds.coords["keypoint"].data.tolist()
+    position = single_ind_ds.position
+    has_z = "z" in ds.coords["space"]
+    confidence = single_ind_ds.confidence.data
+    if confidence.ndim == 1:
+        logger.warning(
+            "Dataset contains individual-wise confidence scores. "
+            "Anipose-style files only support keypoint-wise confidence "
+            "scores, so confidence values will be expanded to all "
+            "keypoints."
+        )
+        confidence = np.repeat(
+            confidence[:, np.newaxis], ds.sizes["keypoint"], axis=1
+        )
+    columns: dict[str, np.ndarray] = {}
+    for i, keypoint in enumerate(keypoints):
+        keypoint_position = position.sel(keypoint=keypoint)
+        columns[f"{keypoint}_x"] = keypoint_position.sel(space="x").data
+        columns[f"{keypoint}_y"] = keypoint_position.sel(space="y").data
+        columns[f"{keypoint}_z"] = (
+            keypoint_position.sel(space="z").data
+            if has_z
+            else np.full(n_frames, np.nan)
+        )
+        columns[f"{keypoint}_error"] = np.full(n_frames, np.nan)
+        columns[f"{keypoint}_ncams"] = np.full(n_frames, np.nan)
+        columns[f"{keypoint}_score"] = confidence[:, i]
+    for row in range(3):
+        for col in range(3):
+            columns[f"M_{row}{col}"] = np.full(n_frames, np.nan)
+    for centre in range(3):
+        columns[f"center_{centre}"] = np.full(n_frames, np.nan)
+    fps = getattr(ds, "fps", None)
+    columns["fnum"] = (
+        np.rint(ds.time.values * fps).astype(int)
+        if fps is not None
+        else ds.time.values.astype(int)
+    )
+    return pd.DataFrame(columns, index=np.arange(n_frames))
+
+
+@register_writer("Anipose", ds_type="poses", suffixes={".csv"})
+def to_anipose_file(ds: xr.Dataset, file: str | Path) -> None:
+    """Save a ``movement`` dataset to Anipose 3D .csv file(s).
+
+    Parameters
+    ----------
+    ds
+        ``movement`` dataset containing pose tracks, confidence scores,
+        and associated metadata.
+    file
+        Path to the file to save the poses to. File extension must be
+        .csv.
+
+    Notes
+    -----
+    If the dataset contains more than one individual, each individual
+    is saved to a separate file, formatted as a single-animal Anipose
+    triangulation .csv file, and the individual's name is appended to
+    the file path, just before the file extension, e.g.
+    "/path/to/filename_id_0.csv" (as for DeepLabCut and NWB files).
+
+    The Anipose format does not store individual names or ``fps``, so
+    pass ``individual_name`` and ``fps`` when reloading each file with
+    :func:`movement.io.load_poses.from_anipose_file` if either is set
+    on the dataset.
+
+    See Also
+    --------
+    to_anipose_style_df : Convert dataset to an Anipose-style DataFrame.
+    movement.io.load_poses.from_anipose_file : Load an Anipose .csv file.
+
+    Examples
+    --------
+    >>> from movement.io import save_poses, load_poses
+    >>> ds = load_poses.from_anipose_file("/path/to/file.triangulation.csv")
+    >>> save_poses.to_anipose_file(ds, "/path/to/file_out.csv")
+
+    """
+    valid_path = Path(file)
+    individual_names = ds.coords["individual"].data.tolist()
+    for index, individual_name in enumerate(individual_names):
+        if len(individual_names) == 1:
+            filepath = valid_path
+        else:
+            filepath = validate_file_path(
+                valid_path.with_name(
+                    f"{valid_path.stem}_{individual_name}{valid_path.suffix}"
+                ),
+                permission="w",
+                suffixes={".csv"},
+            )
+        # list indexing keeps the individual dimension, which the
+        # dataset validator in to_anipose_style_df requires
+        df = to_anipose_style_df(ds.isel(individual=[index]))
+        df.to_csv(filepath, index=False)
+        logger.info(f"Saved poses dataset to {filepath}.")
+
+
 @register_writer("SLEAP", ds_type="poses", suffixes={".h5"})
 def to_sleap_analysis_file(ds: xr.Dataset, file: str | Path) -> None:
     """Save a ``movement`` dataset to a SLEAP analysis file.

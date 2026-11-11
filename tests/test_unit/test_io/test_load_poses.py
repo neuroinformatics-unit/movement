@@ -1,5 +1,6 @@
 """Test suite for the load_poses module."""
 
+import csv
 import warnings
 
 import numpy as np
@@ -251,6 +252,38 @@ def test_load_from_anipose_file():
         "r-edge",
         "r-middle",
     ]
+
+
+def test_load_from_anipose_file_parses_floats_exactly():
+    """Test that loading an Anipose csv returns the exact float64
+    values stored in the file.
+
+    pandas' default csv parser is not guaranteed to be correctly
+    rounded, so the loaded values are compared against Python's own
+    ``float()``, which is correctly rounded per IEEE 754.
+    """
+    file_path = pytest.DATA_PATHS.get(
+        "anipose_mouse-paw_anipose-paper.triangulation.csv"
+    )
+    with file_path.open(newline="") as f:
+        rows = list(csv.DictReader(f))
+
+    ds = load_poses.from_anipose_file(file_path)
+    for i, keypoint in enumerate(ds.coords["keypoint"].values):
+        for j, space in enumerate(["x", "y", "z"]):
+            expected = np.array(
+                [
+                    float(row[f"{keypoint}_{space}"])
+                    if row[f"{keypoint}_{space}"] != ""
+                    else np.nan
+                    for row in rows
+                ]
+            )
+            np.testing.assert_array_equal(
+                ds.position.values[:, j, i, 0],
+                expected,
+                err_msg=f"Differing position values for {keypoint}_{space}.",
+            )
 
 
 @pytest.mark.parametrize("kwargs", [{}, {"rate": 10.0, "starting_time": 0.0}])
