@@ -129,12 +129,7 @@ def removed_points(layer: Points) -> tuple[np.ndarray, np.ndarray]:
     removed = removed_points_mask(
         loaded, layer.data[:, 0], layer.features, keys
     )
-    individuals = (
-        loaded["individual"].to_numpy()[removed]
-        if "individual" in loaded
-        else np.full(removed.sum(), None)
-    )
-    return keys.frames[removed], individuals
+    return keys.frames[removed], loaded["individual"].to_numpy()[removed]
 
 
 # ---- Callbacks with viewer lifetime --------------------
