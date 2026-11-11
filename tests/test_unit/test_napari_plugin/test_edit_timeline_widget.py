@@ -9,13 +9,18 @@ from matplotlib.colors import to_rgba
 from napari.layers.base import ActionType
 from napari.utils.theme import get_theme
 
+from movement.io import save_dataset
+from movement.napari.convert import napari_layers_to_ds
 from movement.napari.edit_timeline_widget import (
     DRAG_THRESHOLD_PIXELS,
     MIN_VISIBLE_FRAMES,
     EditTimelineWidget,
 )
 from movement.napari.layer_wiring import removed_points
-from movement.napari.loader_widgets import POINTS_PROPERTIES_KEY
+from movement.napari.loader_widgets import (
+    DATASET_ATTRS_KEY,
+    POINTS_PROPERTIES_KEY,
+)
 
 
 def _bar_colors(edit_timeline_widget):
@@ -388,6 +393,61 @@ def test_removed_points_ignores_points_not_removed(position_is_nan, edited):
     frames, _ = removed_points(layer)
 
     assert frames.size == 0
+
+
+def _timeline_removals(layer):
+    """Return the sorted (frame, individual) pairs the timeline flags."""
+    frames, individuals = removed_points(layer)
+    return sorted(zip(frames.tolist(), individuals.tolist(), strict=True))
+
+
+def _saved_removals(layer):
+    """Save ``layer`` as the save widget does, and return the dataset and
+    the sorted (frame, individual) pairs saved as removed points, i.e.
+    flagged ``edited`` with a NaN position.
+    """
+    ds = napari_layers_to_ds(
+        points_as_napari=layer.data,
+        properties=layer.properties,
+        properties_with_nans=layer.metadata[POINTS_PROPERTIES_KEY],
+        attrs=layer.metadata[DATASET_ATTRS_KEY],
+    )
+    removed = (ds["edited"] & ds["position"].isnull().all("space")).transpose(
+        "time", "keypoint", "individual"
+    )
+    frames, _, individual_idx = np.nonzero(removed.values)
+    individuals = ds["individual"].values[individual_idx]
+    return ds, sorted(zip(frames.tolist(), individuals.tolist(), strict=True))
+
+
+def test_timeline_removals_match_saved_edits(
+    valid_poses_path_and_ds, loaded_data_loader, remove_point, tmp_path
+):
+    """The timeline flags exactly the points that save marks as removed.
+
+    Covers points removed in the current session and, after saving and
+    reloading the file, points removed in an earlier session.
+    """
+    filepath, ds_loaded = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds_loaded)
+    remove_point(loader, frame=2, keypoint="centroid", individual="id_0")
+    remove_point(loader, frame=5, keypoint="left", individual="id_1")
+
+    ds, saved = _saved_removals(loader.points_layer)
+    assert saved == [(2, "id_0"), (5, "id_1")]
+    assert _timeline_removals(loader.points_layer) == saved
+
+    # Reopen the saved file in a new session and remove one more point
+    nc_path = tmp_path / "edited.nc"
+    save_dataset(ds, nc_path)
+    loader = loaded_data_loader(
+        nc_path, ds.assign_attrs(source_software="movement (netCDF)")
+    )
+    remove_point(loader, frame=7, keypoint="right", individual="id_0")
+
+    _, saved = _saved_removals(loader.points_layer)
+    assert saved == [(2, "id_0"), (5, "id_1"), (7, "id_0")]
+    assert _timeline_removals(loader.points_layer) == saved
 
 
 def test_layer_data_changed_ignores_other_layers(

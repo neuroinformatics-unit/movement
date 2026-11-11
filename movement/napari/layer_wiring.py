@@ -24,6 +24,7 @@ from napari.layers import Points
 from napari.layers.base import ActionType
 from napari.utils.events import Event
 
+from movement.napari.convert import LoadedPointKeys, removed_points_mask
 from movement.napari.layer_styles import EDITED_POINT_SYMBOL, PointsStyle
 
 # Metadata keys stored on the movement Points layer.
@@ -51,11 +52,6 @@ DATASET_ATTRS_KEY: str = "movement_dataset_attrs"
 TRACKS_LAYER_KEY: str = "movement_tracks_layer"
 MAX_FRAME_IDX_KEY: str = "movement_max_frame_idx"
 
-# Keep a set of viewers already wired by connect_viewer_callbacks,
-# so we don't wire them twice. We use a WeakSet so tracking a viewer here
-# does not prevent it from being garbage-collected when it is no longer used.
-_WIRED_VIEWERS: WeakSet = WeakSet()
-
 
 # ---- Layer helpers -------------------------------------
 def is_movement_points_layer(layer) -> bool:
@@ -82,73 +78,73 @@ def active_movement_points_layer(viewer):
     return None
 
 
-# Per-layer cache of the loaded-state point keys used by removed_points,
-# stored with the loaded table they were computed from.
-_LOADED_POINT_KEYS: WeakKeyDictionary = WeakKeyDictionary()
+def drop_internal_properties(properties: pd.DataFrame) -> pd.DataFrame:
+    """Drop the internal columns not needed in Points layer properties.
 
-
-def _loaded_point_keys(layer: Points, loaded: pd.DataFrame):
-    """Encode each loaded point's (frame, keypoint, individual) as an int.
-
-    Returns the keys, the frame index of each loaded point, the id-column
-    lookups needed to encode live points the same way, and the number of
-    possible keys.
+    The ``_factorized`` columns are used for Tracks/Shapes colouring and
+    ``position_is_nan`` for reconstructing the dataset on save; neither
+    is needed in the Points layer tooltips.
     """
-    cached = _LOADED_POINT_KEYS.get(layer)
-    if cached is not None and cached[0] is loaded:
-        return cached[1:]
-    times = np.sort(loaded["time"].unique())
-    frames = np.searchsorted(times, loaded["time"].to_numpy())
-    keys = frames.astype(np.int64)
-    lookups = []
-    for col in ("keypoint", "individual"):
-        if col in loaded:
-            codes, uniques = pd.factorize(loaded[col])
-            keys = keys * len(uniques) + codes
-            lookups.append((col, pd.Index(uniques)))
-    n_keys = len(times) * int(np.prod([len(u) for _, u in lookups]))
-    cached = (keys, frames, lookups, n_keys)
-    _LOADED_POINT_KEYS[layer] = (loaded, *cached)
-    return cached
+    return properties.loc[
+        :,
+        ~properties.columns.str.endswith("_factorized")
+        & (properties.columns != "position_is_nan"),
+    ]
+
+
+# Per-layer cache of the loaded point keys used by removed_points
+_LOADED_POINT_KEYS: WeakKeyDictionary = WeakKeyDictionary()
 
 
 def removed_points(layer: Points) -> tuple[np.ndarray, np.ndarray]:
     """Return the frames and individuals of points removed from ``layer``.
 
-    A point counts as removed if it is missing from the live layer and was
-    either present at load time (removed in this session, the rule
-    :func:`~movement.napari.convert.napari_layers_to_ds` applies on save)
-    or flagged as ``edited`` at load time (removed in an earlier session).
+    Removal is defined by :func:`~movement.napari.convert.removed_points_mask`,
+    the same rule used to flag points as ``edited`` on save.
+
+    Parameters
+    ----------
+    layer
+        A movement Points layer. Its loaded state is read from
+        ``layer.metadata[POINTS_PROPERTIES_KEY]``.
+
+    Returns
+    -------
+    frames : numpy.ndarray
+        Frame index of each removed point.
+    individuals : numpy.ndarray
+        Individual of each removed point, aligned with ``frames``.
+        Both arrays are empty if the layer was not created by ``movement``.
+
     """
     loaded = layer.metadata.get(POINTS_PROPERTIES_KEY)
     if loaded is None:
         return np.array([], dtype=int), np.array([], dtype=object)
-    loaded_keys, loaded_frames, lookups, n_keys = _loaded_point_keys(
-        layer, loaded
+    cached = _LOADED_POINT_KEYS.get(layer)
+    if cached is not None and cached[0] is loaded:
+        keys = cached[1]
+    else:
+        keys = LoadedPointKeys.from_properties(loaded)
+        _LOADED_POINT_KEYS[layer] = (loaded, keys)
+    removed = removed_points_mask(
+        loaded, layer.data[:, 0], layer.features, keys
     )
-    live_keys = layer.data[:, 0].astype(np.int64)
-    valid = live_keys >= 0
-    for col, uniques in lookups:
-        codes = uniques.get_indexer(layer.features[col])
-        valid &= codes >= 0
-        live_keys = live_keys * len(uniques) + codes
-    valid &= live_keys < n_keys
-    present_now = np.zeros(n_keys, dtype=bool)
-    present_now[live_keys[valid]] = True
-
-    removable = ~loaded["position_is_nan"].to_numpy()
-    if "edited" in loaded:
-        removable |= loaded["edited"].to_numpy(dtype=bool)
-    removed = removable & ~present_now[loaded_keys]
     individuals = (
         loaded["individual"].to_numpy()[removed]
         if "individual" in loaded
         else np.full(removed.sum(), None)
     )
-    return loaded_frames[removed], individuals
+    return keys.frames[removed], individuals
 
 
 # ---- Callbacks with viewer lifetime --------------------
+
+# Keep a set of viewers already wired by connect_viewer_callbacks,
+# so we don't wire them twice. We use a WeakSet so tracking a viewer here
+# does not prevent it from being garbage-collected when it is no longer used.
+_WIRED_VIEWERS: WeakSet = WeakSet()
+
+
 def connect_viewer_callbacks(viewer) -> None:
     """Wire the layer callbacks to a viewer, skipping if already wired.
 
@@ -345,20 +341,6 @@ def set_tracks_layer_data(tracks_layer, data, properties):
         tracks_layer.data = data
         tracks_layer.properties = properties
         tracks_layer.color_by = color_by
-
-
-def drop_internal_properties(properties: pd.DataFrame) -> pd.DataFrame:
-    """Drop the internal columns not needed in Points layer properties.
-
-    The ``_factorized`` columns are used for Tracks/Shapes colouring and
-    ``position_is_nan`` for reconstructing the dataset on save; neither
-    is needed in the Points layer tooltips.
-    """
-    return properties.loc[
-        :,
-        ~properties.columns.str.endswith("_factorized")
-        & (properties.columns != "position_is_nan"),
-    ]
 
 
 def add_edits_reset_event(points_layer: Points) -> None:
