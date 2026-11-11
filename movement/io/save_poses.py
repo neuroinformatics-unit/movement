@@ -360,17 +360,16 @@ def to_sleap_analysis_file(ds: xr.Dataset, file: str | Path) -> None:
     # Mask denoting which individuals are present in each frame
     track_occupancy = (~np.all(np.isnan(pos_x), axis=1)).astype(int)
     tracks = ds.position.data.transpose(3, 1, 2, 0)
-    tracking_scores = np.full((n_individuals, n_frames), np.nan, dtype=float)
-    if ds.confidence.ndim == 3:  # keypoint-wise confidence in "point_scores"
-        instance_scores = np.full(
-            (n_individuals, n_frames), np.nan, dtype=float
-        )
+    point_scores = np.full(
+        (n_individuals, len(keypoint_names), n_frames), np.nan
+    )
+    instance_scores = np.full((n_individuals, n_frames), np.nan)
+    tracking_scores = np.full((n_individuals, n_frames), np.nan)
+    # Confidence is stored either per keypoint or per individual
+    if "keypoint" in ds.confidence.dims:
         point_scores = ds.confidence.data.T
-    else:  # individual-wise confidence in "instance_scores"
+    else:
         instance_scores = ds.confidence.data.T
-        point_scores = np.full(
-            (n_individuals, len(keypoint_names), n_frames), np.nan, dtype=float
-        )
     source_file = getattr(ds, "source_file", None)
     labels_path = (
         source_file
