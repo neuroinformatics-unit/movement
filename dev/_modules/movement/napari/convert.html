@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=fd2ae5d1"></script>
+    <script src="../../../_static/documentation_options.js?v=cad26fbb"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -142,7 +142,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev85</p>
+    <p class="title logo__title">movement v0.17.1.dev86</p>
   
 </a></div>
     
@@ -797,23 +797,33 @@
         <span class="c1"># A point missing from the live layer shows up as NaN position</span>
         <span class="c1"># after the reindex above</span>
         <span class="n">point_missing_now</span> <span class="o">=</span> <span class="n">position_da</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="s2">"space"</span><span class="p">)</span>
-        <span class="n">position_was_present_originally</span> <span class="o">=</span> <span class="o">~</span><span class="p">(</span>
-            <span class="n">properties_with_nans</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"keypoint"</span><span class="p">,</span> <span class="s2">"individual"</span><span class="p">])[</span>
-                <span class="s2">"position_is_nan"</span>
+        <span class="n">loaded_properties</span> <span class="o">=</span> <span class="n">properties_with_nans</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"keypoint"</span><span class="p">,</span> <span class="s2">"individual"</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="s2">"edited"</span> <span class="ow">in</span> <span class="n">loaded_properties</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">loaded_properties</span> <span class="o">=</span> <span class="n">loaded_properties</span><span class="p">[</span>
+                <span class="p">[</span><span class="s2">"position_is_nan"</span><span class="p">,</span> <span class="s2">"edited"</span><span class="p">]</span>
             <span class="p">]</span>
-            <span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">loaded_properties</span> <span class="o">=</span> <span class="n">loaded_properties</span><span class="p">[[</span><span class="s2">"position_is_nan"</span><span class="p">]]</span>
+        <span class="n">loaded_das</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">loaded_properties</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span>
             <span class="o">.</span><span class="n">reindex</span><span class="p">(</span>
                 <span class="n">time</span><span class="o">=</span><span class="n">time_coords</span><span class="p">,</span>
                 <span class="n">keypoint</span><span class="o">=</span><span class="n">keypoint_coords</span><span class="p">,</span>
                 <span class="n">individual</span><span class="o">=</span><span class="n">individual_coords</span><span class="p">,</span>
-                <span class="n">fill_value</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">fill_value</span><span class="o">=</span><span class="p">{</span><span class="s2">"position_is_nan"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">"edited"</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
             <span class="p">)</span>
             <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
         <span class="p">)</span>
-        <span class="c1"># A point counts as edited if it was dragged in napari, or removed</span>
-        <span class="c1"># by the user (i.e. is now missing but was present originally).</span>
+        <span class="n">position_was_present_originally</span> <span class="o">=</span> <span class="o">~</span><span class="n">loaded_das</span><span class="p">[</span><span class="s2">"position_is_nan"</span><span class="p">]</span>
+        <span class="n">point_was_edited_originally</span> <span class="o">=</span> <span class="n">loaded_das</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"edited"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># A point counts as edited if it was dragged in napari, or is now</span>
+        <span class="c1"># missing and was either present originally (removed by the user)</span>
+        <span class="c1"># or already edited when loaded (removed in an earlier session).</span>
         <span class="n">edited_da</span> <span class="o">=</span> <span class="n">live_das</span><span class="p">[</span><span class="s2">"edited"</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span>
-            <span class="n">point_missing_now</span> <span class="o">&amp;</span> <span class="n">position_was_present_originally</span>
+            <span class="n">point_missing_now</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_was_present_originally</span> <span class="o">|</span> <span class="n">point_was_edited_originally</span><span class="p">)</span>
         <span class="p">)</span>
 
         <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
