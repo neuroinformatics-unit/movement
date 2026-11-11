@@ -618,32 +618,16 @@ def test_bar_color_lookup_falls_back_without_individual_property(
     assert color_of("id_0") == edit_timeline_widget._edit_bar_color
 
 
-@pytest.mark.parametrize(
-    "timeline_before_removal",
-    [
-        pytest.param(False, id="first_edit_is_removal"),
-        pytest.param(True, id="timeline_recreated"),
-    ],
-)
-def test_removal_shown_whenever_timeline_is_created(
-    valid_poses_path_and_ds,
-    loaded_data_loader,
-    remove_point,
-    timeline_before_removal,
+def test_removal_shown_on_timeline_created_after_it(
+    valid_poses_path_and_ds, loaded_data_loader, remove_point
 ):
-    """A removal is flagged on a timeline created after it happened.
-
-    Covers a removal made before any timeline exists (e.g. the first edit
-    auto-expanding the edit section), and a timeline that was closed and
-    recreated after the removal.
+    """A removal made before any timeline exists is flagged once one is
+    created, e.g. when the first edit auto-expands the edit section.
+    Reopening a closed timeline is covered in test_meta_widget.py.
     """
     filepath, ds = valid_poses_path_and_ds
     loader = loaded_data_loader(filepath, ds)
-    if timeline_before_removal:
-        old_timeline = EditTimelineWidget(loader.viewer)
     remove_point(loader, frame=3, keypoint="centroid", individual="id_0")
-    if timeline_before_removal:
-        old_timeline.deleteLater()
 
     timeline = EditTimelineWidget(loader.viewer)
 
