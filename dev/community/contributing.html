@@ -36,7 +36,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
@@ -44,11 +44,11 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=595261c8"></script>
+    <script src="../_static/documentation_options.js?v=fd2ae5d1"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
-    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'community/contributing';</script>
     <script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev84</p>
+    <p class="title logo__title">movement v0.17.1.dev85</p>
   
 </a></div>
     
@@ -510,10 +510,10 @@
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                   <section class="tex2jax_ignore mathjax_ignore" id="contributing">
-<span id="target-contributing"></span><h1>Contributing<a class="headerlink" href="#contributing" title="Link to this heading">#</a></h1>
-<section id="before-you-start">
-<span id="target-before-you-start"></span><h2>Before you start<a class="headerlink" href="#before-you-start" title="Link to this heading">#</a></h2>
+                   <section class="tex2jax_ignore mathjax_ignore" id="target-contributing">
+<span id="contributing"></span><h1>Contributing<a class="headerlink" href="#target-contributing" title="Link to this heading">#</a></h1>
+<section id="target-before-you-start">
+<span id="before-you-start"></span><h2>Before you start<a class="headerlink" href="#target-before-you-start" title="Link to this heading">#</a></h2>
 <p>Before starting work on a contribution, please check the <a class="reference external" href="https://github.com/neuroinformatics-unit/movement/issues">issue tracker</a> to see if there’s already an issue describing what you have in mind.</p>
 <ul class="simple">
 <li><p>If there is, add a comment to let others know you’re willing to work on it.</p></li>
@@ -534,8 +534,8 @@ There are a few reasons an issue might not be actionable yet:</p>
 <a class="reference internal" href="#target-pull-requests"><span class="std std-ref">relevant section</span></a> of this guide as well our
 <a class="reference external" href="https://neuroinformatics.dev/get-involved/ai_policy.html">policy on contributions using AI</a>.</p>
 </section>
-<section id="contribution-workflow">
-<span id="target-contribution-workflow"></span><h2>Contribution workflow<a class="headerlink" href="#contribution-workflow" title="Link to this heading">#</a></h2>
+<section id="target-contribution-workflow">
+<span id="contribution-workflow"></span><h2>Contribution workflow<a class="headerlink" href="#target-contribution-workflow" title="Link to this heading">#</a></h2>
 <p>If you want to contribute to <code class="docutils literal notranslate"><span class="pre">movement</span></code> and don’t have permission to make changes directly, you can create your own copy of the project, make updates, and then suggest those updates for inclusion in the main project. This process is often called a “fork and pull request” workflow.</p>
 <p>When you create your own copy (or “fork”) of a project, it’s like making a new workspace that shares code with the original project.
 Once you’ve made your changes in your copy, you can submit them as a pull request, which is a way to propose changes back to the main project.</p>
@@ -570,8 +570,8 @@ This links your local copy to the original project so you can pull the latest ch
 <li><p>Create an environment using <a class="reference external" href="https://docs.conda.io/projects/conda/en/latest/#">conda</a> or <a class="reference external" href="https://docs.astral.sh/uv/getting-started/installation/#">uv</a> and install <code class="docutils literal notranslate"><span class="pre">movement</span></code> in editable mode, including development dependencies.</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-0">
-conda</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-0-content" class="sd-tab-label" for="sd-tab-item-0">
+conda</label><div class="sd-tab-content docutils" id="sd-tab-item-0-content">
 <p>First, create and activate a <code class="docutils literal notranslate"><span class="pre">conda</span></code> environment:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>movement-dev<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.13
 conda<span class="w"> </span>activate<span class="w"> </span>movement-dev
@@ -583,8 +583,8 @@ conda<span class="w"> </span>activate<span class="w"> </span>movement-dev
 </div>
 </div>
 <input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1">
-uv</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-1-content" class="sd-tab-label" for="sd-tab-item-1">
+uv</label><div class="sd-tab-content docutils" id="sd-tab-item-1-content">
 <p>First, create and activate a <a class="reference external" href="https://docs.astral.sh/uv/pip/environments/#">virtual environment</a>:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>venv<span class="w"> </span>--python<span class="o">=</span><span class="m">3</span>.13
 <span class="nb">source</span><span class="w"> </span>.venv/bin/activate<span class="w">  </span><span class="c1"># On macOS and Linux</span>
@@ -611,8 +611,8 @@ uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </s
 </li>
 </ol>
 </section>
-<section id="pull-requests">
-<span id="target-pull-requests"></span><h3>Pull requests<a class="headerlink" href="#pull-requests" title="Link to this heading">#</a></h3>
+<section id="target-pull-requests">
+<span id="pull-requests"></span><h3>Pull requests<a class="headerlink" href="#target-pull-requests" title="Link to this heading">#</a></h3>
 <p>In all cases, please submit code to the main repository via a pull request (PR).</p>
 <div class="note admonition">
 <p class="admonition-title">Pull request review limits</p>
@@ -661,8 +661,8 @@ Team members with write access are also exempt.</p>
 </ul>
 </section>
 </section>
-<section id="development-guidelines">
-<span id="target-dev-guidelines"></span><h2>Development guidelines<a class="headerlink" href="#development-guidelines" title="Link to this heading">#</a></h2>
+<section id="target-dev-guidelines">
+<span id="development-guidelines"></span><h2>Development guidelines<a class="headerlink" href="#target-dev-guidelines" title="Link to this heading">#</a></h2>
 <section id="formatting-and-pre-commit-hooks">
 <h3>Formatting and pre-commit hooks<a class="headerlink" href="#formatting-and-pre-commit-hooks" title="Link to this heading">#</a></h3>
 <p>Running <code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">install</span></code> will set up <a class="reference external" href="https://pre-commit.com/">pre-commit hooks</a> to ensure a consistent formatting style. Currently, these include:</p>
@@ -791,7 +791,7 @@ As these methods will return the logged Exception, you can log and raise the Exc
 </div>
 </section>
 <section id="when-to-use-print-warnings-warn-logger-warning-and-logger-info">
-<h4>When to use <code class="docutils literal notranslate"><span class="pre">print</span></code>, <code class="docutils literal notranslate"><span class="pre">warnings.warn</span></code>, <code class="docutils literal notranslate"><span class="pre">logger.warning</span></code> and <code class="docutils literal notranslate"><span class="pre">logger.info</span></code><a class="headerlink" href="#when-to-use-print-warnings-warn-logger-warning-and-logger-info" title="Link to this heading">#</a></h4>
+<span id="when-to-use-print-warningswarn-loggerwarning-and-loggerinfo"></span><h4>When to use <code class="docutils literal notranslate"><span class="pre">print</span></code>, <code class="docutils literal notranslate"><span class="pre">warnings.warn</span></code>, <code class="docutils literal notranslate"><span class="pre">logger.warning</span></code> and <code class="docutils literal notranslate"><span class="pre">logger.info</span></code><a class="headerlink" href="#when-to-use-print-warnings-warn-logger-warning-and-logger-info" title="Link to this heading">#</a></h4>
 <p>We aim to adhere to the <a class="reference external" href="https://docs.python.org/3/howto/logging.html#logging-basic-tutorial" title="Python 3.15">When to use logging guide</a> to ensure consistency in our logging practices.
 In general:</p>
 <ul class="simple">
@@ -1026,7 +1026,7 @@ file path and <code class="docutils literal notranslate"><span class="pre">fps</
 </div>
 </section>
 <section id="update-the-input-output-guide">
-<h4>Update the Input/Output guide<a class="headerlink" href="#update-the-input-output-guide" title="Link to this heading">#</a></h4>
+<span id="update-the-inputoutput-guide"></span><h4>Update the Input/Output guide<a class="headerlink" href="#update-the-input-output-guide" title="Link to this heading">#</a></h4>
 <p>Finally, update the <a class="reference internal" href="../user_guide/input_output.html#target-io"><span class="std std-ref">Input/Output</span></a> guide by adding the new format to the <a class="reference internal" href="../user_guide/input_output.html#target-supported-formats"><span class="std std-ref">Supported third-party formats</span></a> table and documenting it in the <a class="reference internal" href="../user_guide/input_output.html#target-loading-pose-tracks"><span class="std std-ref">Loading pose tracks</span></a> and/or <a class="reference internal" href="../user_guide/input_output.html#target-loading-bbox-tracks"><span class="std std-ref">Loading bounding box tracks</span></a> section(s) with usage examples.</p>
 </section>
 </section>
@@ -1104,7 +1104,7 @@ When adding a new writer, update this type alias to include the new software nam
 </div>
 </section>
 <section id="id1">
-<h4>Update the Input/Output guide<a class="headerlink" href="#id1" title="Link to this heading">#</a></h4>
+<span id="update-the-inputoutput-guide-1"></span><h4>Update the Input/Output guide<a class="headerlink" href="#id1" title="Link to this heading">#</a></h4>
 <p>Finally, update the <a class="reference internal" href="../user_guide/input_output.html#target-io"><span class="std std-ref">Input/Output</span></a> guide by adding the new format to the <a class="reference internal" href="../user_guide/input_output.html#target-supported-formats"><span class="std std-ref">Supported third-party formats</span></a> table and documenting it in the <a class="reference internal" href="../user_guide/input_output.html#target-saving-pose-tracks"><span class="std std-ref">Saving pose tracks</span></a> and/or <a class="reference internal" href="../user_guide/input_output.html#target-saving-bboxes-tracks"><span class="std std-ref">Saving bounding box tracks</span></a> section(s) with usage examples.</p>
 </section>
 </section>
@@ -1189,7 +1189,7 @@ against a bare viewer and layers, without instantiating a widget —
 see <code class="docutils literal notranslate"><span class="pre">tests/test_unit/test_napari_plugin/test_layer_wiring.py</span></code>.</p>
 </section>
 <section id="qt-model-view-architecture">
-<h4>Qt Model/View architecture<a class="headerlink" href="#qt-model-view-architecture" title="Link to this heading">#</a></h4>
+<span id="qt-modelview-architecture"></span><h4>Qt Model/View architecture<a class="headerlink" href="#qt-model-view-architecture" title="Link to this heading">#</a></h4>
 <p><code class="docutils literal notranslate"><span class="pre">movement.napari.regions_widget</span></code> follows
 <a class="reference external" href="https://doc.qt.io/qt-6/model-view-programming.html#">Qt’s Model/View pattern</a>
 to separate the data (what is stored) from the display (how it is shown).
@@ -1285,12 +1285,12 @@ In practice, tags are created via the GitHub release interface, as described bel
 so they can only be carried out by maintainers.</p>
 </div>
 <section id="start-a-draft-release">
-<h4>1. Start a draft release<a class="headerlink" href="#start-a-draft-release" title="Link to this heading">#</a></h4>
+<span id="1-start-a-draft-release"></span><h4>1. Start a draft release<a class="headerlink" href="#start-a-draft-release" title="Link to this heading">#</a></h4>
 <p>Go to the <a class="reference external" href="https://github.com/neuroinformatics-unit/movement/releases/new">new release page</a>, which is equivalent to going to
 <a class="reference external" href="https://github.com/neuroinformatics-unit/movement/releases">Releases</a> and clicking the “Draft a new release” button.</p>
 </section>
 <section id="set-the-tag-and-title">
-<h4>2. Set the tag and title<a class="headerlink" href="#set-the-tag-and-title" title="Link to this heading">#</a></h4>
+<span id="2-set-the-tag-and-title"></span><h4>2. Set the tag and title<a class="headerlink" href="#set-the-tag-and-title" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>In the “Tag” dropdown, create a new tag following the <code class="docutils literal notranslate"><span class="pre">vMAJOR.MINOR.PATCH</span></code> format (e.g. <code class="docutils literal notranslate"><span class="pre">v0.10.0</span></code>). Don’t forget the required <code class="docutils literal notranslate"><span class="pre">v</span></code> prefix.</p></li>
 <li><p>Leave “Target” set to <code class="docutils literal notranslate"><span class="pre">main</span></code>.</p></li>
@@ -1298,7 +1298,7 @@ so they can only be carried out by maintainers.</p>
 </ul>
 </section>
 <section id="generate-release-notes">
-<h4>3. Generate release notes<a class="headerlink" href="#generate-release-notes" title="Link to this heading">#</a></h4>
+<span id="3-generate-release-notes"></span><h4>3. Generate release notes<a class="headerlink" href="#generate-release-notes" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Leave “Previous tag” set to “Auto” and click the “Generate release notes” button.</p></li>
 <li><p>Organise the PR list under “What’s Changed” into meaningful subsections (<code class="docutils literal notranslate"><span class="pre">###</span></code> headers).</p></li>
@@ -1318,18 +1318,18 @@ For breaking changes, include code snippets showing the old vs new syntax.</p>
 </div>
 </section>
 <section id="publish-the-release">
-<h4>4. Publish the release<a class="headerlink" href="#publish-the-release" title="Link to this heading">#</a></h4>
+<span id="4-publish-the-release"></span><h4>4. Publish the release<a class="headerlink" href="#publish-the-release" title="Link to this heading">#</a></h4>
 <p>Leave the “Set as the latest release” checkbox ticked (default) and publish.
 Then check the “Actions” tab to ensure both the “Tests” and “Docs” workflows finish successfully.</p>
 </section>
 <section id="verify-the-docs-and-binder">
-<h4>5. Verify the docs and Binder<a class="headerlink" href="#verify-the-docs-and-binder" title="Link to this heading">#</a></h4>
+<span id="5-verify-the-docs-and-binder"></span><h4>5. Verify the docs and Binder<a class="headerlink" href="#verify-the-docs-and-binder" title="Link to this heading">#</a></h4>
 <p>Confirm that the new version appears on the <a class="reference internal" href="../index.html#target-movement"><span class="std std-ref">website</span></a> and that the API reference reflects the latest changes.
 As an extra check, try launching an <a class="reference internal" href="../examples/index.html#target-examples"><span class="std std-ref">example</span></a> in Binder. The first launch may take a while,
 but Binder caches the environment, so later runs (for any example) are fast.</p>
 </section>
 <section id="announce-the-release">
-<h4>6. Announce the release<a class="headerlink" href="#announce-the-release" title="Link to this heading">#</a></h4>
+<span id="6-announce-the-release"></span><h4>6. Announce the release<a class="headerlink" href="#announce-the-release" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Post in the <a class="reference external" href="https://neuroinformatics.zulipchat.com/#narrow/channel/406001-Movement/topic/Releases/with/601196586">“Releases” topic on Zulip</a>
 with a link to the GitHub release notes. Optionally include a relevant image.</p></li>
@@ -1339,7 +1339,7 @@ API reference page for a new function.</p></li>
 </ul>
 </section>
 <section id="release-on-conda-forge">
-<h4>7. Release on conda-forge<a class="headerlink" href="#release-on-conda-forge" title="Link to this heading">#</a></h4>
+<span id="7-release-on-conda-forge"></span><h4>7. Release on conda-forge<a class="headerlink" href="#release-on-conda-forge" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Wait for the <code class="docutils literal notranslate"><span class="pre">regro-cf-autotick-bot</span></code> to open a PR on <code class="docutils literal notranslate"><span class="pre">movement</span></code>’s
 <a class="reference external" href="https://github.com/conda-forge/movement-feedstock">conda-forge feedstock</a>
@@ -1364,7 +1364,7 @@ for more information.</p>
 or slated for removal, we emit a deprecation warning rather than
 removing it immediately. This gives users time to migrate.</p>
 <section id="mark-the-deprecated-element">
-<h4>1. Mark the deprecated element<a class="headerlink" href="#mark-the-deprecated-element" title="Link to this heading">#</a></h4>
+<span id="1-mark-the-deprecated-element"></span><h4>1. Mark the deprecated element<a class="headerlink" href="#mark-the-deprecated-element" title="Link to this heading">#</a></h4>
 <p>For example, to deprecate a function:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 
@@ -1410,7 +1410,7 @@ during the deprecation window:</p>
 </div>
 </section>
 <section id="test-the-deprecation">
-<h4>2. Test the deprecation<a class="headerlink" href="#test-the-deprecation" title="Link to this heading">#</a></h4>
+<span id="2-test-the-deprecation"></span><h4>2. Test the deprecation<a class="headerlink" href="#test-the-deprecation" title="Link to this heading">#</a></h4>
 <p>Add a parametrised case to the <code class="docutils literal notranslate"><span class="pre">test_deprecated_callable</span></code> test in
 <code class="docutils literal notranslate"><span class="pre">tests/test_unit/test_deprecations.py</span></code>. See the docstring of that
 test for the expected parameters and an
@@ -1422,7 +1422,7 @@ one. These are especially useful when the old and new implementations
 differ in structure but should agree on output.</p>
 </section>
 <section id="remove-the-deprecated-element">
-<h4>3. Remove the deprecated element<a class="headerlink" href="#remove-the-deprecated-element" title="Link to this heading">#</a></h4>
+<span id="3-remove-the-deprecated-element"></span><h4>3. Remove the deprecated element<a class="headerlink" href="#remove-the-deprecated-element" title="Link to this heading">#</a></h4>
 <p>After at least one minor release, the deprecated API element can be
 removed in a follow-up PR.</p>
 <ul class="simple">
@@ -1442,8 +1442,8 @@ with migration instructions pointing users to the replacement.</p>
 </section>
 </section>
 </section>
-<section id="contributing-documentation">
-<span id="target-contributing-docs"></span><h2>Contributing documentation<a class="headerlink" href="#contributing-documentation" title="Link to this heading">#</a></h2>
+<section id="target-contributing-docs">
+<span id="contributing-documentation"></span><h2>Contributing documentation<a class="headerlink" href="#target-contributing-docs" title="Link to this heading">#</a></h2>
 <p>The documentation is hosted via <a class="reference external" href="https://pages.github.com/">GitHub pages</a> at
 <a class="reference internal" href="../index.html#target-movement"><span class="std std-ref">movement.neuroinformatics.dev</span></a>.
 Its source files are located in the <code class="docutils literal notranslate"><span class="pre">docs</span></code> folder of this repository.
@@ -1534,8 +1534,8 @@ roughly following the pattern below.</p>
 </pre></div>
 </div>
 </section>
-<section id="updating-gui-screenshots-and-videos">
-<span id="target-gui-screenshots-videos"></span><h3>Updating GUI screenshots and videos<a class="headerlink" href="#updating-gui-screenshots-and-videos" title="Link to this heading">#</a></h3>
+<section id="target-gui-screenshots-videos">
+<span id="updating-gui-screenshots-and-videos"></span><h3>Updating GUI screenshots and videos<a class="headerlink" href="#target-gui-screenshots-videos" title="Link to this heading">#</a></h3>
 <p>Most screenshots and videos in the <a class="reference internal" href="../user_guide/gui.html#target-gui"><span class="std std-ref">GUI guide</span></a> are made by the
 <code class="docutils literal notranslate"><span class="pre">docs/make_gui_media.py</span></code> script, rather than by hand.</p>
 <ul class="simple">
@@ -1620,8 +1620,8 @@ boxes are clearly visible.</p></li>
 <h4>Internal references<a class="headerlink" href="#internal-references" title="Link to this heading">#</a></h4>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-2">
-Markdown</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-2-content" class="sd-tab-label" for="sd-tab-item-2">
+Markdown</label><div class="sd-tab-content docutils" id="sd-tab-item-2-content">
 <p>For referencing <code class="docutils literal notranslate"><span class="pre">movement</span></code> objects in <code class="docutils literal notranslate"><span class="pre">.md</span></code> files, use the <code class="docutils literal notranslate"><span class="pre">{role}`target`</span></code> syntax with the appropriate <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/domains/python.html#cross-referencing-python-objects">Python object role</a>.</p>
 <p>For example, to reference the <a class="reference internal" href="../api/movement.io.load_poses.html#module-movement.io.load_poses" title="movement.io.load_poses"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.load_poses</span></code></a> module, use:</p>
 <div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span>{mod}`movement.io.load_poses`
@@ -1629,8 +1629,8 @@ Markdown</label><div class="sd-tab-content docutils">
 </div>
 </div>
 <input id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-3">
-RestructuredText</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-3-content" class="sd-tab-label" for="sd-tab-item-3">
+RestructuredText</label><div class="sd-tab-content docutils" id="sd-tab-item-3-content">
 <p>For referencing <code class="docutils literal notranslate"><span class="pre">movement</span></code> objects in <code class="docutils literal notranslate"><span class="pre">.rst</span></code> files, use the <code class="docutils literal notranslate"><span class="pre">:role:`target`</span></code> syntax with the appropriate <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/domains/python.html#cross-referencing-python-objects">Python object role</a>.</p>
 <p>For example, to reference the <a class="reference internal" href="../api/movement.io.load_poses.html#module-movement.io.load_poses" title="movement.io.load_poses"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.load_poses</span></code></a> module, use:</p>
 <div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="na">:mod:</span><span class="nv">`movement.io.load_poses`</span>
@@ -1646,16 +1646,16 @@ ensure the mapping between module names and their documentation URLs is defined 
 Once the module is included in the mapping, use the same syntax as for <a class="reference internal" href="#internal-references"><span class="std std-ref">internal references</span></a>.</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-4" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-4">
-Markdown</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-4-content" class="sd-tab-label" for="sd-tab-item-4">
+Markdown</label><div class="sd-tab-content docutils" id="sd-tab-item-4-content">
 <p>For example, to reference the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="(in xarray v2026.9.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.update()</span></code></a> method, use:</p>
 <div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span>{meth}`xarray.Dataset.update`
 </pre></div>
 </div>
 </div>
 <input id="sd-tab-item-5" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-5">
-RestructuredText</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-5-content" class="sd-tab-label" for="sd-tab-item-5">
+RestructuredText</label><div class="sd-tab-content docutils" id="sd-tab-item-5-content">
 <p>For example, to reference the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="(in xarray v2026.9.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.update()</span></code></a> method, use:</p>
 <div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="na">:meth:</span><span class="nv">`xarray.Dataset.update`</span>
 </pre></div>
@@ -1673,8 +1673,8 @@ but have contributed in other ways, e.g. by providing sample data.
 The way to add them differs depending on whether they are GitHub users or not.</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-6" name="sd-tab-set-3" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-6">
-GitHub users</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-6-content" class="sd-tab-label" for="sd-tab-item-6">
+GitHub users</label><div class="sd-tab-content docutils" id="sd-tab-item-6-content">
 <p>To add a contributor who has a GitHub account, locate the section marked with <code class="docutils literal notranslate"><span class="pre">MANUAL:</span> <span class="pre">OTHER</span> <span class="pre">GITHUB</span> <span class="pre">CONTRIBUTORS</span></code> in <code class="docutils literal notranslate"><span class="pre">docs/source/community/people.md</span></code>.</p>
 <p>Next, add their GitHub username (e.g. <code class="docutils literal notranslate"><span class="pre">newcontributor</span></code>) to the <code class="docutils literal notranslate"><span class="pre">&lt;!--</span> <span class="pre">readme:</span> <span class="pre">-start</span> <span class="pre">--&gt;</span></code> and <code class="docutils literal notranslate"><span class="pre">&lt;!--</span> <span class="pre">readme:</span> <span class="pre">-end</span> <span class="pre">--&gt;</span></code> lines as follows:</p>
 <div class="highlight-html notranslate"><div class="highlight"><pre><span></span><span class="cm">&lt;!-- readme: githubUser1,githubUser2,newcontributor -start --&gt;</span>
@@ -1685,8 +1685,8 @@ existing content...
 <p>The aforementioned GitHub actions workflow will then automatically update the contributors list with <code class="docutils literal notranslate"><span class="pre">newcontributor</span></code>’s GitHub profile picture, name, and link to their GitHub profile.</p>
 </div>
 <input id="sd-tab-item-7" name="sd-tab-set-3" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-7">
-Non-GitHub users</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-7-content" class="sd-tab-label" for="sd-tab-item-7">
+Non-GitHub users</label><div class="sd-tab-content docutils" id="sd-tab-item-7-content">
 <p>To add a contributor who does not have a GitHub account, locate the section marked with <code class="docutils literal notranslate"><span class="pre">MANUAL:</span> <span class="pre">OTHER</span> <span class="pre">NON-GITHUB</span> <span class="pre">CONTRIBUTORS</span></code> in <code class="docutils literal notranslate"><span class="pre">docs/source/community/people.md</span></code>.</p>
 <p>Next, add a row containing the contributor’s image, name, and link to their website to the existing <code class="docutils literal notranslate"><span class="pre">list-table</span></code> as follows:</p>
 <div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span><span class="k">*</span><span class="w"> </span>  - existing content...
@@ -1761,8 +1761,8 @@ If the limit is reached, previews may temporarily be unavailable until the quota
 </div>
 </section>
 </section>
-<section id="sample-data">
-<span id="target-contributing-sample-data"></span><h2>Sample data<a class="headerlink" href="#sample-data" title="Link to this heading">#</a></h2>
+<section id="target-contributing-sample-data">
+<span id="sample-data"></span><h2>Sample data<a class="headerlink" href="#target-contributing-sample-data" title="Link to this heading">#</a></h2>
 <p>We maintain some sample datasets to be used for testing, examples and tutorials on an
 <a class="reference external" href="https://gin.swc.ucl.ac.uk/neuroinformatics/movement-sample-data#">external data repository</a>.
 Our hosting platform of choice is called <a class="reference external" href="https://gin.g-node.org/#">GIN</a>, based on the
@@ -1815,8 +1815,8 @@ To add a new file, you will need to:</p>
 <li><p><a class="reference internal" href="#target-verify-sample-data"><span class="std std-ref">Verify</span></a> the new files can be fetched and loaded correctly using the <a class="reference internal" href="../api/movement.sample_data.html#module-movement.sample_data" title="movement.sample_data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.sample_data</span></code></a> module.</p></li>
 </ol>
 </section>
-<section id="metadata-yaml-example-entry">
-<span id="target-metadata-yaml"></span><h3><code class="docutils literal notranslate"><span class="pre">metadata.yaml</span></code> example entry<a class="headerlink" href="#metadata-yaml-example-entry" title="Link to this heading">#</a></h3>
+<section id="target-metadata-yaml">
+<span id="metadata-yaml-example-entry"></span><span id="metadatayaml-example-entry"></span><h3><code class="docutils literal notranslate"><span class="pre">metadata.yaml</span></code> example entry<a class="headerlink" href="#target-metadata-yaml" title="Link to this heading">#</a></h3>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">SLEAP_three-mice_Aeon_proofread.analysis.h5</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">sha256sum</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
 <span class="w">  </span><span class="nt">source_software</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SLEAP</span>
@@ -1838,8 +1838,8 @@ To add a new file, you will need to:</p>
 </pre></div>
 </div>
 </section>
-<section id="verifying-sample-data">
-<span id="target-verify-sample-data"></span><h3>Verifying sample data<a class="headerlink" href="#verifying-sample-data" title="Link to this heading">#</a></h3>
+<section id="target-verify-sample-data">
+<span id="verifying-sample-data"></span><h3>Verifying sample data<a class="headerlink" href="#target-verify-sample-data" title="Link to this heading">#</a></h3>
 <p>To verify that a sample dataset can be fetched and loaded correctly:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement</span><span class="w"> </span><span class="kn">import</span> <span class="n">sample_data</span>
 
@@ -1915,14 +1915,14 @@ verify that the video is correctly linked to the dataset:</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#before-you-start">Before you start</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contribution-workflow">Contribution workflow</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#target-before-you-start">Before you start</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#target-contribution-workflow">Contribution workflow</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#forking-the-repository">Forking the repository</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-a-development-environment">Creating a development environment</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pull-requests">Pull requests</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#target-pull-requests">Pull requests</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#development-guidelines">Development guidelines</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#target-dev-guidelines">Development guidelines</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#formatting-and-pre-commit-hooks">Formatting and pre-commit hooks</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#docstrings">Docstrings</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#testing">Testing</a><ul class="nav section-nav flex-column">
@@ -1987,7 +1987,7 @@ verify that the video is correctly linked to the dataset:</p>
 </li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contributing-documentation">Contributing documentation</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#target-contributing-docs">Contributing documentation</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#editing-the-documentation">Editing the documentation</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-new-pages">Adding new pages</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#linking-to-external-urls">Linking to external URLs</a></li>
@@ -1995,7 +1995,7 @@ verify that the video is correctly linked to the dataset:</p>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-the-api-reference">Updating the API reference</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-the-examples">Updating the examples</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-gui-screenshots-and-videos">Updating GUI screenshots and videos</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#target-gui-screenshots-videos">Updating GUI screenshots and videos</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#when-the-gui-changes">When the GUI changes</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-a-new-screenshot-or-video">Adding a new screenshot or video</a></li>
 </ul>
@@ -2010,11 +2010,11 @@ verify that the video is correctly linked to the dataset:</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#previewing-the-documentation-in-continuous-integration">Previewing the documentation in continuous integration</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-data">Sample data</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#target-contributing-sample-data">Sample data</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fetching-data">Fetching data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-new-data">Adding new data</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#metadata-yaml-example-entry"><code class="docutils literal notranslate"><span class="pre">metadata.yaml</span></code> example entry</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#verifying-sample-data">Verifying sample data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#target-metadata-yaml"><code class="docutils literal notranslate"><span class="pre">metadata.yaml</span></code> example entry</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#target-verify-sample-data">Verifying sample data</a></li>
 </ul>
 </li>
 </ul>

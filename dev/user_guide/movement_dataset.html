@@ -36,7 +36,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
@@ -44,11 +44,11 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=595261c8"></script>
+    <script src="../_static/documentation_options.js?v=fd2ae5d1"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
-    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/movement_dataset';</script>
     <script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev84</p>
+    <p class="title logo__title">movement v0.17.1.dev85</p>
   
 </a></div>
     
@@ -505,8 +505,8 @@
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                   <section class="tex2jax_ignore mathjax_ignore" id="the-movement-datasets">
-<span id="target-poses-and-bboxes-dataset"></span><h1>The movement datasets<a class="headerlink" href="#the-movement-datasets" title="Link to this heading">#</a></h1>
+                   <section class="tex2jax_ignore mathjax_ignore" id="target-poses-and-bboxes-dataset">
+<span id="the-movement-datasets"></span><h1>The movement datasets<a class="headerlink" href="#target-poses-and-bboxes-dataset" title="Link to this heading">#</a></h1>
 <p>In <code class="docutils literal notranslate"><span class="pre">movement</span></code>, poses or bounding box tracks are represented
 as an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.9.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> object.</p>
 <p>An <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.9.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> object is a container for multiple arrays. Each array is an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.9.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> object holding different aspects of the collected data (position, time, confidence scores…). You can think of a <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.9.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> object as a multi-dimensional <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>
@@ -517,8 +517,8 @@ structure to represent pose tracks or bounding box tracks. Because pose data and
 <strong>coordinates</strong> and <strong>attributes</strong>. In the next section, we will describe these concepts and the <code class="docutils literal notranslate"><span class="pre">movement</span></code> datasets’ structure in some detail.</p>
 <p>To learn more about <code class="docutils literal notranslate"><span class="pre">xarray</span></code> data structures in general, see the relevant
 <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/data-structures.html#">documentation</a>.</p>
-<section id="dataset-structure">
-<span id="target-dataset-structure"></span><h2>Dataset structure<a class="headerlink" href="#dataset-structure" title="Link to this heading">#</a></h2>
+<section id="target-dataset-structure">
+<span id="dataset-structure"></span><h2>Dataset structure<a class="headerlink" href="#target-dataset-structure" title="Link to this heading">#</a></h2>
 <figure class="align-default" id="id1">
 <img alt="movement dataset structure" src="../_images/dataset_structure.png" />
 <figcaption>
@@ -529,8 +529,8 @@ structure to represent pose tracks or bounding box tracks. Because pose data and
 printing it.</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-0">
-Poses dataset</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-0-content" class="sd-tab-label" for="sd-tab-item-0">
+Poses dataset</label><div class="sd-tab-content docutils" id="sd-tab-item-0-content">
 <p>To inspect a sample poses dataset, we can run:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement</span><span class="w"> </span><span class="kn">import</span> <span class="n">sample_data</span>
 
@@ -562,8 +562,8 @@ Poses dataset</label><div class="sd-tab-content docutils">
 </div>
 </div>
 <input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1">
-Bounding boxes dataset</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-1-content" class="sd-tab-label" for="sd-tab-item-1">
+Bounding boxes dataset</label><div class="sd-tab-content docutils" id="sd-tab-item-1-content">
 <p>To inspect a sample bounding boxes dataset, we can run:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement</span><span class="w"> </span><span class="kn">import</span> <span class="n">sample_data</span>
 
@@ -603,8 +603,8 @@ each axis of the dataset is called a <strong>dimension</strong> (<code class="do
 the labelled “ticks” along each axis are called <strong>coordinates</strong> (<code class="docutils literal notranslate"><span class="pre">coords</span></code>).</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-2">
-Poses dataset</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-2-content" class="sd-tab-label" for="sd-tab-item-2">
+Poses dataset</label><div class="sd-tab-content docutils" id="sd-tab-item-2-content">
 <p>A <code class="docutils literal notranslate"><span class="pre">movement</span></code> poses dataset has the following <strong>dimensions</strong>:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">time</span></code>, with size equal to the number of frames in the video.</p></li>
@@ -614,8 +614,8 @@ Poses dataset</label><div class="sd-tab-content docutils">
 </ul>
 </div>
 <input id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-3">
-Bounding boxes dataset</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-3-content" class="sd-tab-label" for="sd-tab-item-3">
+Bounding boxes dataset</label><div class="sd-tab-content docutils" id="sd-tab-item-3-content">
 <p>A <code class="docutils literal notranslate"><span class="pre">movement</span></code> bounding boxes dataset has the following <strong>dimensions</strong>s:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">time</span></code>, with size equal to the number of frames in the video.</p></li>
@@ -651,8 +651,8 @@ with the <strong>coordinates</strong> being the names given to each camera view.
 <p>The specific data variables stored are slightly different between a <code class="docutils literal notranslate"><span class="pre">movement</span></code> poses dataset and a <code class="docutils literal notranslate"><span class="pre">movement</span></code> bounding boxes dataset.</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-4" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-4">
-Poses dataset</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-4-content" class="sd-tab-label" for="sd-tab-item-4">
+Poses dataset</label><div class="sd-tab-content docutils" id="sd-tab-item-4-content">
 <p>A <code class="docutils literal notranslate"><span class="pre">movement</span></code> poses dataset contains two <strong>data variables</strong>:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">position</span></code>: the 2D or 3D locations of the keypoints over time, with shape (<code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">space</span></code>, <code class="docutils literal notranslate"><span class="pre">keypoint</span></code>, <code class="docutils literal notranslate"><span class="pre">individual</span></code>).</p></li>
@@ -660,8 +660,8 @@ Poses dataset</label><div class="sd-tab-content docutils">
 </ul>
 </div>
 <input id="sd-tab-item-5" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-5">
-Bounding boxes dataset</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-5-content" class="sd-tab-label" for="sd-tab-item-5">
+Bounding boxes dataset</label><div class="sd-tab-content docutils" id="sd-tab-item-5-content">
 <p>A <code class="docutils literal notranslate"><span class="pre">movement</span></code> bounding boxes dataset contains three <strong>data variables</strong>:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">position</span></code>: the 2D locations of the bounding box centroids over time, with shape (<code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">space</span></code>, <code class="docutils literal notranslate"><span class="pre">individual</span></code>).</p></li>
@@ -840,7 +840,7 @@ The error message will include the term “illegal data type for attribute…”
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dataset-structure">Dataset structure</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#target-dataset-structure">Dataset structure</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dimensions-and-coordinates">Dimensions and coordinates</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-variables">Data variables</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a></li>

@@ -36,7 +36,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
@@ -44,11 +44,11 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=595261c8"></script>
+    <script src="../_static/documentation_options.js?v=fd2ae5d1"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
-    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/input_output';</script>
     <script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev84</p>
+    <p class="title logo__title">movement v0.17.1.dev85</p>
   
 </a></div>
     
@@ -505,8 +505,8 @@
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                   <section class="tex2jax_ignore mathjax_ignore" id="input-output">
-<span id="target-io"></span><h1>Input/Output<a class="headerlink" href="#input-output" title="Link to this heading">#</a></h1>
+                   <section class="tex2jax_ignore mathjax_ignore" id="target-io">
+<span id="input-output"></span><span id="inputoutput"></span><h1>Input/Output<a class="headerlink" href="#target-io" title="Link to this heading">#</a></h1>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
 <p>Our goal with <code class="docutils literal notranslate"><span class="pre">movement</span></code> is to enable pipelines that are input-agnostic,
@@ -521,8 +521,8 @@ between various third-party formats and <code class="docutils literal notranslat
 </ul>
 <p>You are also welcome to try <code class="docutils literal notranslate"><span class="pre">movement</span></code> by loading some <a class="reference internal" href="#target-sample-data"><span class="std std-ref">sample data</span></a> included with the package.</p>
 </section>
-<section id="supported-third-party-formats">
-<span id="target-supported-formats"></span><h2>Supported third-party formats<a class="headerlink" href="#supported-third-party-formats" title="Link to this heading">#</a></h2>
+<section id="target-supported-formats">
+<span id="supported-third-party-formats"></span><h2>Supported third-party formats<a class="headerlink" href="#target-supported-formats" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">movement</span></code> supports the analysis of trajectories of keypoints (<em>pose tracks</em>) and of bounding box centroids (<em>bounding box tracks</em>),
 which are represented as <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement datasets</span></a>
 and can be <a class="reference internal" href="#target-loading-any-format"><span class="std std-ref">loaded from</span></a> and <a class="reference internal" href="#target-saving-any-format"><span class="std std-ref">saved to</span></a> various third-party formats.</p>
@@ -597,8 +597,8 @@ and can be <a class="reference internal" href="#target-loading-any-format"><span
 <p>Currently, <code class="docutils literal notranslate"><span class="pre">movement</span></code> only works with tracked data: either keypoints or bounding boxes whose identities are known from one frame to the next, across consecutive frames. For pose estimation, this means it only supports the predictions output by the supported software packages listed above. Loading manually labelled data—often defined over a non-continuous set of frames—is not currently supported.</p>
 </div>
 <p>Below, we explain how to load pose and bounding box tracks from these supported formats, as well as how to save pose tracks back to some of them.</p>
-<section id="loading-with-load-dataset">
-<span id="target-loading-any-format"></span><h3>Loading with <code class="docutils literal notranslate"><span class="pre">load_dataset()</span></code><a class="headerlink" href="#loading-with-load-dataset" title="Link to this heading">#</a></h3>
+<section id="target-loading-any-format">
+<span id="loading-with-load-dataset"></span><span id="loading-with-load_dataset"></span><h3>Loading with <code class="docutils literal notranslate"><span class="pre">load_dataset()</span></code><a class="headerlink" href="#target-loading-any-format" title="Link to this heading">#</a></h3>
 <p>The <a class="reference internal" href="../api/movement.io.load.load_dataset.html#movement.io.load.load_dataset" title="movement.io.load.load_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_dataset()</span></code></a> function provides a unified, format-agnostic way to load poses or bounding boxes from any of the <a class="reference internal" href="#target-supported-formats"><span class="std std-ref">supported software formats</span></a>.</p>
 <p>Internally, <a class="reference internal" href="../api/movement.io.load.load_dataset.html#movement.io.load.load_dataset" title="movement.io.load.load_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_dataset()</span></code></a> dispatches to the appropriate specialised function in the <a class="reference internal" href="../api/movement.io.load_poses.html#module-movement.io.load_poses" title="movement.io.load_poses"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.load_poses</span></code></a> or <a class="reference internal" href="../api/movement.io.load_bboxes.html#module-movement.io.load_bboxes" title="movement.io.load_bboxes"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.load_bboxes</span></code></a> module based on the <code class="docutils literal notranslate"><span class="pre">source_software</span></code> parameter.</p>
 <p>To import <a class="reference internal" href="../api/movement.io.load.load_dataset.html#movement.io.load.load_dataset" title="movement.io.load.load_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_dataset()</span></code></a>:</p>
@@ -656,8 +656,8 @@ These can be passed directly as keyword arguments to <a class="reference interna
 <section id="loading-with-software-specific-functions">
 <h3>Loading with software-specific functions<a class="headerlink" href="#loading-with-software-specific-functions" title="Link to this heading">#</a></h3>
 <p>For users who want direct access to the underlying loading functions or to construct datasets from NumPy arrays, the dedicated loaders remain available.</p>
-<section id="loading-pose-tracks">
-<span id="target-loading-pose-tracks"></span><h4>Loading pose tracks<a class="headerlink" href="#loading-pose-tracks" title="Link to this heading">#</a></h4>
+<section id="target-loading-pose-tracks">
+<span id="loading-pose-tracks"></span><h4>Loading pose tracks<a class="headerlink" href="#target-loading-pose-tracks" title="Link to this heading">#</a></h4>
 <p>The pose tracks loading functionalities are provided by the
 <a class="reference internal" href="../api/movement.io.load_poses.html#module-movement.io.load_poses" title="movement.io.load_poses"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.load_poses</span></code></a> module, which can be imported as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_poses</span>
@@ -666,8 +666,8 @@ These can be passed directly as keyword arguments to <a class="reference interna
 <p>To read a pose tracks file into a <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement poses dataset</span></a>, we provide specific functions for each of the supported formats. We additionally provide a more general <a class="reference internal" href="../api/movement.io.load_poses.from_numpy.html#movement.io.load_poses.from_numpy" title="movement.io.load_poses.from_numpy"><code class="xref py py-func docutils literal notranslate"><span class="pre">from_numpy()</span></code></a> function, with which we can build a <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement poses dataset</span></a> from a set of NumPy arrays.</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-0">
-DeepLabCut</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-0-content" class="sd-tab-label" for="sd-tab-item-0">
+DeepLabCut</label><div class="sd-tab-content docutils" id="sd-tab-item-0-content">
 <p>To load DeepLabCut files in .h5 format:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_dlc_file</span><span class="p">(</span><span class="s2">"/path/to/file.h5"</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
 </pre></div>
@@ -687,8 +687,8 @@ formatted in the DeepLabCut style:</p>
 </div>
 </div>
 <input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1">
-SLEAP</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-1-content" class="sd-tab-label" for="sd-tab-item-1">
+SLEAP</label><div class="sd-tab-content docutils" id="sd-tab-item-1-content">
 <p>To load <a class="reference external" href="https://docs.sleap.ai/latest/tutorial/exporting-the-results/#analysis-hdf5">SLEAP analysis files</a> in .h5 format (recommended):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_sleap_file</span><span class="p">(</span><span class="s2">"/path/to/file.analysis.h5"</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
 </pre></div>
@@ -699,8 +699,8 @@ SLEAP</label><div class="sd-tab-content docutils">
 </div>
 </div>
 <input id="sd-tab-item-2" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-2">
-LightningPose</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-2-content" class="sd-tab-label" for="sd-tab-item-2">
+LightningPose</label><div class="sd-tab-content docutils" id="sd-tab-item-2-content">
 <p>To load LightningPose files in .csv format:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_lp_file</span><span class="p">(</span><span class="s2">"/path/to/file.analysis.csv"</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
 </pre></div>
@@ -711,8 +711,8 @@ LightningPose</label><div class="sd-tab-content docutils">
 </div>
 </div>
 <input id="sd-tab-item-3" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-3">
-Anipose</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-3-content" class="sd-tab-label" for="sd-tab-item-3">
+Anipose</label><div class="sd-tab-content docutils" id="sd-tab-item-3-content">
 <p>To load Anipose files in .csv format:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_anipose_file</span><span class="p">(</span>
     <span class="s2">"/path/to/file.analysis.csv"</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">individual_name</span><span class="o">=</span><span class="s2">"id_0"</span>
@@ -725,8 +725,8 @@ Anipose</label><div class="sd-tab-content docutils">
 </div>
 </div>
 <input id="sd-tab-item-4" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-4">
-COCO</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-4-content" class="sd-tab-label" for="sd-tab-item-4">
+COCO</label><div class="sd-tab-content docutils" id="sd-tab-item-4-content">
 <p>To load <a class="reference external" href="https://cocodataset.org/#format-results">COCO keypoint detection results files</a> in .json format:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_coco_file</span><span class="p">(</span><span class="s2">"/path/to/results.json"</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
 </pre></div>
@@ -747,8 +747,8 @@ See <a class="reference internal" href="../api/movement.io.load_poses.from_coco_
 </div>
 </div>
 <input id="sd-tab-item-5" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-5">
-NWB</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-5-content" class="sd-tab-label" for="sd-tab-item-5">
+NWB</label><div class="sd-tab-content docutils" id="sd-tab-item-5-content">
 <p>To load NWB files in .nwb format:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_nwb_file</span><span class="p">(</span>
     <span class="s2">"path/to/file.nwb"</span><span class="p">,</span>
@@ -769,8 +769,8 @@ NWB</label><div class="sd-tab-content docutils">
 </div>
 </div>
 <input id="sd-tab-item-6" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-6">
-From NumPy</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-6-content" class="sd-tab-label" for="sd-tab-item-6">
+From NumPy</label><div class="sd-tab-content docutils" id="sd-tab-item-6-content">
 <p>In the example below, we create random position data for two individuals, <code class="docutils literal notranslate"><span class="pre">Alice</span></code> and <code class="docutils literal notranslate"><span class="pre">Bob</span></code>, with three keypoints each: <code class="docutils literal notranslate"><span class="pre">snout</span></code>, <code class="docutils literal notranslate"><span class="pre">centre</span></code>, and <code class="docutils literal notranslate"><span class="pre">tail_base</span></code>. These keypoints are tracked in 2D space for 100 frames, at 30 fps. The confidence scores are set to 1 for all points.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
@@ -789,8 +789,8 @@ From NumPy</label><div class="sd-tab-content docutils">
 <p>The resulting poses data structure <code class="docutils literal notranslate"><span class="pre">ds</span></code> will include the predicted trajectories for each individual and keypoint, as well as the associated point-wise confidence values reported by the pose estimation software.</p>
 <p>For more information on the poses data structure, see the <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement datasets</span></a> page.</p>
 </section>
-<section id="loading-bounding-box-tracks">
-<span id="target-loading-bbox-tracks"></span><h4>Loading bounding box tracks<a class="headerlink" href="#loading-bounding-box-tracks" title="Link to this heading">#</a></h4>
+<section id="target-loading-bbox-tracks">
+<span id="loading-bounding-box-tracks"></span><h4>Loading bounding box tracks<a class="headerlink" href="#target-loading-bbox-tracks" title="Link to this heading">#</a></h4>
 <p>To load bounding box tracks into a <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement bounding boxes dataset</span></a>, we need the functions from the
 <a class="reference internal" href="../api/movement.io.load_bboxes.html#module-movement.io.load_bboxes" title="movement.io.load_bboxes"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.load_bboxes</span></code></a> module, which can be imported as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_bboxes</span>
@@ -799,8 +799,8 @@ From NumPy</label><div class="sd-tab-content docutils">
 <p>We currently support loading bounding box tracks in the <a class="reference external" href="https://www.robots.ox.ac.uk/~vgg/software/via/">VGG Image Annotator (VIA)</a> format only. However, like in the poses datasets, we additionally provide a <a class="reference internal" href="../api/movement.io.load_bboxes.from_numpy.html#movement.io.load_bboxes.from_numpy" title="movement.io.load_bboxes.from_numpy"><code class="xref py py-func docutils literal notranslate"><span class="pre">from_numpy()</span></code></a> function, with which we can build a <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement bounding boxes dataset</span></a> from a set of NumPy arrays.</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-7" name="sd-tab-set-1" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-7">
-VIA tracks .csv file</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-7-content" class="sd-tab-label" for="sd-tab-item-7">
+VIA tracks .csv file</label><div class="sd-tab-content docutils" id="sd-tab-item-7-content">
 <p>To load a VIA tracks .csv file:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_bboxes</span><span class="o">.</span><span class="n">from_via_tracks_file</span><span class="p">(</span><span class="s2">"path/to/file.csv"</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
 </pre></div>
@@ -811,8 +811,8 @@ VIA tracks .csv file</label><div class="sd-tab-content docutils">
 </div>
 </div>
 <input id="sd-tab-item-8" name="sd-tab-set-1" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-8">
-From NumPy</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-8-content" class="sd-tab-label" for="sd-tab-item-8">
+From NumPy</label><div class="sd-tab-content docutils" id="sd-tab-item-8-content">
 <p>In the example below, we create random position data for two bounding boxes, <code class="docutils literal notranslate"><span class="pre">id_0</span></code> and <code class="docutils literal notranslate"><span class="pre">id_1</span></code>,
 both with the same width (40 pixels) and height (30 pixels). These are tracked in 2D space for 100 frames, which will be numbered in the resulting dataset from 0 to 99. The confidence score for all bounding boxes is set to 0.5.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -832,8 +832,8 @@ both with the same width (40 pixels) and height (30 pixels). These are tracked i
 <p>For more information on the bounding boxes data structure, see the <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement datasets</span></a> page.</p>
 </section>
 </section>
-<section id="saving-with-save-dataset">
-<span id="target-saving-any-format"></span><h3>Saving with <code class="docutils literal notranslate"><span class="pre">save_dataset()</span></code><a class="headerlink" href="#saving-with-save-dataset" title="Link to this heading">#</a></h3>
+<section id="target-saving-any-format">
+<span id="saving-with-save-dataset"></span><span id="saving-with-save_dataset"></span><h3>Saving with <code class="docutils literal notranslate"><span class="pre">save_dataset()</span></code><a class="headerlink" href="#target-saving-any-format" title="Link to this heading">#</a></h3>
 <p>The <a class="reference internal" href="../api/movement.io.save.save_dataset.html#movement.io.save.save_dataset" title="movement.io.save.save_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">save_dataset()</span></code></a> function provides a unified, format-agnostic way to save poses or bounding boxes to any of the <a class="reference internal" href="#target-supported-formats"><span class="std std-ref">supported software formats</span></a>, or to <code class="docutils literal notranslate"><span class="pre">movement</span></code>’s native <a class="reference internal" href="#target-netcdf"><span class="std std-ref">netCDF</span></a> format, which preserves the complete state of your analysis.</p>
 <p>Internally, <a class="reference internal" href="../api/movement.io.save.save_dataset.html#movement.io.save.save_dataset" title="movement.io.save.save_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">save_dataset()</span></code></a> dispatches to the appropriate specialised function in the <a class="reference internal" href="../api/movement.io.save_poses.html#module-movement.io.save_poses" title="movement.io.save_poses"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.save_poses</span></code></a> or <a class="reference internal" href="../api/movement.io.save_bboxes.html#module-movement.io.save_bboxes" title="movement.io.save_bboxes"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.save_bboxes</span></code></a> module based on the <code class="docutils literal notranslate"><span class="pre">target_software</span></code> parameter.</p>
 <div class="admonition note">
@@ -884,8 +884,8 @@ These can be passed directly as keyword arguments to <a class="reference interna
 <section id="saving-with-software-specific-functions">
 <h3>Saving with software-specific functions<a class="headerlink" href="#saving-with-software-specific-functions" title="Link to this heading">#</a></h3>
 <p>For users who want direct access to the underlying saving functions, the dedicated writers remain available.</p>
-<section id="saving-pose-tracks">
-<span id="target-saving-pose-tracks"></span><h4>Saving pose tracks<a class="headerlink" href="#saving-pose-tracks" title="Link to this heading">#</a></h4>
+<section id="target-saving-pose-tracks">
+<span id="saving-pose-tracks"></span><h4>Saving pose tracks<a class="headerlink" href="#target-saving-pose-tracks" title="Link to this heading">#</a></h4>
 <p>The pose tracks saving functionalities are provided by the
 <a class="reference internal" href="../api/movement.io.save_poses.html#module-movement.io.save_poses" title="movement.io.save_poses"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.save_poses</span></code></a> module, which can be imported as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_poses</span>
@@ -894,8 +894,8 @@ These can be passed directly as keyword arguments to <a class="reference interna
 <p>Depending on the desired format, use one of the following functions:</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-9" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-9">
-DeepLabCut</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-9-content" class="sd-tab-label" for="sd-tab-item-9">
+DeepLabCut</label><div class="sd-tab-content docutils" id="sd-tab-item-9-content">
 <p>To save as a DeepLabCut file, in .h5 or .csv format:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">save_poses</span><span class="o">.</span><span class="n">to_dlc_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">"/path/to/file.h5"</span><span class="p">)</span>  <span class="c1"># preferred format</span>
 <span class="n">save_poses</span><span class="o">.</span><span class="n">to_dlc_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">"/path/to/file.csv"</span><span class="p">)</span>
@@ -906,8 +906,8 @@ a <code class="docutils literal notranslate"><span class="pre">split_individuals
 save the data as separate single-animal DeepLabCut-style files.</p>
 </div>
 <input id="sd-tab-item-10" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-10">
-SLEAP</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-10-content" class="sd-tab-label" for="sd-tab-item-10">
+SLEAP</label><div class="sd-tab-content docutils" id="sd-tab-item-10-content">
 <p>To save as a SLEAP analysis file in .h5 format:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">save_poses</span><span class="o">.</span><span class="n">to_sleap_analysis_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">"/path/to/file.h5"</span><span class="p">)</span>
 </pre></div>
@@ -922,8 +922,8 @@ each attribute and data variable represents, see the
 <a class="reference external" href="https://docs.sleap.ai/latest/api/info/write_tracking_h5/#sleap.info.write_tracking_h5">SLEAP documentation</a>.</p>
 </div>
 <input id="sd-tab-item-11" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-11">
-LightningPose</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-11-content" class="sd-tab-label" for="sd-tab-item-11">
+LightningPose</label><div class="sd-tab-content docutils" id="sd-tab-item-11-content">
 <p>To save as a LightningPose file in .csv format:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">save_poses</span><span class="o">.</span><span class="n">to_lp_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">"/path/to/file.csv"</span><span class="p">)</span>
 </pre></div>
@@ -935,8 +935,8 @@ DeepLabCut .csv format, the above command is equivalent to:</p>
 </div>
 </div>
 <input id="sd-tab-item-12" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-12">
-NWB</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-12-content" class="sd-tab-label" for="sd-tab-item-12">
+NWB</label><div class="sd-tab-content docutils" id="sd-tab-item-12-content">
 <p>To convert a <code class="docutils literal notranslate"><span class="pre">movement</span></code> poses dataset to <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v4.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a> objects:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">nwb_files</span> <span class="o">=</span> <span class="n">save_poses</span><span class="o">.</span><span class="n">to_nwb_file_object</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
 </pre></div>
@@ -958,13 +958,13 @@ for customising metadata such as session or subject information in the resulting
 </div>
 </div>
 </section>
-<section id="saving-bounding-box-tracks">
-<span id="target-saving-bboxes-tracks"></span><h4>Saving bounding box tracks<a class="headerlink" href="#saving-bounding-box-tracks" title="Link to this heading">#</a></h4>
+<section id="target-saving-bboxes-tracks">
+<span id="saving-bounding-box-tracks"></span><h4>Saving bounding box tracks<a class="headerlink" href="#target-saving-bboxes-tracks" title="Link to this heading">#</a></h4>
 <p>We currently support exporting a <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement bboxes datasets</span></a> as a <a class="reference external" href="https://www.robots.ox.ac.uk/~vgg/software/via/docs/face_track_annotation.html#">VIA tracks .csv file</a>, so that you can visualise and correct your bounding box tracks with the <a class="reference external" href="https://www.robots.ox.ac.uk/~vgg/software/via/via.html#">VGG Image Annotator (VIA-2) software</a>. Alternatively, you can save the bounding box tracks to a .csv file with a custom header using the standard Python library <code class="docutils literal notranslate"><span class="pre">csv</span></code>.</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-13" name="sd-tab-set-3" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-13">
-VIA tracks .csv file</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-13-content" class="sd-tab-label" for="sd-tab-item-13">
+VIA tracks .csv file</label><div class="sd-tab-content docutils" id="sd-tab-item-13-content">
 <p>To export your bounding boxes dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code>, you will need to import the <a class="reference internal" href="../api/movement.io.save_bboxes.html#module-movement.io.save_bboxes" title="movement.io.save_bboxes"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.save_bboxes</span></code></a> module:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_bboxes</span>
 </pre></div>
@@ -976,8 +976,8 @@ VIA tracks .csv file</label><div class="sd-tab-content docutils">
 <p>By default the <a class="reference internal" href="../api/movement.io.save_bboxes.to_via_tracks_file.html#movement.io.save_bboxes.to_via_tracks_file" title="movement.io.save_bboxes.to_via_tracks_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.io.save_bboxes.to_via_tracks_file()</span></code></a> function will try to derive the track IDs from the trailing numbers in the individuals’ names, but you can also set <code class="docutils literal notranslate"><span class="pre">track_ids_from_trailing_numbers=False</span></code> to assign the track IDs sequentially (0, 1, 2, …) based on the alphabetically sorted list of individuals.</p>
 </div>
 <input id="sd-tab-item-14" name="sd-tab-set-3" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-14">
-Custom .csv file</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-14-content" class="sd-tab-label" for="sd-tab-item-14">
+Custom .csv file</label><div class="sd-tab-content docutils" id="sd-tab-item-14-content">
 <p>Below is an example of how you can export a <code class="docutils literal notranslate"><span class="pre">movement</span></code> bounding boxes dataset as a .csv file with a custom header:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># define name for output csv file</span>
 <span class="n">filepath</span> <span class="o">=</span> <span class="s2">"tracking_output.csv"</span>
@@ -1015,8 +1015,8 @@ Custom .csv file</label><div class="sd-tab-content docutils">
 </section>
 </section>
 </section>
-<section id="native-saving-and-loading-with-netcdf">
-<span id="target-netcdf"></span><h2>Native saving and loading with netCDF<a class="headerlink" href="#native-saving-and-loading-with-netcdf" title="Link to this heading">#</a></h2>
+<section id="target-netcdf">
+<span id="native-saving-and-loading-with-netcdf"></span><h2>Native saving and loading with netCDF<a class="headerlink" href="#target-netcdf" title="Link to this heading">#</a></h2>
 <p>Because <code class="docutils literal notranslate"><span class="pre">movement</span></code> datasets are <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.9.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> objects, we can rely on
 xarray’s built-in <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/io.html#">support for the netCDF file format</a>.</p>
 <p>netCDF is a binary file format for self-described datasets that originated in the geosciences,
@@ -1093,8 +1093,8 @@ If so, make sure to save them to a netCDF file that satisfies the
 <a class="reference internal" href="gui.html#target-gui-compatible-netcdf"><span class="std std-ref">GUI compatibility requirements</span></a>.</p>
 </div>
 </section>
-<section id="sample-data">
-<span id="target-sample-data"></span><h2>Sample data<a class="headerlink" href="#sample-data" title="Link to this heading">#</a></h2>
+<section id="target-sample-data">
+<span id="sample-data"></span><h2>Sample data<a class="headerlink" href="#target-sample-data" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">movement</span></code> includes some sample data files that you can use to
 try the package out. These files contain pose and bounding box tracks from
 various <a class="reference internal" href="#target-supported-formats"><span class="std std-ref">supported third-party formats</span></a>.</p>
@@ -1191,29 +1191,29 @@ the <code class="docutils literal notranslate"><span class="pre">frame_path</spa
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#supported-third-party-formats">Supported third-party formats</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-with-load-dataset">Loading with <code class="docutils literal notranslate"><span class="pre">load_dataset()</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#target-supported-formats">Supported third-party formats</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#target-loading-any-format">Loading with <code class="docutils literal notranslate"><span class="pre">load_dataset()</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#passing-additional-loading-options">Passing additional loading options</a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-with-software-specific-functions">Loading with software-specific functions</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-pose-tracks">Loading pose tracks</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-bounding-box-tracks">Loading bounding box tracks</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#target-loading-pose-tracks">Loading pose tracks</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#target-loading-bbox-tracks">Loading bounding box tracks</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#saving-with-save-dataset">Saving with <code class="docutils literal notranslate"><span class="pre">save_dataset()</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#target-saving-any-format">Saving with <code class="docutils literal notranslate"><span class="pre">save_dataset()</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#passing-additional-saving-options">Passing additional saving options</a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#saving-with-software-specific-functions">Saving with software-specific functions</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#saving-pose-tracks">Saving pose tracks</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#saving-bounding-box-tracks">Saving bounding box tracks</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#target-saving-pose-tracks">Saving pose tracks</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#target-saving-bboxes-tracks">Saving bounding box tracks</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#native-saving-and-loading-with-netcdf">Native saving and loading with netCDF</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-data">Sample data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#target-netcdf">Native saving and loading with netCDF</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#target-sample-data">Sample data</a></li>
 </ul>
   </nav></div>
 

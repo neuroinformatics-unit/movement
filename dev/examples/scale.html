@@ -36,7 +36,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
@@ -44,11 +44,11 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=595261c8"></script>
+    <script src="../_static/documentation_options.js?v=fd2ae5d1"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
-    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'examples/scale';</script>
     <script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev84</p>
+    <p class="title logo__title">movement v0.17.1.dev85</p>
   
 </a></div>
     
@@ -919,7 +919,7 @@ Log:
 [
   {
     "operation": "filter_by_confidence",
-    "datetime": "2026-11-09 11:39:53.333498",
+    "datetime": "2026-11-11 12:05:29.953982",
     "confidence": "&lt;xarray.DataArray 'confidence' (time: 418, keypoint: 43)&gt; Size: 144kB\n0.02365 0.01434 0.01821 0.02692 0.05129 ... 0.004628 0.007376 0.003921 0.005941\nCoordinates:\n  * time        (time) float64 3kB 0.0 0.004049 0.008097 ... 1.68 1.684 1.688\n  * keypoint    (keypoint) &lt;U15 3kB 'Nose' 'EarL' ... 'HindpawKneeL'\n    individual  &lt;U4 16B 'id_0'",
     "threshold": "0.9",
     "keep_points_with_nan_confidence": "True",
@@ -927,14 +927,14 @@ Log:
   },
   {
     "operation": "interpolate_over_time",
-    "datetime": "2026-11-09 11:39:53.341103",
+    "datetime": "2026-11-11 12:05:29.963632",
     "method": "'linear'",
     "max_gap": "40",
     "print_report": "False"
   },
   {
     "operation": "rolling_filter",
-    "datetime": "2026-11-09 11:39:53.361952",
+    "datetime": "2026-11-11 12:05:29.987542",
     "window": "6",
     "statistic": "'median'",
     "min_periods": "2",
@@ -942,7 +942,7 @@ Log:
   },
   {
     "operation": "scale",
-    "datetime": "2026-11-09 11:39:53.477090",
+    "datetime": "2026-11-11 12:05:30.141716",
     "factor": "np.float64(0.03440766330229682)",
     "space_unit": "'cm'"
   }
@@ -1129,7 +1129,7 @@ this difference grows more than tenfold, reflecting the gait adjustments
 the mouse makes to accommodate the speed differential between belts.</p>
 <p>Having the data in real-world units makes these quantitative comparisons
 possible.</p>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.755 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.964 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-scale-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/main?filepath=notebooks/examples/scale.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo1.svg" style="width: 150px;" />

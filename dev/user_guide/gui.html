@@ -36,7 +36,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
@@ -44,11 +44,11 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=595261c8"></script>
+    <script src="../_static/documentation_options.js?v=fd2ae5d1"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
-    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/gui';</script>
     <script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev84</p>
+    <p class="title logo__title">movement v0.17.1.dev85</p>
   
 </a></div>
     
@@ -505,8 +505,8 @@
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                   <section class="tex2jax_ignore mathjax_ignore" id="graphical-user-interface">
-<span id="target-gui"></span><h1>Graphical User Interface<a class="headerlink" href="#graphical-user-interface" title="Link to this heading">#</a></h1>
+                   <section class="tex2jax_ignore mathjax_ignore" id="target-gui">
+<span id="graphical-user-interface"></span><h1>Graphical User Interface<a class="headerlink" href="#target-gui" title="Link to this heading">#</a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">movement</span></code> graphical user interface (GUI), powered by our custom plugin for
 <a class="reference external" href="https://napari.org/stable/">napari</a>, makes it easy to view and explore <code class="docutils literal notranslate"><span class="pre">movement</span></code>
 motion tracks. Currently, you can use it to
@@ -543,8 +543,8 @@ some spatial context. You can either <a class="reference internal" href="#target
 corresponding to the dataset, or <a class="reference internal" href="#target-load-frame"><span class="std std-ref">load a single image</span></a> (e.g., a still frame derived from that video).
 You can do this by dragging and dropping the corresponding video or image file onto the
 <code class="docutils literal notranslate"><span class="pre">napari</span></code> window or by using the <code class="docutils literal notranslate"><span class="pre">File</span> <span class="pre">&gt;</span> <span class="pre">Open</span> <span class="pre">File(s)</span></code> menu option.</p>
-<section id="load-a-video">
-<span id="target-load-video"></span><h3>Load a video<a class="headerlink" href="#load-a-video" title="Link to this heading">#</a></h3>
+<section id="target-load-video">
+<span id="load-a-video"></span><h3>Load a video<a class="headerlink" href="#target-load-video" title="Link to this heading">#</a></h3>
 <p>Upon loading a video file into <code class="docutils literal notranslate"><span class="pre">napari</span></code>, you will be prompted
 via a pop-up dialog to select the reader.
 Choose the <code class="docutils literal notranslate"><span class="pre">video</span></code> reader—corresponding to the
@@ -575,8 +575,8 @@ using a <a class="reference internal" href="#target-load-frame"><span class="std
 </ul>
 </div>
 </section>
-<section id="load-an-image">
-<span id="target-load-frame"></span><h3>Load an image<a class="headerlink" href="#load-an-image" title="Link to this heading">#</a></h3>
+<section id="target-load-frame">
+<span id="load-an-image"></span><h3>Load an image<a class="headerlink" href="#target-load-frame" title="Link to this heading">#</a></h3>
 <p>This usually means using a still frame extracted from the video, but in theory
 you could use any image that’s in the same coordinate system as the
 tracking data. For example, you could use a schematic diagram of the arena,
@@ -601,8 +601,8 @@ to extract a still frame from a video.</p>
 as a single 2D frame without a slider.</p>
 </section>
 </section>
-<section id="load-tracked-data">
-<span id="target-load-tracked-data"></span><h2>Load tracked data<a class="headerlink" href="#load-tracked-data" title="Link to this heading">#</a></h2>
+<section id="target-load-tracked-data">
+<span id="load-tracked-data"></span><h2>Load tracked data<a class="headerlink" href="#target-load-tracked-data" title="Link to this heading">#</a></h2>
 <p>Now you are ready to load some motion tracks over your chosen background layer.</p>
 <p>On the right-hand side of the window you should see
 an expanded <code class="docutils literal notranslate"><span class="pre">Load</span> <span class="pre">tracked</span> <span class="pre">data</span></code> menu. You can load data from
@@ -616,8 +616,8 @@ or from a <a class="reference internal" href="input_output.html#target-netcdf"><
 <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement dataset</span></a> can be opened in the GUI.
 Practically, this means:</p>
 <ul class="simple">
-<li><p class="sd-card-text">The dataset’s <code class="docutils literal notranslate"><span class="pre">ds_type</span></code> attribute must be set to <code class="docutils literal notranslate"><span class="pre">poses</span></code> or <code class="docutils literal notranslate"><span class="pre">bboxes</span></code>.</p></li>
-<li><p class="sd-card-text">The data variables, dimensions, and coordinates must satisfy the
+<li><p>The dataset’s <code class="docutils literal notranslate"><span class="pre">ds_type</span></code> attribute must be set to <code class="docutils literal notranslate"><span class="pre">poses</span></code> or <code class="docutils literal notranslate"><span class="pre">bboxes</span></code>.</p></li>
+<li><p>The data variables, dimensions, and coordinates must satisfy the
 <a class="reference internal" href="movement_dataset.html#target-dataset-structure"><span class="std std-ref">dataset structure requirements</span></a> for that <code class="docutils literal notranslate"><span class="pre">ds_type</span></code>.
 For example, a <code class="docutils literal notranslate"><span class="pre">poses</span></code> dataset must provide both <code class="docutils literal notranslate"><span class="pre">position</span></code> and <code class="docutils literal notranslate"><span class="pre">confidence</span></code>.</p></li>
 </ul>
@@ -664,8 +664,8 @@ By default, the data is added at the top of the layer list and the points layer 
 <p>And for a bounding boxes dataset, you will see a view more like the one below:</p>
 <p><img alt="napari with bboxes dataset loaded" src="../_images/napari_bboxes_layers.png" /></p>
 <p>Note the additional bounding boxes layer that is loaded for bounding boxes datasets. For both poses and bounding boxes datasets, you can toggle the visibility of any of these layers by clicking on the eye icon.</p>
-<section id="the-points-layer">
-<span id="target-points-layer"></span><h3>The points layer<a class="headerlink" href="#the-points-layer" title="Link to this heading">#</a></h3>
+<section id="target-points-layer">
+<span id="the-points-layer"></span><h3>The points layer<a class="headerlink" href="#target-points-layer" title="Link to this heading">#</a></h3>
 <p>The points layer shows the data for the current frame.</p>
 <p>The keypoints are represented as points, colour-coded by
 keypoint for single-individual datasets, or by individual for
@@ -699,8 +699,8 @@ in sync.</p>
 <code class="docutils literal notranslate"><span class="pre">napari</span></code> window, under <code class="docutils literal notranslate"><span class="pre">Preferences</span> <span class="pre">&gt;</span> <span class="pre">Shortcuts</span></code>.</p>
 </div>
 </section>
-<section id="the-tracks-layer">
-<span id="target-tracks-layer"></span><h3>The tracks layer<a class="headerlink" href="#the-tracks-layer" title="Link to this heading">#</a></h3>
+<section id="target-tracks-layer">
+<span id="the-tracks-layer"></span><h3>The tracks layer<a class="headerlink" href="#target-tracks-layer" title="Link to this heading">#</a></h3>
 <p>The tracks layer allows us to visualise data before and after the current frame.
 Remember that the current frame is determined by the position of the frame slider.</p>
 <p>The trajectory made up of all positions of a keypoint on all frames before the current frame is called <em>tail</em>.
@@ -748,8 +748,8 @@ an internal napari track ID, rather than the individual or the keypoint ID. This
 </div>
 </section>
 </section>
-<section id="edit-tracked-data">
-<span id="target-edit-tracked-data"></span><h2>Edit tracked data<a class="headerlink" href="#edit-tracked-data" title="Link to this heading">#</a></h2>
+<section id="target-edit-tracked-data">
+<span id="edit-tracked-data"></span><h2>Edit tracked data<a class="headerlink" href="#target-edit-tracked-data" title="Link to this heading">#</a></h2>
 <p>Pose estimation models occasionally produce errors such as mis-localised
 keypoints and false-positive detections in the background, which automated
 post-processing (e.g. <a class="reference internal" href="../examples/filter_and_interpolate.html#sphx-glr-examples-filter-and-interpolate-py"><span class="std std-ref">filtering or interpolation</span></a>)
@@ -782,8 +782,8 @@ you navigate to them.</p></li>
 While the keypoints in bounding boxes datasets are editable, saving any
 changes is not yet supported and will result in an error.</p>
 </div>
-<section id="select-keypoints">
-<span id="target-select-keypoints"></span><h3>Select keypoints<a class="headerlink" href="#select-keypoints" title="Link to this heading">#</a></h3>
+<section id="target-select-keypoints">
+<span id="select-keypoints"></span><h3>Select keypoints<a class="headerlink" href="#target-select-keypoints" title="Link to this heading">#</a></h3>
 <p>To start editing:</p>
 <ol class="arabic simple">
 <li><p>Select the points layer in the layer list.</p></li>
@@ -808,8 +808,8 @@ dimension, e.g. after changing the order of the viewer axes or switching to 3D
 view. Return to the 2D view with time as the leading axis to re-enable editing.</p>
 </div>
 </section>
-<section id="edit-types">
-<span id="target-edit-types"></span><h3>Edit types<a class="headerlink" href="#edit-types" title="Link to this heading">#</a></h3>
+<section id="target-edit-types">
+<span id="edit-types"></span><h3>Edit types<a class="headerlink" href="#target-edit-types" title="Link to this heading">#</a></h3>
 <p>When you edit a keypoint, the <code class="docutils literal notranslate"><span class="pre">Edit</span> <span class="pre">tracked</span> <span class="pre">data</span></code> menu expands and the
 <a class="reference internal" href="#target-edit-timeline"><span class="std std-ref">edit timeline</span></a> appears at the bottom of the window.
 The timeline shows a solid line for the frame you edited, and a dashed
@@ -825,8 +825,8 @@ Moved keypoints are shown as rings. Their confidence is set to <code class="docu
   <source src="../_static/napari_move_keypoints.mp4" type="video/mp4">
 </video>
 </section>
-<section id="remove-keypoints">
-<span id="target-remove-keypoints"></span><h4>Remove keypoints<a class="headerlink" href="#remove-keypoints" title="Link to this heading">#</a></h4>
+<section id="target-remove-keypoints">
+<span id="remove-keypoints"></span><h4>Remove keypoints<a class="headerlink" href="#target-remove-keypoints" title="Link to this heading">#</a></h4>
 <p>To remove the selected keypoint(s), click the ✕ icon in the layer controls
 panel, or press <code class="docutils literal notranslate"><span class="pre">Delete</span></code>, <code class="docutils literal notranslate"><span class="pre">Backspace</span></code>, or <code class="docutils literal notranslate"><span class="pre">1</span></code>.
 Removed keypoints disappear from the viewer, and their confidence scores are
@@ -836,8 +836,8 @@ set to <code class="docutils literal notranslate"><span class="pre">NaN</span></
 </video>
 </section>
 </section>
-<section id="edit-timeline">
-<span id="target-edit-timeline"></span><h3>Edit timeline<a class="headerlink" href="#edit-timeline" title="Link to this heading">#</a></h3>
+<section id="target-edit-timeline">
+<span id="edit-timeline"></span><h3>Edit timeline<a class="headerlink" href="#target-edit-timeline" title="Link to this heading">#</a></h3>
 <p>The edit timeline spans all frames of the dataset in the currently selected
 <code class="docutils literal notranslate"><span class="pre">movement</span></code> points layer, and shows a solid vertical line for every frame
 containing at least one edited keypoint.
@@ -878,8 +878,8 @@ The checkbox is disabled for single-individual datasets.</p>
   <source src="../_static/napari_edit_timeline_individuals.mp4" type="video/mp4">
 </video>
 </section>
-<section id="reset-edits">
-<span id="target-reset-edits"></span><h3>Reset edits<a class="headerlink" href="#reset-edits" title="Link to this heading">#</a></h3>
+<section id="target-reset-edits">
+<span id="reset-edits"></span><h3>Reset edits<a class="headerlink" href="#target-reset-edits" title="Link to this heading">#</a></h3>
 <p>If you want to discard your corrections, the <code class="docutils literal notranslate"><span class="pre">Edit</span> <span class="pre">tracked</span> <span class="pre">data</span></code> menu
 provides two buttons:</p>
 <ul class="simple">
@@ -896,8 +896,8 @@ keypoints are still marked as edited.
 Resetting does not change the file on disk, unless you
 <a class="reference internal" href="#target-save-edits"><span class="std std-ref">save</span></a> them.</p>
 </section>
-<section id="save-edits">
-<span id="target-save-edits"></span><h3>Save edits<a class="headerlink" href="#save-edits" title="Link to this heading">#</a></h3>
+<section id="target-save-edits">
+<span id="save-edits"></span><h3>Save edits<a class="headerlink" href="#target-save-edits" title="Link to this heading">#</a></h3>
 <p>To save your edits to a file:</p>
 <ol class="arabic simple">
 <li><p>Select the <code class="docutils literal notranslate"><span class="pre">movement</span></code> points layer that contains the edits in the layer list.</p></li>
@@ -932,8 +932,8 @@ See <a class="reference internal" href="input_output.html#target-netcdf"><span c
 </div>
 </section>
 </section>
-<section id="define-regions-of-interest">
-<span id="target-define-rois"></span><h2>Define regions of interest<a class="headerlink" href="#define-regions-of-interest" title="Link to this heading">#</a></h2>
+<section id="target-define-rois">
+<span id="define-regions-of-interest"></span><h2>Define regions of interest<a class="headerlink" href="#target-define-rois" title="Link to this heading">#</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">Define</span> <span class="pre">regions</span> <span class="pre">of</span> <span class="pre">interest</span></code> menu allows you to draw shapes on the
 viewer and use them as <code class="docutils literal notranslate"><span class="pre">movement</span></code> <a class="reference internal" href="../api/movement.roi.html#module-movement.roi" title="movement.roi"><code class="xref py py-mod docutils literal notranslate"><span class="pre">RoIs</span></code></a> for analysis.</p>
 <p>Each shape you draw represents a static region
@@ -1057,31 +1057,31 @@ shapes that were saved. The mapping between <code class="docutils literal notran
 <code class="docutils literal notranslate"><span class="pre">movement</span></code> RoI classes is as follows:</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
-<tr class="row-odd"><th class="head"><p class="sd-card-text">drawn napari shape</p></th>
-<th class="head"><p class="sd-card-text">movement RoI</p></th>
-<th class="head"><p class="sd-card-text">reloaded napari shape</p></th>
+<tr class="row-odd"><th class="head"><p>drawn napari shape</p></th>
+<th class="head"><p>movement RoI</p></th>
+<th class="head"><p>reloaded napari shape</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">line</span></code></p></td>
-<td><p class="sd-card-text"><a class="reference internal" href="../api/movement.roi.LineOfInterest.html#movement.roi.LineOfInterest" title="movement.roi.LineOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">LineOfInterest</span></code></a></p></td>
-<td><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">path</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">line</span></code></p></td>
+<td><p><a class="reference internal" href="../api/movement.roi.LineOfInterest.html#movement.roi.LineOfInterest" title="movement.roi.LineOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">LineOfInterest</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">path</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">path</span></code></p></td>
-<td><p class="sd-card-text"><a class="reference internal" href="../api/movement.roi.LineOfInterest.html#movement.roi.LineOfInterest" title="movement.roi.LineOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">LineOfInterest</span></code></a></p></td>
-<td><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">path</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">path</span></code></p></td>
+<td><p><a class="reference internal" href="../api/movement.roi.LineOfInterest.html#movement.roi.LineOfInterest" title="movement.roi.LineOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">LineOfInterest</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">path</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">polygon</span></code></p></td>
-<td><p class="sd-card-text"><a class="reference internal" href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">PolygonOfInterest</span></code></a></p></td>
-<td><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">polygon</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">polygon</span></code></p></td>
+<td><p><a class="reference internal" href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">PolygonOfInterest</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">polygon</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">rectangle</span></code></p></td>
-<td><p class="sd-card-text"><a class="reference internal" href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">PolygonOfInterest</span></code></a></p></td>
-<td><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">polygon</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rectangle</span></code></p></td>
+<td><p><a class="reference internal" href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">PolygonOfInterest</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">polygon</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">ellipse</span></code></p></td>
-<td><p class="sd-card-text"><a class="reference internal" href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">PolygonOfInterest</span></code></a>*</p></td>
-<td><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">polygon</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ellipse</span></code></p></td>
+<td><p><a class="reference internal" href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">PolygonOfInterest</span></code></a>*</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">polygon</span></code></p></td>
 </tr>
 </tbody>
 </table>
@@ -1093,9 +1093,9 @@ it meets your needs. For more details on the shape-RoI conversion process,
 refer to the <a class="reference internal" href="../api/movement.napari.convert_roi.html#module-movement.napari.convert_roi" title="movement.napari.convert_roi"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.napari.convert_roi</span></code></a> module documentation.</p>
 <p class="sd-card-text">You can use the loaded RoI objects for analysis, for example:</p>
 <ul class="simple">
-<li><p class="sd-card-text">Pass a list of polygon regions to
+<li><p>Pass a list of polygon regions to
 <a class="reference internal" href="../api/movement.roi.compute_region_occupancy.html#movement.roi.compute_region_occupancy" title="movement.roi.compute_region_occupancy"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_region_occupancy()</span></code></a>.</p></li>
-<li><p class="sd-card-text">Call methods such as
+<li><p>Call methods such as
 <a class="reference internal" href="../api/movement.roi.BaseRegionOfInterest.html#movement.roi.BaseRegionOfInterest.contains_point" title="movement.roi.BaseRegionOfInterest.contains_point"><code class="xref py py-meth docutils literal notranslate"><span class="pre">contains_point()</span></code></a> or
 <a class="reference internal" href="../api/movement.roi.BaseRegionOfInterest.html#movement.roi.BaseRegionOfInterest.compute_distance_to" title="movement.roi.BaseRegionOfInterest.compute_distance_to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compute_distance_to()</span></code></a>
 on individual RoIs.</p></li>
@@ -1173,29 +1173,29 @@ belonging to the selected layer.</p>
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#launch-the-gui">Launch the GUI</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-a-background-layer">Load a background layer</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#load-a-video">Load a video</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#load-an-image">Load an image</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#target-load-video">Load a video</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#target-load-frame">Load an image</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-tracked-data">Load tracked data</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-points-layer">The points layer</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-tracks-layer">The tracks layer</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#target-load-tracked-data">Load tracked data</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#target-points-layer">The points layer</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#target-tracks-layer">The tracks layer</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-boxes-layer">The boxes layer</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#edit-tracked-data">Edit tracked data</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#select-keypoints">Select keypoints</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#edit-types">Edit types</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#target-edit-tracked-data">Edit tracked data</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#target-select-keypoints">Select keypoints</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#target-edit-types">Edit types</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#move-keypoints">Move keypoints</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#remove-keypoints">Remove keypoints</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#target-remove-keypoints">Remove keypoints</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#edit-timeline">Edit timeline</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reset-edits">Reset edits</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#save-edits">Save edits</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#target-edit-timeline">Edit timeline</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#target-reset-edits">Reset edits</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#target-save-edits">Save edits</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-regions-of-interest">Define regions of interest</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#target-define-rois">Define regions of interest</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-region-layer">Create a region layer</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#draw-and-edit-regions">Draw and edit regions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#save-and-load-regions">Save and load regions</a></li>

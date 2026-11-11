@@ -36,7 +36,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
@@ -44,11 +44,11 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=595261c8"></script>
+    <script src="../_static/documentation_options.js?v=fd2ae5d1"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
-    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/installation';</script>
     <script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev84</p>
+    <p class="title logo__title">movement v0.17.1.dev85</p>
   
 </a></div>
     
@@ -505,8 +505,8 @@
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                   <section class="tex2jax_ignore mathjax_ignore" id="installation">
-<span id="target-installation"></span><h1>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h1>
+                   <section class="tex2jax_ignore mathjax_ignore" id="target-installation">
+<span id="installation"></span><h1>Installation<a class="headerlink" href="#target-installation" title="Link to this heading">#</a></h1>
 <section id="create-a-virtual-environment">
 <h2>Create a virtual environment<a class="headerlink" href="#create-a-virtual-environment" title="Link to this heading">#</a></h2>
 <p>While not strictly required, we strongly recommended installing <code class="docutils literal notranslate"><span class="pre">movement</span></code> in a
@@ -514,8 +514,8 @@ clean virtual environment, using tools such as
 <a class="reference external" href="https://docs.conda.io/projects/conda/en/latest/#">conda</a> or <a class="reference external" href="https://docs.astral.sh/uv/getting-started/installation/#">uv</a>.</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-0">
-conda</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-0-content" class="sd-tab-label" for="sd-tab-item-0">
+conda</label><div class="sd-tab-content docutils" id="sd-tab-item-0-content">
 <p>Create and activate a new <a class="reference external" href="https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#">conda environment</a>:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-y<span class="w"> </span>-n<span class="w"> </span>movement-env<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.14
 conda<span class="w"> </span>activate<span class="w"> </span>movement-env
@@ -524,8 +524,8 @@ conda<span class="w"> </span>activate<span class="w"> </span>movement-env
 <p>We used <code class="docutils literal notranslate"><span class="pre">movement-env</span></code> as the environment name, but you can choose any name you prefer.</p>
 </div>
 <input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1">
-uv</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-1-content" class="sd-tab-label" for="sd-tab-item-1">
+uv</label><div class="sd-tab-content docutils" id="sd-tab-item-1-content">
 <p>Create and activate a new <a class="reference external" href="https://docs.astral.sh/uv/pip/environments/#">virtual environment</a> inside your project directory:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>venv<span class="w"> </span>--python<span class="o">=</span><span class="m">3</span>.14
 
@@ -541,8 +541,8 @@ uv</label><div class="sd-tab-content docutils">
 <p>With your environment activated, install <code class="docutils literal notranslate"><span class="pre">movement</span></code> using one of the methods below.</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-2">
-From conda-forge using conda</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-2-content" class="sd-tab-label" for="sd-tab-item-2">
+From conda-forge using conda</label><div class="sd-tab-content docutils" id="sd-tab-item-2-content">
 <p>Install the core package:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>movement
 </pre></div>
@@ -556,8 +556,8 @@ See <a class="reference external" href="https://napari.org/stable/tutorials/fund
 for more details on available backends.</p>
 </div>
 <input id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-3">
-From PyPI using pip</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-3-content" class="sd-tab-label" for="sd-tab-item-3">
+From PyPI using pip</label><div class="sd-tab-content docutils" id="sd-tab-item-3-content">
 <p>Install the core package:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>movement
 </pre></div>
@@ -568,8 +568,8 @@ From PyPI using pip</label><div class="sd-tab-content docutils">
 </div>
 </div>
 <input id="sd-tab-item-4" name="sd-tab-set-1" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-4">
-From PyPI using uv</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-4-content" class="sd-tab-label" for="sd-tab-item-4">
+From PyPI using uv</label><div class="sd-tab-content docutils" id="sd-tab-item-4-content">
 <p>Install the core package:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>movement
 </pre></div>
@@ -616,28 +616,28 @@ window with the <code class="docutils literal notranslate"><span class="pre">mov
 <p class="sd-card-text">If your environment was created with <code class="docutils literal notranslate"><span class="pre">conda</span></code>, first check which channel <code class="docutils literal notranslate"><span class="pre">movement</span></code> was installed from before updating.
 Run <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">list</span> <span class="pre">movement</span></code> in your active <code class="docutils literal notranslate"><span class="pre">conda</span></code> environment and look at the <strong>Channel</strong> column:</p>
 <ul class="simple">
-<li><p class="sd-card-text">If the channel is <code class="docutils literal notranslate"><span class="pre">conda-forge</span></code>, update using <code class="docutils literal notranslate"><span class="pre">conda</span></code>.</p></li>
-<li><p class="sd-card-text">If the channel is <code class="docutils literal notranslate"><span class="pre">pypi</span></code>, update using <code class="docutils literal notranslate"><span class="pre">pip</span></code>.</p></li>
+<li><p>If the channel is <code class="docutils literal notranslate"><span class="pre">conda-forge</span></code>, update using <code class="docutils literal notranslate"><span class="pre">conda</span></code>.</p></li>
+<li><p>If the channel is <code class="docutils literal notranslate"><span class="pre">pypi</span></code>, update using <code class="docutils literal notranslate"><span class="pre">pip</span></code>.</p></li>
 </ul>
 </div>
 </details><div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-5" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-5">
-conda</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-5-content" class="sd-tab-label" for="sd-tab-item-5">
+conda</label><div class="sd-tab-content docutils" id="sd-tab-item-5-content">
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>update<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>movement<span class="w"> </span>-y
 </pre></div>
 </div>
 </div>
 <input id="sd-tab-item-6" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-6">
-pip</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-6-content" class="sd-tab-label" for="sd-tab-item-6">
+pip</label><div class="sd-tab-content docutils" id="sd-tab-item-6-content">
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span>movement
 </pre></div>
 </div>
 </div>
 <input id="sd-tab-item-7" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-7">
-uv</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-7-content" class="sd-tab-label" for="sd-tab-item-7">
+uv</label><div class="sd-tab-content docutils" id="sd-tab-item-7-content">
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span>movement
 </pre></div>
 </div>
@@ -647,8 +647,8 @@ uv</label><div class="sd-tab-content docutils">
 <p>First remove the existing environment:</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-8" name="sd-tab-set-3" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-8">
-conda</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-8-content" class="sd-tab-label" for="sd-tab-item-8">
+conda</label><div class="sd-tab-content docutils" id="sd-tab-item-8-content">
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>env<span class="w"> </span>remove<span class="w"> </span>-n<span class="w"> </span>movement-env
 </pre></div>
 </div>
@@ -657,8 +657,8 @@ If you are unsure about the name, you can get a list of the environments
 on your system with <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">env</span> <span class="pre">list</span></code>.</p>
 </div>
 <input id="sd-tab-item-9" name="sd-tab-set-3" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-9">
-uv</label><div class="sd-tab-content docutils">
+<label aria-controls="sd-tab-item-9-content" class="sd-tab-label" for="sd-tab-item-9">
+uv</label><div class="sd-tab-content docutils" id="sd-tab-item-9-content">
 <p>Delete the <code class="docutils literal notranslate"><span class="pre">.venv</span></code> folder in your project directory.</p>
 <div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="nb">rm </span><span class="n">-rf</span> <span class="p">.</span><span class="n">venv</span>       <span class="c"># On macOS and Linux</span>
 <span class="nb">rmdir </span><span class="p">/</span><span class="n">s</span> <span class="p">/</span><span class="n">q</span> <span class="p">.</span><span class="n">venv</span>  <span class="c"># On Windows PowerShell</span>
