@@ -82,8 +82,8 @@ def active_movement_points_layer(viewer):
     return None
 
 
-# Per-layer cache of the loaded-state point keys used by removed_points.
-# The loaded state never changes, so these only need computing once.
+# Per-layer cache of the loaded-state point keys used by removed_points,
+# stored with the loaded table they were computed from.
 _LOADED_POINT_KEYS: WeakKeyDictionary = WeakKeyDictionary()
 
 
@@ -95,8 +95,8 @@ def _loaded_point_keys(layer: Points, loaded: pd.DataFrame):
     possible keys.
     """
     cached = _LOADED_POINT_KEYS.get(layer)
-    if cached is not None:
-        return cached
+    if cached is not None and cached[0] is loaded:
+        return cached[1:]
     times = np.sort(loaded["time"].unique())
     frames = np.searchsorted(times, loaded["time"].to_numpy())
     keys = frames.astype(np.int64)
@@ -108,7 +108,7 @@ def _loaded_point_keys(layer: Points, loaded: pd.DataFrame):
             lookups.append((col, pd.Index(uniques)))
     n_keys = len(times) * int(np.prod([len(u) for _, u in lookups]))
     cached = (keys, frames, lookups, n_keys)
-    _LOADED_POINT_KEYS[layer] = cached
+    _LOADED_POINT_KEYS[layer] = (loaded, *cached)
     return cached
 
 
