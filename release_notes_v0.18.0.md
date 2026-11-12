@@ -11,7 +11,7 @@ To update movement to the latest version, see the [update guide](https://movemen
 
 Pose estimation models often produce errors, such as mis-localised keypoints or false-positive detections in the background. [`movement.filtering`](https://movement.neuroinformatics.dev/latest/api/movement.filtering) offers several post-processing options, but not all errors can be dealt with automatically. You can now correct these stubborn errors by hand, directly in the `movement` GUI.
 
-This feature is the result of @anna-teruel's [Google Summer of Code 2026 project](https://neuroinformatics.dev/blog/gsoc_2026_movement_edit_widget.html). A huge thank you to Anna for designing and building it, and congratulations on joining the `movement` team! Thanks also to @SahilKumar75 and @devanshc777 for contributing the reset controls and a re-export fix.
+This feature is the result of @anna-teruel's [Google Summer of Code 2026 project](https://neuroinformatics.dev/blog/gsoc_2026_movement_edit_widget.html). A huge thank you to Anna for designing and building it, and congratulations on joining the `movement` team! We're also grateful to @sfmig, who co-mentored the project and made the GUI's layer callbacks and frame slider more robust. Thanks also to @SahilKumar75 and @devanshc777 for contributing the reset controls and a re-export fix.
 
 Once you [load tracked data](https://movement.neuroinformatics.dev/latest/user_guide/gui.html#load-tracked-data) into the GUI, you can:
 - **Move** keypoints by dragging them to the correct position, or **remove** them altogether.
@@ -68,14 +68,12 @@ save_dataset(ds, "/path/to/file.nc")
 save_dataset(ds, "/path/to/file.h5", target_software="DeepLabCut")
 ```
 
-Format-specific options are passed through as keyword arguments, e.g. `split_individuals` for DeepLabCut or `config` for NWB. Before writing, the dataset is validated, and the file path is checked for write permission and the right suffix for the chosen format. See the [saving section](https://movement.neuroinformatics.dev/latest/user_guide/input_output.html#saving-with-save-dataset) of the Input/Output guide for details.
-
-Downstream packages can use [`movement.io.save.get_supported_target_software()`](https://movement.neuroinformatics.dev/latest/api/movement.io.save.get_supported_target_software.html) to find out which formats `movement` can save to.
+Format-specific options are passed through as keyword arguments, e.g. `split_individuals` for DeepLabCut or `config` for NWB. Both the dataset and the target file path are validated before writing. Downstream packages can use [`movement.io.save.get_supported_target_software()`](https://movement.neuroinformatics.dev/latest/api/movement.io.save.get_supported_target_software.html) to find out which formats `movement` can save to. See the [saving section](https://movement.neuroinformatics.dev/latest/user_guide/input_output.html#saving-with-save-dataset) of the Input/Output guide for details.
 
 The software-specific saving functions (e.g. `save_poses.to_dlc_file`) are still available. However, to make the saving and loading interfaces consistent, their `file_path` argument has been renamed to `file`.
 
 > [!WARNING]
-> This is a **breaking change** if you pass `file_path` as a keyword argument to `save_poses.to_dlc_file`, `save_poses.to_lp_file`, `save_poses.to_sleap_analysis_file`, or `save_bboxes.to_via_tracks_file`. Code that passes the path as a positional argument is not affected.
+> This is a **breaking change** if you pass `file_path` as a keyword argument to software-specific saving functions. Code that passes the path as a positional argument is not affected.
 >
 > ```python
 > # Before
@@ -87,9 +85,8 @@ The software-specific saving functions (e.g. `save_poses.to_dlc_file`) are still
 > # Or use the unified entry point
 > save_dataset(ds, "/path/to/file.h5", target_software="DeepLabCut")
 > ```
-
-> [!WARNING]
-> `save_poses.to_nwb_file` is deprecated and has been renamed to [`save_poses.to_nwb_file_object`](https://movement.neuroinformatics.dev/latest/api/movement.io.save_poses.to_nwb_file_object.html). It creates `NWBFile` objects without writing them to disk. A future release will repurpose `to_nwb_file` as a function that writes NWB files directly to disk.
+>
+> `save_poses.to_nwb_file` is **deprecated** and has been renamed to [`save_poses.to_nwb_file_object`](https://movement.neuroinformatics.dev/latest/api/movement.io.save_poses.to_nwb_file_object.html). It creates `NWBFile` objects without writing them to disk. A future release will repurpose `to_nwb_file` as a function that writes NWB files directly to disk.
 >
 > ```python
 > # Before
@@ -124,25 +121,9 @@ The software-specific saving functions (e.g. `save_poses.to_dlc_file`) are still
 * Save single-individual datasets to the given path in `to_dlc_file` by @NoiceHax in https://github.com/neuroinformatics-unit/movement/pull/1078
 * Round frame numbers when exporting VIA tracks with time in seconds by @SajalDevX in https://github.com/neuroinformatics-unit/movement/pull/1122
 
-### 📐 New kinematic measures: path metrics and angular derivatives
+### 📐 New kinematic measures: angular derivatives and path metrics
 
-Thanks to @isha822 and @vybhav72954, two more path metrics join those introduced in v0.17.0:
-
-1. [`compute_path_sinuosity()`](https://movement.neuroinformatics.dev/latest/api/movement.kinematics.compute_path_sinuosity.html) quantifies the sinuosity of a trajectory. Higher values indicate more tortuous movement; a perfectly straight path has a sinuosity of 0.
-
-2. [`compute_path_emax()`](https://movement.neuroinformatics.dev/latest/api/movement.kinematics.compute_path_emax.html) computes the maximum expected displacement (E<sub>max</sub>), a straightness measure that captures the directional persistence of a path. Larger values indicate straighter paths; values close to zero indicate sinuous paths.
-
-```python
-from movement.kinematics import compute_path_emax, compute_path_sinuosity
-
-# Compute the path traced by each individual's centroid
-centroid = ds.position.mean(dim="keypoint")
-
-sinuosity = compute_path_sinuosity(centroid)
-emax = compute_path_emax(centroid)
-```
-
-We have also added [`compute_angular_velocity()`](https://movement.neuroinformatics.dev/latest/api/movement.kinematics.compute_angular_velocity.html) and [`compute_angular_acceleration()`](https://movement.neuroinformatics.dev/latest/api/movement.kinematics.compute_angular_acceleration.html), which compute the rate of change of a 2D orientation, given as vectors. You can optionally estimate the derivatives over a rolling window, which reduces noise.
+We have added [`compute_angular_velocity()`](https://movement.neuroinformatics.dev/latest/api/movement.kinematics.compute_angular_velocity.html) and [`compute_angular_acceleration()`](https://movement.neuroinformatics.dev/latest/api/movement.kinematics.compute_angular_acceleration.html), which compute the rate of change of a 2D orientation, given as vectors. You can optionally estimate the derivatives over a rolling window, which reduces noise.
 
 ```python
 from movement.kinematics import (
@@ -162,35 +143,45 @@ ahv = compute_angular_velocity(head_vector, window=7, in_degrees=True)
 
 See the new [example](https://movement.neuroinformatics.dev/latest/examples/compute_angular_derivatives.html) for a complete walkthrough!
 
+Thanks to @isha822 and @vybhav72954, two more path metrics join those introduced in v0.17.0:
+
+1. [`compute_path_sinuosity()`](https://movement.neuroinformatics.dev/latest/api/movement.kinematics.compute_path_sinuosity.html) quantifies the sinuosity of a trajectory. Higher values indicate more tortuous movement; a perfectly straight path has a sinuosity of 0.
+
+2. [`compute_path_emax()`](https://movement.neuroinformatics.dev/latest/api/movement.kinematics.compute_path_emax.html) computes the maximum expected displacement (E<sub>max</sub>), a straightness measure that captures the directional persistence of a path. Larger values indicate straighter paths; values close to zero indicate sinuous paths.
+
+```python
+from movement.kinematics import compute_path_emax, compute_path_sinuosity
+
+# Compute the path traced by each individual's centroid
+centroid = ds.position.mean(dim="keypoint")
+
+sinuosity = compute_path_sinuosity(centroid)
+emax = compute_path_emax(centroid)
+```
+
 Thanks to @aliviahossain, the handling of missing values in [`compute_path_length()`](https://movement.neuroinformatics.dev/latest/api/movement.kinematics.compute_path_length.html) has been simplified. The `nan_policy` argument now accepts `"interpolate"` (the default), which assumes a straight line is travelled across gaps, or `"omit"`, which skips segments with missing positions entirely. [`compute_path_straightness()`](https://movement.neuroinformatics.dev/latest/api/movement.kinematics.compute_path_straightness.html) no longer has a `nan_policy` argument: it always computes the path length with the `"interpolate"` policy.
 
 > [!WARNING]
-> In `compute_path_length()`, `nan_policy="ffill"` has been renamed to `nan_policy="interpolate"`, with identical behaviour. Since it is the default, code that doesn't pass `nan_policy` is unaffected. `nan_policy="scale"` has been removed. Passing `"ffill"` or `"scale"` now raises a `ValueError`.
+> Default results are unchanged, but code that passes `nan_policy` explicitly will need updating:
 >
-> `compute_path_straightness()` returns the same results as with its previous default (`nan_policy="ffill"`), but passing `nan_policy` to it now raises a `TypeError`. For other ways of filling gaps, use [`interpolate_over_time()`](https://movement.neuroinformatics.dev/latest/api/movement.filtering.interpolate_over_time.html) first.
+> - `compute_path_length()`: `"ffill"` is now called `"interpolate"`, and `"scale"` has been removed.
+> - `compute_path_straightness()`: the `nan_policy` argument has been removed.
 >
 > ```python
 > # Before
-> length = compute_path_length(centroid, nan_policy="ffill")
+> compute_path_length(centroid, nan_policy="ffill")
+> compute_path_straightness(centroid, nan_policy="ffill")
 >
 > # After
-> length = compute_path_length(centroid, nan_policy="interpolate")
->
-> # Or skip segments with missing positions instead
-> length = compute_path_length(centroid, nan_policy="omit")
->
-> # Before
-> si = compute_path_straightness(centroid, nan_policy="ffill")
->
-> # After
-> si = compute_path_straightness(centroid)
+> compute_path_length(centroid)  # or nan_policy="omit" to skip gaps
+> compute_path_straightness(centroid)
 > ```
 
 **Pull requests:**
 
+* Add functions to compute angular velocity and acceleration by @niksirbi in https://github.com/neuroinformatics-unit/movement/pull/1146
 * Add compute_path_sinuosity to path metrics by @isha822 in https://github.com/neuroinformatics-unit/movement/pull/981
 * Add maximum expected displacement (Emax) as a path metric by @vybhav72954 in https://github.com/neuroinformatics-unit/movement/pull/1032
-* Add functions to compute angular velocity and acceleration by @niksirbi in https://github.com/neuroinformatics-unit/movement/pull/1146
 * Simplifying NaN handling in compute_path_length by @aliviahossain in https://github.com/neuroinformatics-unit/movement/pull/1042
 * Remove `nan_policy` option in `compute_path_straightness` by @niksirbi in https://github.com/neuroinformatics-unit/movement/pull/1201
 * Fix NaN warning for single-track data in path metrics by @Sarthak-Shreshtha01 in https://github.com/neuroinformatics-unit/movement/pull/1157
@@ -198,13 +189,17 @@ Thanks to @aliviahossain, the handling of missing values in [`compute_path_lengt
 
 ### 🦫 New example: annotating behavioural events with BORIS
 
-Thanks to @HollyMorley, a new [example](https://movement.neuroinformatics.dev/latest/examples/advanced/annotate_boris_events.html) shows how to manually annotate events in [BORIS](https://www.boris.unito.it/) (Behavioural Observation Research Interactive Software) and load them into a `movement` dataset as per-frame labels. The example annotates gait phases (whether each limb is in stance or swing) of a mouse locomoting on a dual-belt travelator, and then uses these labels to select and segment the pose data. The same workflow applies to any events of interest that you want to combine with tracking data.
+Thanks to @HollyMorley, a new [example](https://movement.neuroinformatics.dev/latest/examples/advanced/annotate_boris_events.html) shows how to manually annotate events in [BORIS](https://www.boris.unito.it/) (Behavioural Observation Research Interactive Software) and load them into a `movement` dataset as per-frame labels. The example annotates gait phases (whether each limb is in stance or swing) of locomoting mouse, and then uses these labels to select and segment the pose data. The same workflow applies to any events of interest that you want to combine with tracking data.
+
+**Pull requests:**
 
 * Add example for annotating behavioural events with BORIS by @HollyMorley in https://github.com/neuroinformatics-unit/movement/pull/865
 
 ### 🤝 Community and contributor experience
 
 We have written down how the `movement` project is run. The new [governance page](https://movement.neuroinformatics.dev/latest/community/governance.html) describes the roles of contributors, team members and maintainers, and explains how decisions are made. We have also introduced pull request review limits: new contributors can have one PR marked as "Ready for review" at a time, until two of their PRs have been merged.
+
+**Pull requests:**
 
 * Define governance and contributor roles by @niksirbi in https://github.com/neuroinformatics-unit/movement/pull/1099
 * Add Anna Teruel as a team member by @niksirbi in https://github.com/neuroinformatics-unit/movement/pull/1143
