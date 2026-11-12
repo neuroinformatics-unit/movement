@@ -312,23 +312,33 @@ def napari_layers_to_ds(
         # A point missing from the live layer shows up as NaN position
         # after the reindex above
         point_missing_now = position_da.isnull().all("space")
-        position_was_present_originally = ~(
-            properties_with_nans.set_index(["time", "keypoint", "individual"])[
-                "position_is_nan"
+        loaded_properties = properties_with_nans.set_index(
+            ["time", "keypoint", "individual"]
+        )
+        if "edited" in loaded_properties.columns:
+            loaded_properties = loaded_properties[
+                ["position_is_nan", "edited"]
             ]
-            .to_xarray()
+        else:
+            loaded_properties = loaded_properties[["position_is_nan"]]
+        loaded_das = (
+            loaded_properties.to_xarray()
             .reindex(
                 time=time_coords,
                 keypoint=keypoint_coords,
                 individual=individual_coords,
-                fill_value=True,
+                fill_value={"position_is_nan": True, "edited": False},
             )
             .astype(bool)
         )
-        # A point counts as edited if it was dragged in napari, or removed
-        # by the user (i.e. is now missing but was present originally).
+        position_was_present_originally = ~loaded_das["position_is_nan"]
+        point_was_edited_originally = loaded_das.get("edited", False)
+        # A point counts as edited if it was dragged in napari, or is now
+        # missing and was either present originally (removed by the user)
+        # or already edited when loaded (removed in an earlier session).
         edited_da = live_das["edited"].fillna(False).astype(bool) | (
-            point_missing_now & position_was_present_originally
+            point_missing_now
+            & (position_was_present_originally | point_was_edited_originally)
         )
 
         ds = xr.Dataset(
