@@ -557,7 +557,7 @@ def test_path_straightness_spans_gaps(x, expected_value):
         coords={"time": np.arange(len(x)), "space": ["x", "y"]},
     )
     result = compute_path_straightness(position, nan_warn_threshold=1)
-    assert result.item() == pytest.approx(expected_value)
+    xr.testing.assert_allclose(result, xr.full_like(result, expected_value))
 
 
 # ─────────────────────────────────────────────
