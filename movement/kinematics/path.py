@@ -119,7 +119,6 @@ def compute_path_length(
 
 def compute_path_straightness(
     data: xr.DataArray,
-    nan_policy: Literal["interpolate", "omit"] = "interpolate",
     nan_warn_threshold: float = 0.2,
 ) -> xr.DataArray:
     r"""Compute the straightness index of a path :math:`(D/L)`.
@@ -135,16 +134,10 @@ def compute_path_straightness(
     data
         The input data containing position information, with ``time``
         and ``space`` (in Cartesian coordinates) as required dimensions.
-    nan_policy
-        Policy for handling NaN (missing) values when computing :math:`L`. By
-        default (``"interpolate"``), a missing segment is assumed to be
-        travelled in a straight line between the two valid positions flanking
-        it. If ``"omit"``, missing segments are instead skipped entirely.
-        See :func:`compute_path_length` for more details on the two policies.
     nan_warn_threshold
         If any point track in the data has at least (:math:`\ge`)
         this proportion of values missing, a warning will be emitted.
-        Defaults to 0.2 (20%). Directly passed to :func:`compute_path_length`.
+        Defaults to 0.2 (20%).
 
     Returns
     -------
@@ -172,8 +165,15 @@ def compute_path_straightness(
     first or last time points do not nullify the result, provided there are
     valid observed positions in between.
 
-    Note that the total path length (L), and therefore the straightness index,
-    is sensitive to the temporal sampling  rate (i.e. frames per second),
+    The total path length :math:`L` is computed as in
+    :func:`compute_path_length` with ``nan_policy="interpolate"``, i.e. each
+    missing segment is assumed to be travelled in a straight line between
+    the two valid positions flanking it. For other ways of filling gaps, use
+    :func:`~movement.filtering.interpolate_over_time` before calling this
+    function.
+
+    Note that the total path length :math:`L`, and therefore the straightness
+    index, is sensitive to the temporal sampling rate (i.e. frames per second),
     as described in the Notes of :func:`compute_path_length`.
 
     Examples
@@ -192,7 +192,7 @@ def compute_path_straightness(
 
     """
     data = _validate_time_points(data, "path straightness")
-    path_length = _path_length(data, nan_policy, nan_warn_threshold)
+    path_length = _path_length(data, "interpolate", nan_warn_threshold)
     # Compute D/L ratio, avoiding division by zero
     result = _path_distance(data) / path_length.where(path_length > 0)
     result.name = "straightness_index"

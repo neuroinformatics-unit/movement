@@ -393,28 +393,6 @@ def test_path_length_with_nan(
         )
 
 
-def test_path_metrics_default_to_interpolate(valid_poses_dataset_with_nan):
-    """Test that path metrics use the explicit ``"interpolate"`` policy by
-    default.
-    """
-    position = valid_poses_dataset_with_nan.position
-    with pytest.warns(UserWarning, match="The result may be unreliable"):
-        default_length = compute_path_length(position)
-    with pytest.warns(UserWarning, match="The result may be unreliable"):
-        interpolate_length = compute_path_length(
-            position, nan_policy="interpolate"
-        )
-    xr.testing.assert_identical(default_length, interpolate_length)
-
-    with pytest.warns(UserWarning, match="The result may be unreliable"):
-        default_straightness = compute_path_straightness(position)
-    with pytest.warns(UserWarning, match="The result may be unreliable"):
-        interpolate_straightness = compute_path_straightness(
-            position, nan_policy="interpolate"
-        )
-    xr.testing.assert_identical(default_straightness, interpolate_straightness)
-
-
 # Regex patterns to match the warning messages
 _exclude_id_1_and_left = r"(?s)(?!.*id_1)(?!.*left)"
 _include_threshold_100 = (
@@ -533,15 +511,12 @@ def test_path_length_nan_warning_single_track():
         ),
     ],
 )
-@pytest.mark.parametrize("nan_policy", ["interpolate", "omit"])
-def test_path_straightness_known_values(
-    request, fixture_name, expected_value, nan_policy
-):
+def test_path_straightness_known_values(request, fixture_name, expected_value):
     """Test that the straightness index matches expected values
-    for trajectories with known geometry, regardless of NaN handling policy.
+    for trajectories with known geometry.
     """
     position = request.getfixturevalue(fixture_name)
-    result = compute_path_straightness(position, nan_policy=nan_policy)
+    result = compute_path_straightness(position)
     if np.isnan(expected_value):
         assert result.isnull().all()
     else:
@@ -549,6 +524,40 @@ def test_path_straightness_known_values(
             result,
             xr.full_like(result, expected_value),
         )
+
+
+@pytest.mark.parametrize(
+    "x, expected_value",
+    [
+        pytest.param(
+            [0, 1, 2, np.nan, 4, 5],
+            1.0,
+            id="straight-line",
+        ),
+        pytest.param(
+            [0, 1, 2, np.nan, 1, 0],
+            0.0,
+            id="out-and-back",
+        ),
+        pytest.param(
+            [np.nan, 1, 2, np.nan, np.nan, 5, np.nan],
+            1.0,
+            id="leading-and-trailing-gaps",
+        ),
+    ],
+)
+def test_path_straightness_spans_gaps(x, expected_value):
+    """Test that gaps are treated as travelled in a straight line, so the
+    index matches that of the gap-free path and never exceeds 1.
+    """
+    x = np.asarray(x, dtype=float)
+    position = xr.DataArray(
+        np.stack([x, np.where(np.isnan(x), np.nan, 0.0)], axis=1),
+        dims=["time", "space"],
+        coords={"time": np.arange(len(x)), "space": ["x", "y"]},
+    )
+    result = compute_path_straightness(position, nan_warn_threshold=1)
+    assert result.item() == pytest.approx(expected_value)
 
 
 # ─────────────────────────────────────────────
