@@ -394,6 +394,32 @@ def test_napari_layers_to_ds_bboxes_not_implemented():
         )
 
 
+@pytest.mark.parametrize("dtype", [float, object])
+def test_missing_edited_flags_load_as_false(valid_poses_dataset, dtype):
+    """Test that NaN ``edited`` flags are loaded as ``False``.
+
+    Combining datasets with ``xr.concat`` or ``xr.merge`` can upcast
+    the boolean ``edited`` variable and fill gaps with NaN. We want to
+    ensure that these NaN values are treated as ``False`` when
+    converting to napari layers.
+    """
+    # Create a dataset with an ``edited`` variable that has NaN values
+    ds = valid_poses_dataset.copy()
+    ds["edited"] = xr.full_like(ds["confidence"], np.nan, dtype=dtype)
+    edited_point = {"time": 0, "keypoint": "centroid", "individual": "id_0"}
+    ds["edited"].loc[edited_point] = True
+    ds["edited"].loc[{**edited_point, "time": 1}] = False
+
+    # Convert the dataset to napari layers
+    _, _, properties_df = ds_to_napari_layers(ds)
+
+    # Check that the ``edited`` property column is boolean
+    # and that the NaN values are treated as False
+    assert properties_df["edited"].dtype == bool
+    edited_rows = properties_df[properties_df["edited"]]
+    assert edited_rows[list(edited_point)].to_dict("records") == [edited_point]
+
+
 @pytest.mark.parametrize("nan_location", NAN_LOCATIONS)
 def test_edited_pose_napari_layers(
     nan_location,
