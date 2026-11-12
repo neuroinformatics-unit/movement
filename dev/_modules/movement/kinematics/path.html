@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=6eaaeba2"></script>
+    <script src="../../../_static/documentation_options.js?v=86b04860"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -142,7 +142,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev87</p>
+    <p class="title logo__title">movement v0.17.1.dev88</p>
   
 </a></div>
     
@@ -596,7 +596,29 @@
 
 <span class="sd">    """</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">_validate_time_points</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">"path length"</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">_path_length</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nan_policy</span><span class="p">,</span> <span class="n">nan_warn_threshold</span><span class="p">)</span></div>
+    <span class="n">_warn_about_nan_proportion</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nan_warn_threshold</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">nan_policy</span> <span class="o">==</span> <span class="s2">"interpolate"</span><span class="p">:</span>
+        <span class="c1"># Forward-fill, which gives the same segment-length sum as linear</span>
+        <span class="c1"># interpolation over the gaps.</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">_segment_lengths</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">ffill</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">"time"</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+            <span class="n">dim</span><span class="o">=</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">min_count</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">nan_policy</span> <span class="o">==</span> <span class="s2">"omit"</span><span class="p">:</span>
+        <span class="c1"># Sum the lengths of the segments between consecutive valid</span>
+        <span class="c1"># positions. Segments touching a NaN are skipped; a track is only</span>
+        <span class="c1"># NaN if all its segments are (hence min_count=1).</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">_segment_lengths</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">min_count</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Invalid value for nan_policy: </span><span class="si">{</span><span class="n">nan_policy</span><span class="si">!r}</span><span class="s2">. "</span>
+                <span class="s2">"Must be 'interpolate' or 'omit'. Note: 'ffill' was "</span>
+                <span class="s2">"renamed to 'interpolate' (identical behaviour)."</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"path_length"</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"long_name"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"Path Length"</span>
+    <span class="k">return</span> <span class="n">result</span></div>
 
 
 
@@ -604,7 +626,6 @@
 <a class="viewcode-back" href="../../../api/movement.kinematics.compute_path_straightness.html#movement.kinematics.compute_path_straightness">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_path_straightness</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
-    <span class="n">nan_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"interpolate"</span><span class="p">,</span> <span class="s2">"omit"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"interpolate"</span><span class="p">,</span>
     <span class="n">nan_warn_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">"""Compute the straightness index of a path :math:`(D/L)`.</span>
@@ -612,24 +633,20 @@
 <span class="sd">    The straightness index is the ratio of the Euclidean distance :math:`D`</span>
 <span class="sd">    between the first and last valid positions of a trajectory to the</span>
 <span class="sd">    total path length :math:`L`. Values range from 0 to 1, where 1</span>
-<span class="sd">    indicates a perfectly straight path and 0 indicates the animal</span>
-<span class="sd">    returned to its starting point. Returns NaN if the path length is zero.</span>
+<span class="sd">    indicates a perfectly straight path and 0 indicates the individual</span>
+<span class="sd">    returned to its starting point. Returns NaN if the path length is zero</span>
+<span class="sd">    (e.g. the individual never moves, or there is only one valid position) or</span>
+<span class="sd">    if there are no valid positions (e.g. all positions are NaN).</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    data</span>
 <span class="sd">        The input data containing position information, with ``time``</span>
 <span class="sd">        and ``space`` (in Cartesian coordinates) as required dimensions.</span>
-<span class="sd">    nan_policy</span>
-<span class="sd">        Policy for handling NaN (missing) values when computing :math:`L`. By</span>
-<span class="sd">        default (``"interpolate"``), a missing segment is assumed to be</span>
-<span class="sd">        travelled in a straight line between the two valid positions flanking</span>
-<span class="sd">        it. If ``"omit"``, missing segments are instead skipped entirely.</span>
-<span class="sd">        See :func:`compute_path_length` for more details on the two policies.</span>
 <span class="sd">    nan_warn_threshold</span>
 <span class="sd">        If any point track in the data has at least (:math:`\ge`)</span>
 <span class="sd">        this proportion of values missing, a warning will be emitted.</span>
-<span class="sd">        Defaults to 0.2 (20%). Directly passed to :func:`compute_path_length`.</span>
+<span class="sd">        Defaults to 0.2 (20%).</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -657,8 +674,15 @@
 <span class="sd">    first or last time points do not nullify the result, provided there are</span>
 <span class="sd">    valid observed positions in between.</span>
 
-<span class="sd">    Note that the total path length (L), and therefore the straightness index,</span>
-<span class="sd">    is sensitive to the temporal sampling  rate (i.e. frames per second),</span>
+<span class="sd">    The total path length :math:`L` is computed as in</span>
+<span class="sd">    :func:`compute_path_length` with ``nan_policy="interpolate"``, i.e. each</span>
+<span class="sd">    missing segment is assumed to be travelled in a straight line between</span>
+<span class="sd">    the two valid positions flanking it. For other ways of filling gaps, use</span>
+<span class="sd">    :func:`~movement.filtering.interpolate_over_time` before calling this</span>
+<span class="sd">    function.</span>
+
+<span class="sd">    Note that the total path length :math:`L`, and therefore the straightness</span>
+<span class="sd">    index, is sensitive to the temporal sampling rate (i.e. frames per second),</span>
 <span class="sd">    as described in the Notes of :func:`compute_path_length`.</span>
 
 <span class="sd">    Examples</span>
@@ -676,8 +700,10 @@
 <span class="sd">    &gt;&gt;&gt; si = compute_path_straightness(centroid.sel(time=slice(0, 100)))</span>
 
 <span class="sd">    """</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">_validate_time_points</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">"path straightness"</span><span class="p">)</span>
-    <span class="n">path_length</span> <span class="o">=</span> <span class="n">_path_length</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nan_policy</span><span class="p">,</span> <span class="n">nan_warn_threshold</span><span class="p">)</span>
+    <span class="c1"># compute_path_length validates the input data</span>
+    <span class="n">path_length</span> <span class="o">=</span> <span class="n">compute_path_length</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">,</span> <span class="n">nan_warn_threshold</span><span class="o">=</span><span class="n">nan_warn_threshold</span>
+    <span class="p">)</span>
     <span class="c1"># Compute D/L ratio, avoiding division by zero</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">_path_distance</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">/</span> <span class="n">path_length</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">path_length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"straightness_index"</span>
@@ -1338,40 +1364,6 @@
         <span class="n">anchored_data</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">anchored_data</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">distance</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_path_length</span><span class="p">(</span>
-    <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
-    <span class="n">nan_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"interpolate"</span><span class="p">,</span> <span class="s2">"omit"</span><span class="p">],</span>
-    <span class="n">nan_warn_threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Compute path length on already-validated data.</span>
-
-<span class="sd">    See :func:`compute_path_length` for parameter details.</span>
-<span class="sd">    """</span>
-    <span class="n">_warn_about_nan_proportion</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nan_warn_threshold</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">nan_policy</span> <span class="o">==</span> <span class="s2">"interpolate"</span><span class="p">:</span>
-        <span class="c1"># Forward-fill, which gives the same segment-length sum as linear</span>
-        <span class="c1"># interpolation over the gaps.</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">_segment_lengths</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">ffill</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">"time"</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
-            <span class="n">dim</span><span class="o">=</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">min_count</span><span class="o">=</span><span class="mi">1</span>
-        <span class="p">)</span>
-    <span class="k">elif</span> <span class="n">nan_policy</span> <span class="o">==</span> <span class="s2">"omit"</span><span class="p">:</span>
-        <span class="c1"># Sum the lengths of the segments between consecutive valid</span>
-        <span class="c1"># positions. Segments touching a NaN are skipped; a track is only</span>
-        <span class="c1"># NaN if all its segments are (hence min_count=1).</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">_segment_lengths</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">min_count</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">"Invalid value for nan_policy: </span><span class="si">{</span><span class="n">nan_policy</span><span class="si">!r}</span><span class="s2">. "</span>
-                <span class="s2">"Must be 'interpolate' or 'omit'. Note: 'ffill' was "</span>
-                <span class="s2">"renamed to 'interpolate' (identical behaviour)."</span>
-            <span class="p">)</span>
-        <span class="p">)</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"path_length"</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"long_name"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"Path Length"</span>
-    <span class="k">return</span> <span class="n">result</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_warn_about_nan_proportion</span><span class="p">(</span>
