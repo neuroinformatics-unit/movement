@@ -48,11 +48,55 @@
 * Add unified `save_dataset` entry point by @lochhh in https://github.com/neuroinformatics-unit/movement/pull/1056
 * Fix lifetime of napari layer callbacks by @sfmig in https://github.com/neuroinformatics-unit/movement/pull/1090
 * Widen frame slider range only if movement layers by @sfmig in https://github.com/neuroinformatics-unit/movement/pull/1107
+* Add napari timeline widget to flag edited points by @anna-teruel in https://github.com/neuroinformatics-unit/movement/pull/1063
+* Define governance and contributor roles by @niksirbi in https://github.com/neuroinformatics-unit/movement/pull/1099
+* Convert code-of-conduct.rst to .md by @lochhh in https://github.com/neuroinformatics-unit/movement/pull/1119
+* Add IO guide update step to implementing new loaders guide by @reyyishreyas in https://github.com/neuroinformatics-unit/movement/pull/1115
+* List supported software in `load_dataset` error by @dhruv1955 in https://github.com/neuroinformatics-unit/movement/pull/858
+* Round frame numbers when exporting VIA tracks with time in seconds by @SajalDevX in https://github.com/neuroinformatics-unit/movement/pull/1122
+* Contributors-Readme-Action: Update contributors list by @neuroinformatics-unit-bot[bot] in https://github.com/neuroinformatics-unit/movement/pull/1131
+* Bump conda-incubator/setup-miniconda from 4.0.1 to 4.1.0 by @dependabot[bot] in https://github.com/neuroinformatics-unit/movement/pull/1132
+* Add Anna Teruel as a team member by @niksirbi in https://github.com/neuroinformatics-unit/movement/pull/1143
+* Add COCO keypoint results loader by @ishan372or in https://github.com/neuroinformatics-unit/movement/pull/1092
+* Fix trailing slash in html_baseurl configuration by @IgorTatarnikov in https://github.com/neuroinformatics-unit/movement/pull/1151
+* Fall back to HTTP when sample data cannot be fetched over HTTPS by @niksirbi in https://github.com/neuroinformatics-unit/movement/pull/1152
+* Pin GitHub Actions to commit SHAs by @Aniketsy in https://github.com/neuroinformatics-unit/movement/pull/1145
+* Validate camera_view in orientation functions by @reyyishreyas in https://github.com/neuroinformatics-unit/movement/pull/1140
+* Add frame and full pose reset controls by @SahilKumar75 in https://github.com/neuroinformatics-unit/movement/pull/1137
+* [pre-commit.ci] pre-commit autoupdate by @pre-commit-ci[bot] in https://github.com/neuroinformatics-unit/movement/pull/1141
+* Fix NaN warning for single-track data in path metrics by @Sarthak-Shreshtha01 in https://github.com/neuroinformatics-unit/movement/pull/1157
+* Use headless viewers in napari layer style, save widget and regions widget tests by @SahilKumar75 in https://github.com/neuroinformatics-unit/movement/pull/1128
+* Test that single-frame datasets keep a 1D time coordinate by @SajalDevX in https://github.com/neuroinformatics-unit/movement/pull/1130
+* Fix broken docstring examples in load_bboxes, sample_data and broadcasting by @aliviahossain in https://github.com/neuroinformatics-unit/movement/pull/1168
+* Add functions to compute angular velocity and acceleration by @niksirbi in https://github.com/neuroinformatics-unit/movement/pull/1146
+* Fix FreeMoCap URL in example by @lochhh in https://github.com/neuroinformatics-unit/movement/pull/1186
+* Fix tests broken by pytest 9.2 and PyQt6 6.12 by @lochhh in https://github.com/neuroinformatics-unit/movement/pull/1176
+* Bump pypa/gh-action-pypi-publish from 1.14.2 to 1.14.3 by @dependabot[bot] in https://github.com/neuroinformatics-unit/movement/pull/1183
+* Bump actions/download-artifact from 8.0.1 to 8.0.2 by @dependabot[bot] in https://github.com/neuroinformatics-unit/movement/pull/1182
+* Bump pyvista/setup-headless-display-action from 5.1.0 to 5.2.0 by @dependabot[bot] in https://github.com/neuroinformatics-unit/movement/pull/1181
+* Check numpydoc section order in package docstrings by @SahilKumar75 in https://github.com/neuroinformatics-unit/movement/pull/1149
+* Contributors-Readme-Action: Update contributors list by @neuroinformatics-unit-bot[bot] in https://github.com/neuroinformatics-unit/movement/pull/1178
+* Bump actions/create-github-app-token from 3.2.0 to 3.3.0 by @dependabot[bot] in https://github.com/neuroinformatics-unit/movement/pull/1180
+* [pre-commit.ci] pre-commit autoupdate by @pre-commit-ci[bot] in https://github.com/neuroinformatics-unit/movement/pull/1188
+* Generate GUI guide screenshots with a script by @anna-teruel in https://github.com/neuroinformatics-unit/movement/pull/1162
+* Add PR review limits to contributing guide by @niksirbi in https://github.com/neuroinformatics-unit/movement/pull/1189
+* Support all registered loaders in GUI unless excluded by @niksirbi in https://github.com/neuroinformatics-unit/movement/pull/1191
+* Notify on slack when scheduled conda workflow fails by @niksirbi in https://github.com/neuroinformatics-unit/movement/pull/1193
+* Document edit widget and how to generate GUI videos by @anna-teruel in https://github.com/neuroinformatics-unit/movement/pull/1126
+* Fix docs build failing with sphinx-design 0.8 by @anna-teruel in https://github.com/neuroinformatics-unit/movement/pull/1200
+* Keep edited flag of removed points on re-export by @devanshc777 in https://github.com/neuroinformatics-unit/movement/pull/1190
+* Fix removed points missing from the edit timeline by @anna-teruel in https://github.com/neuroinformatics-unit/movement/pull/1199
 
 ## New Contributors
 * @PP1703 made their first contribution in https://github.com/neuroinformatics-unit/movement/pull/1023
 * @PolarBean made their first contribution in https://github.com/neuroinformatics-unit/movement/pull/1043
 * @NoiceHax made their first contribution in https://github.com/neuroinformatics-unit/movement/pull/1078
 * @aliviahossain made their first contribution in https://github.com/neuroinformatics-unit/movement/pull/1042
+* @reyyishreyas made their first contribution in https://github.com/neuroinformatics-unit/movement/pull/1115
+* @SajalDevX made their first contribution in https://github.com/neuroinformatics-unit/movement/pull/1122
+* @Aniketsy made their first contribution in https://github.com/neuroinformatics-unit/movement/pull/1145
+* @SahilKumar75 made their first contribution in https://github.com/neuroinformatics-unit/movement/pull/1137
+* @Sarthak-Shreshtha01 made their first contribution in https://github.com/neuroinformatics-unit/movement/pull/1157
+* @devanshc777 made their first contribution in https://github.com/neuroinformatics-unit/movement/pull/1190
 
 **Full Changelog**: https://github.com/neuroinformatics-unit/movement/compare/v0.17.0...v0.18.0
