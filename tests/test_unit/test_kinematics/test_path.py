@@ -538,11 +538,23 @@ def test_path_straightness_known_values(request, fixture_name, expected_value):
             1.0,
             id="leading-and-trailing-gaps",
         ),
+        pytest.param(
+            [np.nan, 2, np.nan],
+            np.nan,
+            id="single-valid-position",
+        ),
+        pytest.param(
+            [np.nan, np.nan, np.nan],
+            np.nan,
+            id="all-nan",
+            marks=pytest.mark.filterwarnings("ignore:The result may be"),
+        ),
     ],
 )
 def test_path_straightness_spans_gaps(x, expected_value):
     """Test that gaps are treated as travelled in a straight line, so the
-    index matches that of the gap-free path and never exceeds 1.
+    index matches that of the gap-free path and never exceeds 1. A path with
+    fewer than two valid positions has no length, so its index is NaN.
     """
     x = np.asarray(x, dtype=float)
     position = xr.DataArray(

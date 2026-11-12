@@ -148,8 +148,10 @@ def compute_path_straightness(
     The straightness index is the ratio of the Euclidean distance :math:`D`
     between the first and last valid positions of a trajectory to the
     total path length :math:`L`. Values range from 0 to 1, where 1
-    indicates a perfectly straight path and 0 indicates the animal
-    returned to its starting point. Returns NaN if the path length is zero.
+    indicates a perfectly straight path and 0 indicates the individual
+    returned to its starting point. Returns NaN if the path length is zero
+    (e.g. the individual never moves, or there is only one valid position) or
+    if there are no valid positions (e.g. all positions are NaN).
 
     Parameters
     ----------
