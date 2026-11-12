@@ -1,0 +1,41 @@
+ValidPosesInputs
+================
+
+.. currentmodule:: movement.validators.datasets
+
+.. autoclass:: ValidPosesInputs
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   
+
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+      ~ValidPosesInputs.to_dataset
+   
+   
+      ~ValidPosesInputs.validate
+   
+   
+   
+
+.. minigallery:: movement.validators.datasets.ValidPosesInputs
+   :add-heading: Examples using ``ValidPosesInputs``

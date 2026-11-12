@@ -1,0 +1,9 @@
+removed\_points
+===============
+
+.. currentmodule:: movement.napari.layer_wiring
+
+.. autofunction:: removed_points
+
+.. minigallery:: movement.napari.layer_wiring.removed_points
+   :add-heading: Examples using ``removed_points``

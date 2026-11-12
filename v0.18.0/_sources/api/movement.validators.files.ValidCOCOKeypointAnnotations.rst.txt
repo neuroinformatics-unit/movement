@@ -1,0 +1,23 @@
+ValidCOCOKeypointAnnotations
+============================
+
+.. currentmodule:: movement.validators.files
+
+.. autoclass:: ValidCOCOKeypointAnnotations
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   
+
+   
+   
+   
+   
+
+   
+   
+
+.. minigallery:: movement.validators.files.ValidCOCOKeypointAnnotations
+   :add-heading: Examples using ``ValidCOCOKeypointAnnotations``

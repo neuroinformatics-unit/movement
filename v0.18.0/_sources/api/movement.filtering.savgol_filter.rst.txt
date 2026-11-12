@@ -1,0 +1,9 @@
+savgol\_filter
+==============
+
+.. currentmodule:: movement.filtering
+
+.. autofunction:: savgol_filter
+
+.. minigallery:: movement.filtering.savgol_filter
+   :add-heading: Examples using ``savgol_filter``

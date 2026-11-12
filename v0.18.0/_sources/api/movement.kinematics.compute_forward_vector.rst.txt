@@ -1,0 +1,9 @@
+﻿compute\_forward\_vector
+========================
+
+.. currentmodule:: movement.kinematics
+
+.. autofunction:: compute_forward_vector
+
+.. minigallery:: movement.kinematics.compute_forward_vector
+   :add-heading: Examples using ``compute_forward_vector``

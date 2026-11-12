@@ -1,0 +1,23 @@
+ValidCOCOKeypointResults
+========================
+
+.. currentmodule:: movement.validators.files
+
+.. autoclass:: ValidCOCOKeypointResults
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   
+
+   
+   
+   
+   
+
+   
+   
+
+.. minigallery:: movement.validators.files.ValidCOCOKeypointResults
+   :add-heading: Examples using ``ValidCOCOKeypointResults``

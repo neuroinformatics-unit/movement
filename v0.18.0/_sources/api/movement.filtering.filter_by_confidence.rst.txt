@@ -1,0 +1,9 @@
+filter\_by\_confidence
+======================
+
+.. currentmodule:: movement.filtering
+
+.. autofunction:: filter_by_confidence
+
+.. minigallery:: movement.filtering.filter_by_confidence
+   :add-heading: Examples using ``filter_by_confidence``

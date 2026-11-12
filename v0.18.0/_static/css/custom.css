@@ -1,0 +1,108 @@
+html[data-theme=dark] {
+  --pst-color-primary: #04B46D;
+  --pst-color-link: var(--pst-color-primary);
+}
+
+html[data-theme=light] {
+  --pst-color-primary: #03A062;
+  --pst-color-link: var(--pst-color-primary);
+}
+
+body .bd-article-container {
+  max-width: 100em !important;
+}
+
+.col {
+  flex: 0 0 50%;
+  max-width: 50%;
+}
+
+.img-sponsor {
+  height: 50px;
+  padding: 5px;
+}
+
+.img-sponsor-large {
+  height: 10vh;
+  padding: 5px;
+}
+
+.things-in-a-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+/* Disable decoration for all but movement backrefs */
+a[class^="sphx-glr-backref-module-"],
+a[class^="sphx-glr-backref-type-"] {
+  text-decoration: none;
+}
+
+a[class^="sphx-glr-backref-module-movement"] {
+  text-decoration: underline;
+}
+
+/* Container for colour swatches */
+.colour-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;   /* or flex-start if you prefer left-aligned */
+    margin: 1.5rem 0;
+    background: transparent;
+}
+
+/* Individual swatch card */
+.colour-card {
+    text-align: center;
+    background: transparent;
+}
+
+/* Make sure the SVGs don't get weird inline spacing */
+.colour-card svg {
+    display: block;
+    margin: 0 auto 0.5rem;
+}
+
+/* Custom "acknowledgements" admonition: success colour + heart icon */
+.admonition.acknowledgements {
+  border-color: var(--pst-color-success);
+}
+
+.admonition.acknowledgements > .admonition-title {
+  background-color: var(--pst-color-success-bg);
+}
+
+.admonition.acknowledgements > .admonition-title::after {
+  color: var(--pst-color-success);
+  content: "\f004";  /* fa-heart (Font Awesome 6 Free Solid) */
+}
+
+/* Contributor avatar grid */
+.contributors-table .sd-card,
+.contributors-table .sd-card-body {
+  background: var(--pst-color-on-background) !important;
+  text-align: center;
+}
+.contributors-table .sd-card {
+  border-radius: 8px;
+  overflow: hidden;
+}
+.contributors-table .sd-card-img-top {
+  width: 80px;
+  height: 80px;
+  border-radius: 50% !important;
+  object-fit: cover;
+  margin: 0.75rem auto 0;
+  display: block;
+}
+.contributors-table .sd-card-body {
+  padding: 0.4rem 0.25rem;
+}
+.contributors-table .sd-card-title {
+  font-size: 0.8rem !important;
+  font-weight: 500 !important;
+  line-height: 1.3;
+  margin-bottom: 0 !important;
+}

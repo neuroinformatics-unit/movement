@@ -1,0 +1,9 @@
+from\_anipose\_file
+===================
+
+.. currentmodule:: movement.io.load_poses
+
+.. autofunction:: from_anipose_file
+
+.. minigallery:: movement.io.load_poses.from_anipose_file
+   :add-heading: Examples using ``from_anipose_file``

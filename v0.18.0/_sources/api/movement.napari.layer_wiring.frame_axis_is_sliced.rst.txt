@@ -1,0 +1,9 @@
+frame\_axis\_is\_sliced
+=======================
+
+.. currentmodule:: movement.napari.layer_wiring
+
+.. autofunction:: frame_axis_is_sliced
+
+.. minigallery:: movement.napari.layer_wiring.frame_axis_is_sliced
+   :add-heading: Examples using ``frame_axis_is_sliced``

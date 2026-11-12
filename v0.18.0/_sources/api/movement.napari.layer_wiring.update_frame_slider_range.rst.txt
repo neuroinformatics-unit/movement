@@ -1,0 +1,9 @@
+update\_frame\_slider\_range
+============================
+
+.. currentmodule:: movement.napari.layer_wiring
+
+.. autofunction:: update_frame_slider_range
+
+.. minigallery:: movement.napari.layer_wiring.update_frame_slider_range
+   :add-heading: Examples using ``update_frame_slider_range``

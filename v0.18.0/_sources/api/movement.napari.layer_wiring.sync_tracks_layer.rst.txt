@@ -1,0 +1,9 @@
+sync\_tracks\_layer
+===================
+
+.. currentmodule:: movement.napari.layer_wiring
+
+.. autofunction:: sync_tracks_layer
+
+.. minigallery:: movement.napari.layer_wiring.sync_tracks_layer
+   :add-heading: Examples using ``sync_tracks_layer``

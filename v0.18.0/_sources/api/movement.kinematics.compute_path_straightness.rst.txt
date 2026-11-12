@@ -1,0 +1,9 @@
+﻿compute\_path\_straightness
+===========================
+
+.. currentmodule:: movement.kinematics
+
+.. autofunction:: compute_path_straightness
+
+.. minigallery:: movement.kinematics.compute_path_straightness
+   :add-heading: Examples using ``compute_path_straightness``

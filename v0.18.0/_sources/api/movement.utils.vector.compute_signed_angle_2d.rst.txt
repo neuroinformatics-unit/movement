@@ -1,0 +1,9 @@
+compute\_signed\_angle\_2d
+==========================
+
+.. currentmodule:: movement.utils.vector
+
+.. autofunction:: compute_signed_angle_2d
+
+.. minigallery:: movement.utils.vector.compute_signed_angle_2d
+   :add-heading: Examples using ``compute_signed_angle_2d``

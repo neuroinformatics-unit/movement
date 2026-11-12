@@ -1,0 +1,9 @@
+remove\_from\_tracks\_layer
+===========================
+
+.. currentmodule:: movement.napari.layer_wiring
+
+.. autofunction:: remove_from_tracks_layer
+
+.. minigallery:: movement.napari.layer_wiring.remove_from_tracks_layer
+   :add-heading: Examples using ``remove_from_tracks_layer``

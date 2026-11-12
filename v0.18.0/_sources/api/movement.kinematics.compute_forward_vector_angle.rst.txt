@@ -1,0 +1,9 @@
+﻿compute\_forward\_vector\_angle
+===============================
+
+.. currentmodule:: movement.kinematics
+
+.. autofunction:: compute_forward_vector_angle
+
+.. minigallery:: movement.kinematics.compute_forward_vector_angle
+   :add-heading: Examples using ``compute_forward_vector_angle``

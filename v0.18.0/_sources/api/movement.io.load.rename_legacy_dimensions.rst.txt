@@ -1,0 +1,9 @@
+rename\_legacy\_dimensions
+==========================
+
+.. currentmodule:: movement.io.load
+
+.. autofunction:: rename_legacy_dimensions
+
+.. minigallery:: movement.io.load.rename_legacy_dimensions
+   :add-heading: Examples using ``rename_legacy_dimensions``

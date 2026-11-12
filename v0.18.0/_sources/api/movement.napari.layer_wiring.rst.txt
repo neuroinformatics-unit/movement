@@ -1,0 +1,49 @@
+﻿movement.napari.layer\_wiring
+=============================
+
+.. rubric:: Description
+
+.. automodule:: movement.napari.layer_wiring
+
+.. currentmodule:: movement.napari.layer_wiring
+
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    active_movement_points_layer
+    
+    add_edits_reset_event
+    
+    connect_viewer_callbacks
+    
+    drop_internal_properties
+    
+    frame_axis_is_sliced
+    
+    is_movement_points_layer
+    
+    on_points_data_changed
+    
+    remove_from_tracks_layer
+    
+    removed_points
+    
+    reset_edits
+    
+    set_point_symbol_by_edited
+    
+    set_tracks_layer_data
+    
+    sync_tracks_layer
+    
+    update_frame_slider_range
+    
+    update_points_layers_editable
+    
+

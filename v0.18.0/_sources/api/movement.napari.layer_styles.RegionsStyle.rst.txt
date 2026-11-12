@@ -1,0 +1,47 @@
+RegionsStyle
+============
+
+.. currentmodule:: movement.napari.layer_styles
+
+.. autoclass:: RegionsStyle
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   
+
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+      ~RegionsStyle.as_kwargs
+   
+   
+      ~RegionsStyle.set_color_all_shapes
+   
+   
+      ~RegionsStyle.set_style_for_new_shapes
+   
+   
+   
+
+.. minigallery:: movement.napari.layer_styles.RegionsStyle
+   :add-heading: Examples using ``RegionsStyle``

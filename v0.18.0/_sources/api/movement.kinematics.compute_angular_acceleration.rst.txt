@@ -1,0 +1,9 @@
+﻿compute\_angular\_acceleration
+==============================
+
+.. currentmodule:: movement.kinematics
+
+.. autofunction:: compute_angular_acceleration
+
+.. minigallery:: movement.kinematics.compute_angular_acceleration
+   :add-heading: Examples using ``compute_angular_acceleration``

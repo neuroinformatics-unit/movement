@@ -1,0 +1,9 @@
+get\_supported\_target\_software
+================================
+
+.. currentmodule:: movement.io.save
+
+.. autofunction:: get_supported_target_software
+
+.. minigallery:: movement.io.save.get_supported_target_software
+   :add-heading: Examples using ``get_supported_target_software``

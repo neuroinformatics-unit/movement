@@ -1,0 +1,9 @@
+is\_movement\_points\_layer
+===========================
+
+.. currentmodule:: movement.napari.layer_wiring
+
+.. autofunction:: is_movement_points_layer
+
+.. minigallery:: movement.napari.layer_wiring.is_movement_points_layer
+   :add-heading: Examples using ``is_movement_points_layer``

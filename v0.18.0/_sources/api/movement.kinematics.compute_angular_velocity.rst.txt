@@ -1,0 +1,9 @@
+﻿compute\_angular\_velocity
+==========================
+
+.. currentmodule:: movement.kinematics
+
+.. autofunction:: compute_angular_velocity
+
+.. minigallery:: movement.kinematics.compute_angular_velocity
+   :add-heading: Examples using ``compute_angular_velocity``

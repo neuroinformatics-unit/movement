@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>movement.napari.convert &#8212; movement</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=634eab24" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_autodoc_typehints.css?v=057ac668" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=c83e6b79" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=6a604523" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../../../_static/documentation_options.js?v=ba2e7b09"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../../../_static/design-tabs.js?v=fcb327ea"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/movement/napari/convert';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.24.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.18.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <script src="../../../_static/js/contributors.js?v=c45a1201"></script>
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/_modules/movement/napari/convert.html" />
+    <link rel="icon" href="../../../_static/light-logo-niu.png"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+     
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/movement_favicon.svg" class="logo__image only-light" alt=""/>
+    <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">movement v0.18.0</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i><span class="visually-hidden">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i><span class="visually-hidden">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">movement.napari.convert</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                   <h1>Source code for movement.napari.convert</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Conversion functions from ``movement`` datasets to napari layers."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_construct_properties_dataframe</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Construct a properties DataFrame from a ``movement`` dataset."""</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"individual"</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">"individual"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+        <span class="s2">"time"</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+        <span class="s2">"confidence"</span><span class="p">:</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"confidence"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span>
+    <span class="p">}</span>
+    <span class="n">desired_order</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="k">if</span> <span class="s2">"keypoint"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">:</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">"keypoint"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">"keypoint"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">desired_order</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"keypoint"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">"edited"</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="n">edited</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"edited"</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">"edited"</span><span class="p">]</span> <span class="o">=</span> <span class="n">edited</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="n">desired_order</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"edited"</span><span class="p">)</span>
+
+    <span class="c1"># sort</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">desired_order</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_construct_track_and_time_cols</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Compute napari track_id and time columns from a ``movement`` dataset."""</span>
+    <span class="n">n_frames</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span>
+    <span class="n">n_individuals</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"individual"</span><span class="p">]</span>
+    <span class="n">n_keypoints</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"keypoint"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">n_tracks</span> <span class="o">=</span> <span class="n">n_individuals</span> <span class="o">*</span> <span class="n">n_keypoints</span>
+
+    <span class="c1"># Each keypoint of each individual is a separate track</span>
+    <span class="n">track_id_col</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_tracks</span><span class="p">),</span> <span class="n">n_frames</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">time_col</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_frames</span><span class="p">),</span> <span class="p">(</span><span class="n">n_tracks</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">track_id_col</span><span class="p">,</span> <span class="n">time_col</span>
+
+
+<div class="viewcode-block" id="ds_to_napari_layers">
+<a class="viewcode-back" href="../../../api/movement.napari.convert.ds_to_napari_layers.html#movement.napari.convert.ds_to_napari_layers">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ds_to_napari_layers</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Convert ``movement`` dataset to napari Tracks array and properties.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds</span>
+<span class="sd">        ``movement`` dataset containing pose or bounding box tracks,</span>
+<span class="sd">        confidence scores, and associated metadata.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    points_as_napari : numpy.ndarray</span>
+<span class="sd">        position data as a napari Tracks array with shape (N, 4),</span>
+<span class="sd">        where N is n_keypoints * n_individuals * n_frames</span>
+<span class="sd">        and the 4 columns are (track_id, frame_idx, y, x).</span>
+<span class="sd">    bboxes_as_napari : numpy.ndarray | None</span>
+<span class="sd">        bounding box data as a napari Shapes array with shape (N, 4, 4),</span>
+<span class="sd">        where N is n_individuals * n_frames and each (4, 4) entry is</span>
+<span class="sd">        a matrix of 4 rows (1 per corner vertex, starting from upper left</span>
+<span class="sd">        and progressing in counterclockwise order) with the columns</span>
+<span class="sd">        (track_id, frame, y, x). Returns None when the input dataset doesn't</span>
+<span class="sd">        have a "shape" variable.</span>
+<span class="sd">    properties : pandas.DataFrame</span>
+<span class="sd">        DataFrame with properties (individual, keypoint, time, confidence)</span>
+<span class="sd">        for use with napari layers. An ``edited`` column is also included</span>
+<span class="sd">        if the input dataset has an ``edited`` variable.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    napari_layers_to_ds :</span>
+<span class="sd">        The function carrying out the inverse conversion.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    A corresponding napari Points array can be derived from the Tracks array</span>
+<span class="sd">    by taking its last 3 columns: (frame_idx, y, x). See the documentation</span>
+<span class="sd">    on the napari Tracks [1]_  and Points [2]_ layers.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [1] https://napari.org/stable/howtos/layers/tracks.html</span>
+<span class="sd">    .. [2] https://napari.org/stable/howtos/layers/points.html</span>
+
+<span class="sd">    """</span>
+    <span class="c1"># Construct the track_ID and time columns for the napari Tracks array</span>
+    <span class="n">track_id_col</span><span class="p">,</span> <span class="n">time_col</span> <span class="o">=</span> <span class="n">_construct_track_and_time_cols</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+
+    <span class="c1"># Reorder axes to (individual, keypoint, frames, xy)</span>
+    <span class="n">axes_reordering</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">"keypoint"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">:</span>
+        <span class="n">axes_reordering</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,)</span> <span class="o">+</span> <span class="n">axes_reordering</span>
+    <span class="n">yx_cols</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>  <span class="c1"># from: frames, xy, keypoint, individual</span>
+        <span class="n">axes_reordering</span><span class="p">,</span>  <span class="c1"># to: individual, keypoint, frames, xy</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)[:,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>  <span class="c1"># swap x and y columns</span>
+
+    <span class="n">points_as_napari</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">track_id_col</span><span class="p">,</span> <span class="n">time_col</span><span class="p">,</span> <span class="n">yx_cols</span><span class="p">))</span>
+    <span class="n">bboxes_as_napari</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># Construct the napari Shapes array if the input dataset is a</span>
+    <span class="c1"># bounding boxes one</span>
+    <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">ds_type</span> <span class="o">==</span> <span class="s2">"bboxes"</span><span class="p">:</span>
+        <span class="c1"># Compute bbox corners</span>
+        <span class="n">xmin_ymin</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span> <span class="o">-</span> <span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">shape</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">xmax_ymax</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span> <span class="o">+</span> <span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">shape</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># initialise xmax, ymin corner as xmin, ymin</span>
+        <span class="n">xmax_ymin</span> <span class="o">=</span> <span class="n">xmin_ymin</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1"># overwrite its x coordinate to xmax</span>
+        <span class="n">xmax_ymin</span><span class="o">.</span><span class="n">loc</span><span class="p">[{</span><span class="s2">"space"</span><span class="p">:</span> <span class="s2">"x"</span><span class="p">}]</span> <span class="o">=</span> <span class="n">xmax_ymax</span><span class="o">.</span><span class="n">loc</span><span class="p">[{</span><span class="s2">"space"</span><span class="p">:</span> <span class="s2">"x"</span><span class="p">}]</span>
+
+        <span class="c1"># initialise xmin, ymin corner as xmin, ymin</span>
+        <span class="n">xmin_ymax</span> <span class="o">=</span> <span class="n">xmin_ymin</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1"># overwrite its y coordinate to ymax</span>
+        <span class="n">xmin_ymax</span><span class="o">.</span><span class="n">loc</span><span class="p">[{</span><span class="s2">"space"</span><span class="p">:</span> <span class="s2">"y"</span><span class="p">}]</span> <span class="o">=</span> <span class="n">xmax_ymax</span><span class="o">.</span><span class="n">loc</span><span class="p">[{</span><span class="s2">"space"</span><span class="p">:</span> <span class="s2">"y"</span><span class="p">}]</span>
+
+        <span class="c1"># Add track_id and time columns to each corner array</span>
+        <span class="n">corner_arrays_with_track_id_and_time</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span>
+                <span class="n">track_id_col</span><span class="p">,</span>
+                <span class="n">time_col</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">corner</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">axes_reordering</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="p">]</span>
+            <span class="k">for</span> <span class="n">corner</span> <span class="ow">in</span> <span class="p">[</span><span class="n">xmin_ymin</span><span class="p">,</span> <span class="n">xmin_ymax</span><span class="p">,</span> <span class="n">xmax_ymax</span><span class="p">,</span> <span class="n">xmax_ymin</span><span class="p">]</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Concatenate corner arrays along columns</span>
+        <span class="n">corners_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+            <span class="n">corner_arrays_with_track_id_and_time</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Reshape to napari expected format</span>
+        <span class="c1"># goes through corners counterclockwise from xmin_ymin</span>
+        <span class="c1"># in image coordinates</span>
+        <span class="n">corners_array</span> <span class="o">=</span> <span class="n">corners_array</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+            <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span>
+        <span class="p">)</span>  <span class="c1"># last dimension: track_id, time, x, y</span>
+        <span class="n">bboxes_as_napari</span> <span class="o">=</span> <span class="n">corners_array</span><span class="p">[</span>
+            <span class="p">:,</span> <span class="p">:,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="p">]</span>  <span class="c1"># swap x and y columns</span>
+
+    <span class="c1"># Construct the properties DataFrame</span>
+    <span class="c1"># Stack individual, time and keypoint (if present) dimensions</span>
+    <span class="c1"># into a new single dimension named "tracks"</span>
+    <span class="n">dimensions_to_stack</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"individual"</span><span class="p">,</span> <span class="s2">"time"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">"keypoint"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">:</span>
+        <span class="n">dimensions_to_stack</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">"keypoint"</span><span class="p">,)</span>  <span class="c1"># add last</span>
+    <span class="n">ds_</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">tracks</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">dimensions_to_stack</span><span class="p">))</span>
+
+    <span class="n">properties</span> <span class="o">=</span> <span class="n">_construct_properties_dataframe</span><span class="p">(</span><span class="n">ds_</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">points_as_napari</span><span class="p">,</span> <span class="n">bboxes_as_napari</span><span class="p">,</span> <span class="n">properties</span></div>
+
+
+
+<div class="viewcode-block" id="LoadedPointKeys">
+<a class="viewcode-back" href="../../../api/movement.napari.convert.LoadedPointKeys.html#movement.napari.convert.LoadedPointKeys">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LoadedPointKeys</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Integer keys for the loaded points, to match against live napari points.</span>
+
+<span class="sd">    Each loaded point's (frame, keypoint, individual) is encoded as an</span>
+<span class="sd">    int, so matching can be done via array indexing.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    keys</span>
+<span class="sd">        Key of each row of the loaded properties table.</span>
+<span class="sd">    frames</span>
+<span class="sd">        Frame index of each row of the loaded properties table.</span>
+<span class="sd">    id_columns</span>
+<span class="sd">        ``(column, unique values)`` pairs for the identity columns</span>
+<span class="sd">        (``keypoint``, ``individual``) present in the loaded table.</span>
+<span class="sd">    n_keys</span>
+<span class="sd">        Number of possible keys.</span>
+
+<span class="sd">    """</span>
+
+    <span class="n">keys</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">frames</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">id_columns</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">n_keys</span><span class="p">:</span> <span class="nb">int</span>
+
+<div class="viewcode-block" id="LoadedPointKeys.from_properties">
+<a class="viewcode-back" href="../../../api/movement.napari.convert.LoadedPointKeys.html#movement.napari.convert.LoadedPointKeys.from_properties">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_properties</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">properties_with_nans</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"LoadedPointKeys"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Build keys for every row of the loaded properties table."""</span>
+        <span class="c1"># Frame index is the time's position along the sorted time axis,</span>
+        <span class="c1"># matching the frame column built by ds_to_napari_layers</span>
+        <span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">properties_with_nans</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+        <span class="n">frames</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">properties_with_nans</span><span class="p">[</span><span class="s2">"time"</span><span class="p">])</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">frames</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+        <span class="n">id_columns</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">n_keys</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"keypoint"</span><span class="p">,</span> <span class="s2">"individual"</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">properties_with_nans</span><span class="p">:</span>
+                <span class="n">codes</span><span class="p">,</span> <span class="n">uniques</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">factorize</span><span class="p">(</span><span class="n">properties_with_nans</span><span class="p">[</span><span class="n">col</span><span class="p">])</span>
+                <span class="n">keys</span> <span class="o">=</span> <span class="n">keys</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">uniques</span><span class="p">)</span> <span class="o">+</span> <span class="n">codes</span>
+                <span class="n">id_columns</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">col</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">uniques</span><span class="p">)))</span>
+                <span class="n">n_keys</span> <span class="o">*=</span> <span class="nb">len</span><span class="p">(</span><span class="n">uniques</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">frames</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">id_columns</span><span class="p">),</span> <span class="n">n_keys</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LoadedPointKeys.present">
+<a class="viewcode-back" href="../../../api/movement.napari.convert.LoadedPointKeys.html#movement.napari.convert.LoadedPointKeys.present">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">present</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">live_frames</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">live_properties</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Flag the loaded rows that have a matching live point."""</span>
+        <span class="n">live_keys</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">live_frames</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="n">live_keys</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">uniques</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_columns</span><span class="p">:</span>
+            <span class="n">codes</span> <span class="o">=</span> <span class="n">uniques</span><span class="o">.</span><span class="n">get_indexer</span><span class="p">(</span><span class="n">live_properties</span><span class="p">[</span><span class="n">col</span><span class="p">])</span>
+            <span class="n">valid</span> <span class="o">&amp;=</span> <span class="n">codes</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+            <span class="n">live_keys</span> <span class="o">=</span> <span class="n">live_keys</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">uniques</span><span class="p">)</span> <span class="o">+</span> <span class="n">codes</span>
+        <span class="n">valid</span> <span class="o">&amp;=</span> <span class="n">live_keys</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_keys</span>
+        <span class="n">present</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_keys</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">present</span><span class="p">[</span><span class="n">live_keys</span><span class="p">[</span><span class="n">valid</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">present</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">]</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="removed_points_mask">
+<a class="viewcode-back" href="../../../api/movement.napari.convert.removed_points_mask.html#movement.napari.convert.removed_points_mask">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">removed_points_mask</span><span class="p">(</span>
+    <span class="n">properties_with_nans</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">live_frames</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">live_properties</span><span class="p">,</span>
+    <span class="n">keys</span><span class="p">:</span> <span class="n">LoadedPointKeys</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Flag the loaded points that count as removed.</span>
+
+<span class="sd">    A point counts as removed if it has no corresponding live napari point and</span>
+<span class="sd">    was either present at load (removed in this session) or</span>
+<span class="sd">    flagged as ``edited`` at load (removed in an earlier session).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    properties_with_nans</span>
+<span class="sd">        Properties DataFrame of the loaded dataset, including the NaN</span>
+<span class="sd">        position rows flagged in its ``position_is_nan`` column.</span>
+<span class="sd">    live_frames</span>
+<span class="sd">        Frame index of each live point.</span>
+<span class="sd">    live_properties</span>
+<span class="sd">        Live point properties (DataFrame or dict of arrays), with the</span>
+<span class="sd">        identity columns of ``properties_with_nans``.</span>
+<span class="sd">    keys</span>
+<span class="sd">        Precomputed keys for ``properties_with_nans``, to avoid</span>
+<span class="sd">        rebuilding them on every call. Built here if not given.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray</span>
+<span class="sd">        Boolean mask, row-aligned with ``properties_with_nans``.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">keys</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">LoadedPointKeys</span><span class="o">.</span><span class="n">from_properties</span><span class="p">(</span><span class="n">properties_with_nans</span><span class="p">)</span>
+    <span class="n">removable</span> <span class="o">=</span> <span class="o">~</span><span class="n">properties_with_nans</span><span class="p">[</span><span class="s2">"position_is_nan"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="s2">"edited"</span> <span class="ow">in</span> <span class="n">properties_with_nans</span><span class="p">:</span>
+        <span class="n">removable</span> <span class="o">|=</span> <span class="n">properties_with_nans</span><span class="p">[</span><span class="s2">"edited"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">removable</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">keys</span><span class="o">.</span><span class="n">present</span><span class="p">(</span><span class="n">live_frames</span><span class="p">,</span> <span class="n">live_properties</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="napari_layers_to_ds">
+<a class="viewcode-back" href="../../../api/movement.napari.convert.napari_layers_to_ds.html#movement.napari.convert.napari_layers_to_ds">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">napari_layers_to_ds</span><span class="p">(</span>
+    <span class="n">points_as_napari</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">properties</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">properties_with_nans</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">attrs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Convert napari Points layer data to a ``movement`` dataset.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    points_as_napari</span>
+<span class="sd">        Live napari Points layer data, shape (N, 3):</span>
+<span class="sd">        (``frame_idx``, ``y``, ``x``).</span>
+<span class="sd">        NaN rows are excluded (napari cannot handle NaN coordinates),</span>
+<span class="sd">        so this may be shorter than the full timeline.</span>
+<span class="sd">    properties</span>
+<span class="sd">        Live napari Point properties data. It is in-sync with the</span>
+<span class="sd">        Points layer data. It is a dictionary with keys</span>
+<span class="sd">        ``individual``, ``keypoint``, ``time`` and ``confidence``</span>
+<span class="sd">        (plus ``edited`` once any point has been dragged), each mapping</span>
+<span class="sd">        to a list of values, and each value corresponding to a point.</span>
+<span class="sd">    properties_with_nans:</span>
+<span class="sd">        Properties DataFrame derived from the original loaded dataset</span>
+<span class="sd">        including any NaN position data. Must include a</span>
+<span class="sd">        ``position_is_nan`` boolean column flagging any such points.</span>
+<span class="sd">    attrs</span>
+<span class="sd">        Attributes of the original loaded dataset (e.g.</span>
+<span class="sd">        ``source_software``, ``fps``, ``time_unit`` and</span>
+<span class="sd">        ``source_file``).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        ``movement`` dataset derived from the napari Points layer,</span>
+<span class="sd">        containing pose tracks, confidence scores, and associated metadata.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If no keypoint or individual has any data left, i.e. all</span>
+<span class="sd">        points have been removed from the dataset.</span>
+<span class="sd">    NotImplementedError</span>
+<span class="sd">        If the napari Points layer data does not represent a pose dataset.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    ds_to_napari_layers :</span>
+<span class="sd">        The function carrying out the inverse conversion.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The dataset type is inferred from the presence of ``keypoint`` in</span>
+<span class="sd">    ``properties``. If present, a poses dataset is returned. Currently,</span>
+<span class="sd">    bounding box datasets are not supported.</span>
+
+<span class="sd">    :func:`ds_to_napari_layers` returns a Tracks array of shape (N, 4) with</span>
+<span class="sd">    columns (``track_id``, ``frame``, ``y``, ``x``). When loading into</span>
+<span class="sd">    napari, the ``DataLoader`` widget derives a Points layer from this</span>
+<span class="sd">    Tracks array by dropping the ``track_id`` column, giving a (N, 3)</span>
+<span class="sd">    array of (``frame``, ``y``, ``x``). The Points layer is considered</span>
+<span class="sd">    the "source of truth", as it immediately reflects any manipulation</span>
+<span class="sd">    of the data done in the napari UI. The function</span>
+<span class="sd">    :func:`napari_layers_to_ds` therefore relies on the Points layer data</span>
+<span class="sd">    as one of its inputs, and uses it to reconstruct the corresponding</span>
+<span class="sd">    dataset.</span>
+
+<span class="sd">    :func:`ds_to_napari_layers` preserves NaN values in the output arrays,</span>
+<span class="sd">    but napari cannot handle NaN coordinates, so the ``DataLoader`` widget</span>
+<span class="sd">    filters them out upon creation of the napari layers. As a result, when</span>
+<span class="sd">    reconstructing a dataset via :func:`napari_layers_to_ds`, the input arrays</span>
+<span class="sd">    will have no NaN (i.e. missing) coordinates.</span>
+<span class="sd">    This function reconstructs the full dataset by restoring missing points</span>
+<span class="sd">    using the full coordinate structure from ``properties_with_nans``.</span>
+
+<span class="sd">    If a keypoint or individual has no remaining points in any frame,</span>
+<span class="sd">    it is dropped from the returned dataset rather than kept as an</span>
+<span class="sd">    all-NaN entry. The ``time`` dimension is never reduced in this</span>
+<span class="sd">    way: a frame from which every point has been removed is kept,</span>
+<span class="sd">    with NaN values for position and confidence.</span>
+
+<span class="sd">    """</span>
+    <span class="n">properties_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span>
+        <span class="n">properties</span>
+    <span class="p">)</span>  <span class="c1"># live data without nans</span>
+    <span class="n">fps</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"fps"</span><span class="p">)</span> <span class="k">if</span> <span class="n">attrs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="s2">"keypoint"</span> <span class="ow">in</span> <span class="n">properties_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="c1"># Get full coordinates from the original properties with nan</span>
+        <span class="n">time_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">properties_with_nans</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+        <span class="n">space_coords</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">]</span>
+        <span class="n">keypoint_coords</span> <span class="o">=</span> <span class="n">properties_with_nans</span><span class="p">[</span><span class="s2">"keypoint"</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">individual_coords</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">properties_with_nans</span><span class="p">[</span><span class="s2">"individual"</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Build position dataframe from napari's live point layer data</span>
+        <span class="n">position_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">points_as_napari</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"frame"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Use the frame coordinate from the live napari layer as the</span>
+        <span class="c1"># source of truth for time. This avoids relying on</span>
+        <span class="c1"># properties_df["time"], which may become stale when users add</span>
+        <span class="c1"># points in napari because new points inherit the properties of</span>
+        <span class="c1"># the last selected point.</span>
+        <span class="n">position_df</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">position_df</span><span class="p">[</span><span class="s2">"frame"</span><span class="p">]</span> <span class="o">/</span> <span class="n">fps</span> <span class="k">if</span> <span class="n">fps</span> <span class="k">else</span> <span class="n">position_df</span><span class="p">[</span><span class="s2">"frame"</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="n">position_df</span><span class="p">[</span><span class="s2">"keypoint"</span><span class="p">]</span> <span class="o">=</span> <span class="n">properties_df</span><span class="p">[</span><span class="s2">"keypoint"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="n">position_df</span><span class="p">[</span><span class="s2">"individual"</span><span class="p">]</span> <span class="o">=</span> <span class="n">properties_df</span><span class="p">[</span><span class="s2">"individual"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="c1"># Points dragged in napari gain an `edited` flag; the column is</span>
+        <span class="c1"># absent until the first drag.</span>
+        <span class="k">if</span> <span class="s2">"edited"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">properties_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">properties_df</span><span class="p">[</span><span class="s2">"edited"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Reconstruct the confidence and edited arrays from the live</span>
+        <span class="c1"># properties DataFrame</span>
+        <span class="n">live_das</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">properties_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"keypoint"</span><span class="p">,</span> <span class="s2">"individual"</span><span class="p">])[</span>
+                <span class="p">[</span><span class="s2">"confidence"</span><span class="p">,</span> <span class="s2">"edited"</span><span class="p">]</span>
+            <span class="p">]</span>
+            <span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">reindex</span><span class="p">(</span>
+                <span class="n">time</span><span class="o">=</span><span class="n">time_coords</span><span class="p">,</span>
+                <span class="n">keypoint</span><span class="o">=</span><span class="n">keypoint_coords</span><span class="p">,</span>
+                <span class="n">individual</span><span class="o">=</span><span class="n">individual_coords</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">confidence_da</span> <span class="o">=</span> <span class="n">live_das</span><span class="p">[</span><span class="s2">"confidence"</span><span class="p">]</span>
+
+        <span class="c1"># Reconstruct the position array from the live napari Points layer</span>
+        <span class="n">position_df</span> <span class="o">=</span> <span class="n">position_df</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span>
+            <span class="n">id_vars</span><span class="o">=</span><span class="p">[</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"frame"</span><span class="p">,</span> <span class="s2">"keypoint"</span><span class="p">,</span> <span class="s2">"individual"</span><span class="p">],</span>
+            <span class="n">value_vars</span><span class="o">=</span><span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">],</span>
+            <span class="n">var_name</span><span class="o">=</span><span class="s2">"space"</span><span class="p">,</span>
+            <span class="n">value_name</span><span class="o">=</span><span class="s2">"position"</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">position_da</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">position_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"space"</span><span class="p">,</span> <span class="s2">"keypoint"</span><span class="p">,</span> <span class="s2">"individual"</span><span class="p">])[</span>
+                <span class="s2">"position"</span>
+            <span class="p">]</span>
+            <span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">reindex</span><span class="p">(</span>
+                <span class="n">time</span><span class="o">=</span><span class="n">time_coords</span><span class="p">,</span>
+                <span class="n">space</span><span class="o">=</span><span class="n">space_coords</span><span class="p">,</span>
+                <span class="n">keypoint</span><span class="o">=</span><span class="n">keypoint_coords</span><span class="p">,</span>
+                <span class="n">individual</span><span class="o">=</span><span class="n">individual_coords</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">removed</span> <span class="o">=</span> <span class="n">removed_points_mask</span><span class="p">(</span>
+            <span class="n">properties_with_nans</span><span class="p">,</span>
+            <span class="n">live_frames</span><span class="o">=</span><span class="n">points_as_napari</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="n">live_properties</span><span class="o">=</span><span class="n">properties_df</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">removed_da</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">properties_with_nans</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">removed</span><span class="o">=</span><span class="n">removed</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"keypoint"</span><span class="p">,</span> <span class="s2">"individual"</span><span class="p">])[</span><span class="s2">"removed"</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">reindex</span><span class="p">(</span>
+                <span class="n">time</span><span class="o">=</span><span class="n">time_coords</span><span class="p">,</span>
+                <span class="n">keypoint</span><span class="o">=</span><span class="n">keypoint_coords</span><span class="p">,</span>
+                <span class="n">individual</span><span class="o">=</span><span class="n">individual_coords</span><span class="p">,</span>
+                <span class="n">fill_value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="c1"># A point counts as edited if it was dragged in napari or removed</span>
+        <span class="n">edited_da</span> <span class="o">=</span> <span class="n">live_das</span><span class="p">[</span><span class="s2">"edited"</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span> <span class="o">|</span> <span class="n">removed_da</span>
+
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+            <span class="n">data_vars</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">"position"</span><span class="p">:</span> <span class="n">position_da</span><span class="p">,</span>
+                <span class="s2">"confidence"</span><span class="p">:</span> <span class="n">confidence_da</span><span class="p">,</span>
+                <span class="s2">"edited"</span><span class="p">:</span> <span class="n">edited_da</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">"time"</span><span class="p">:</span> <span class="n">time_coords</span><span class="p">,</span>
+                <span class="s2">"space"</span><span class="p">:</span> <span class="n">space_coords</span><span class="p">,</span>
+                <span class="s2">"keypoint"</span><span class="p">:</span> <span class="n">keypoint_coords</span><span class="p">,</span>
+                <span class="s2">"individual"</span><span class="p">:</span> <span class="n">individual_coords</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="n">attrs</span> <span class="k">if</span> <span class="n">attrs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{},</span>
+        <span class="p">)</span>
+        <span class="c1"># Drop keypoints/individuals with no data left; never `time`.</span>
+        <span class="c1"># `edited` is excluded from the check: it's boolean (fill value</span>
+        <span class="c1"># False), so it's never "null" and would otherwise prevent any</span>
+        <span class="c1"># keypoint/individual from ever being dropped.</span>
+        <span class="n">dropna_subset</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"position"</span><span class="p">,</span> <span class="s2">"confidence"</span><span class="p">]</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">"keypoint"</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"all"</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="n">dropna_subset</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span>
+            <span class="n">dim</span><span class="o">=</span><span class="s2">"individual"</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"all"</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="n">dropna_subset</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"keypoint"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"individual"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">"No points found in the napari layer. "</span>
+                    <span class="s2">"This happens when all points have been removed."</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="c1"># Drop `edited` entirely if nothing survived the trim above:</span>
+        <span class="c1"># e.g. the only edits were on a keypoint/individual just dropped.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"edited"</span><span class="p">]</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="s2">"edited"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ds</span>
+
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+        <span class="s2">"Reconstruction of bounding box datasets from napari layers "</span>
+        <span class="s2">"is not yet implemented."</span>
+    <span class="p">)</span></div>
+
+</pre></div>
+<div class="section ablog__blog_comments">
+   
+</div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
+    <br/>
+    </p>
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
+    0.24.0.
+    </p></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><div class="things-in-a-row">
+    <a href="https://neuroinformatics.dev/">
+        <img src="../../../_static/light-logo-niu.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-niu.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.sainsburywellcome.org/web/">
+        <img src="../../../_static/light-logo-swc.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-swc.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/gatsby/gatsby-computational-neuroscience-unit">
+        <img src="../../../_static/light-logo-gatsby.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-gatsby.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/">
+        <img src="../../../_static/light-logo-ucl.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-ucl.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+</div></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

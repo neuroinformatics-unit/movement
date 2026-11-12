@@ -1,0 +1,9 @@
+﻿compute\_path\_length
+=====================
+
+.. currentmodule:: movement.kinematics
+
+.. autofunction:: compute_path_length
+
+.. minigallery:: movement.kinematics.compute_path_length
+   :add-heading: Examples using ``compute_path_length``

@@ -1,0 +1,9 @@
+register\_writer
+================
+
+.. currentmodule:: movement.io.save
+
+.. autofunction:: register_writer
+
+.. minigallery:: movement.io.save.register_writer
+   :add-heading: Examples using ``register_writer``

@@ -1,0 +1,9 @@
+﻿compute\_angular\_time\_derivative
+==================================
+
+.. currentmodule:: movement.kinematics
+
+.. autofunction:: compute_angular_time_derivative
+
+.. minigallery:: movement.kinematics.compute_angular_time_derivative
+   :add-heading: Examples using ``compute_angular_time_derivative``

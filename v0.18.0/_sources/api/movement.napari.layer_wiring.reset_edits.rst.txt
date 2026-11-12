@@ -1,0 +1,9 @@
+reset\_edits
+============
+
+.. currentmodule:: movement.napari.layer_wiring
+
+.. autofunction:: reset_edits
+
+.. minigallery:: movement.napari.layer_wiring.reset_edits
+   :add-heading: Examples using ``reset_edits``

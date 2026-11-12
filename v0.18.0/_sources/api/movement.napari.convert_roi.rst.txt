@@ -1,0 +1,23 @@
+﻿movement.napari.convert\_roi
+============================
+
+.. rubric:: Description
+
+.. automodule:: movement.napari.convert_roi
+
+.. currentmodule:: movement.napari.convert_roi
+
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    napari_shapes_layer_to_rois
+    
+    rois_to_napari_shapes
+    
+

@@ -1,0 +1,41 @@
+﻿movement.io.load
+================
+
+.. rubric:: Description
+
+.. automodule:: movement.io.load
+
+.. currentmodule:: movement.io.load
+
+
+.. rubric:: Classes
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    LoaderProtocol
+    
+
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    get_supported_source_software
+    
+    infer_source_software
+    
+    load_dataset
+    
+    load_multiview_dataset
+    
+    register_loader
+    
+    rename_legacy_dimensions
+    
+

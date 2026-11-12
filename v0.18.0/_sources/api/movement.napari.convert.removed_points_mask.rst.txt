@@ -1,0 +1,9 @@
+removed\_points\_mask
+=====================
+
+.. currentmodule:: movement.napari.convert
+
+.. autofunction:: removed_points_mask
+
+.. minigallery:: movement.napari.convert.removed_points_mask
+   :add-heading: Examples using ``removed_points_mask``

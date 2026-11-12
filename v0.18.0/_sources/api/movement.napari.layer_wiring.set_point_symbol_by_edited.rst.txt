@@ -1,0 +1,9 @@
+set\_point\_symbol\_by\_edited
+==============================
+
+.. currentmodule:: movement.napari.layer_wiring
+
+.. autofunction:: set_point_symbol_by_edited
+
+.. minigallery:: movement.napari.layer_wiring.set_point_symbol_by_edited
+   :add-heading: Examples using ``set_point_symbol_by_edited``

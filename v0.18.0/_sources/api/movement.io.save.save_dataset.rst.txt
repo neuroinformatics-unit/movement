@@ -1,0 +1,9 @@
+save\_dataset
+=============
+
+.. currentmodule:: movement.io.save
+
+.. autofunction:: save_dataset
+
+.. minigallery:: movement.io.save.save_dataset
+   :add-heading: Examples using ``save_dataset``
