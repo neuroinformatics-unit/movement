@@ -394,6 +394,32 @@ def test_napari_layers_to_ds_bboxes_not_implemented():
         )
 
 
+@pytest.mark.parametrize("dtype", [float, object])
+def test_missing_edited_flags_load_as_false(valid_poses_dataset, dtype):
+    """Test that NaN ``edited`` flags are loaded as ``False``.
+
+    Combining datasets with ``xr.concat`` or ``xr.merge`` can upcast
+    the boolean ``edited`` variable and fill gaps with NaN. We want to
+    ensure that these NaN values are treated as ``False`` when
+    converting to napari layers.
+    """
+    # Create a dataset with an ``edited`` variable that has NaN values
+    ds = valid_poses_dataset.copy()
+    ds["edited"] = xr.full_like(ds["confidence"], np.nan, dtype=dtype)
+    edited_point = {"time": 0, "keypoint": "centroid", "individual": "id_0"}
+    ds["edited"].loc[edited_point] = True
+    ds["edited"].loc[{**edited_point, "time": 1}] = False
+
+    # Convert the dataset to napari layers
+    _, _, properties_df = ds_to_napari_layers(ds)
+
+    # Check that the ``edited`` property column is boolean
+    # and that the NaN values are treated as False
+    assert properties_df["edited"].dtype == bool
+    edited_rows = properties_df[properties_df["edited"]]
+    assert edited_rows[list(edited_point)].to_dict("records") == [edited_point]
+
+
 @pytest.mark.parametrize("nan_location", NAN_LOCATIONS)
 def test_edited_pose_napari_layers(
     nan_location,
@@ -460,21 +486,21 @@ def test_edited_pose_napari_layers(
 
 
 @pytest.mark.parametrize("nan_location", NAN_LOCATIONS)
-def test_edited_property_round_trip(
+def test_dragged_point_round_trip(
     nan_location,
     valid_poses_path_and_ds,
     valid_poses_path_and_ds_with_localised_nans,
     loaded_data_loader,
     move_point,
 ):
-    """Test that an ``edited`` variable survives a full round trip.
+    """Test that a dragged point keeps ``edited=True`` over a round trip.
 
-    Once a dataset has been reconstructed with an ``edited`` variable
-    (e.g. from a previous napari editing session), it must be possible
+    Once a point has been dragged in napari and the dataset has been
+    reconstructed with an ``edited`` variable, it must be possible
     to load it back into napari via :func:`ds_to_napari_layers`, and
     to convert it back again via :func:`napari_layers_to_ds`, without
-    losing the ``edited`` flags. This simulates reopening a
-    previously-edited dataset in a new napari session.
+    losing the ``edited`` flag. This simulates reopening a dataset
+    with dragged points in a new napari session.
     """
     if nan_location is None:
         filepath, ds_loaded = valid_poses_path_and_ds
@@ -519,6 +545,57 @@ def test_edited_property_round_trip(
     )
 
     assert reconstructed_ds["edited"].dtype == bool
+    xr.testing.assert_equal(reconstructed_ds, ds)
+
+
+@pytest.mark.parametrize("nan_location", NAN_LOCATIONS)
+def test_removed_point_round_trip(
+    nan_location,
+    valid_poses_path_and_ds,
+    valid_poses_path_and_ds_with_localised_nans,
+    loaded_data_loader,
+):
+    """Test that a removed point keeps ``edited=True`` over a round trip.
+
+    Mirrors :func:`test_dragged_point_round_trip`, but the point is
+    removed instead of moved. On reload the removed point is a NaN row,
+    absent from the live layer, so its flag must come from the loaded
+    properties rather than from the live ones.
+    """
+    if nan_location is None:
+        filepath, ds_loaded = valid_poses_path_and_ds
+    else:
+        filepath, ds_loaded = valid_poses_path_and_ds_with_localised_nans(
+            nan_location
+        )
+    loader = loaded_data_loader(filepath, ds_loaded)
+    points, properties = _remove_points(
+        loader,
+        {"time": [2], "individual": ["id_0"], "keypoint": ["centroid"]},
+    )
+
+    ds = napari_layers_to_ds(
+        points_as_napari=points,
+        properties=properties,
+        properties_with_nans=loader.properties,
+        attrs=ds_loaded.attrs,
+    )
+    assert ds["edited"].sel(time=2, individual="id_0", keypoint="centroid")
+
+    # Load the dataset back into napari layers, filter out NaN position
+    # rows as the loader widget does, and convert back again.
+    napari_tracks, _, properties_with_nan = ds_to_napari_layers(ds)
+    valid_point_mask = ~np.any(np.isnan(napari_tracks[:, 2:4]), axis=1)
+    properties_with_nan["position_is_nan"] = ~valid_point_mask
+    napari_points = napari_tracks[valid_point_mask, 1:]
+    properties = properties_with_nan.iloc[valid_point_mask].reset_index(
+        drop=True
+    )
+
+    reconstructed_ds = napari_layers_to_ds(
+        napari_points, properties, properties_with_nan, attrs=ds.attrs
+    )
+
     xr.testing.assert_equal(reconstructed_ds, ds)
 
 

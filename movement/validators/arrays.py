@@ -34,6 +34,12 @@ def validate_dims_coords(
         The exactness check is completely skipped for dimensions with
         no required coordinates.
 
+    Raises
+    ------
+    ValueError
+        If the input data does not contain the required dimension(s)
+        and/or the required coordinate(s).
+
     Examples
     --------
     Validate that a data array contains the dimension 'time'. No specific
@@ -49,12 +55,6 @@ def validate_dims_coords(
     Enforce that 'space' has *only* 'x' and 'y', and no other coordinates:
 
     >>> validate_dims_coords(data, {"space": ["x", "y"]}, exact_coords=True)
-
-    Raises
-    ------
-    ValueError
-        If the input data does not contain the required dimension(s)
-        and/or the required coordinate(s).
 
     """
     # 1. Check that all required dimensions are present

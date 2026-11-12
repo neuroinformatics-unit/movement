@@ -11,9 +11,9 @@ import weakref
 
 import numpy as np
 import pytest
-from napari.components import ViewerModel
 from napari.components.dims import RangeTuple
 from napari.layers.base import ActionType
+from qtpy.QtCore import QCoreApplication, QEvent
 
 from movement.napari.layer_wiring import (
     MAX_FRAME_IDX_KEY,
@@ -22,16 +22,6 @@ from movement.napari.layer_wiring import (
 )
 from movement.napari.loader_widgets import DataLoader
 from movement.napari.meta_widget import MovementMetaWidget
-
-
-@pytest.fixture
-def headless_napari_viewer():
-    """Return a headless napari viewer model.
-
-    Faster than make_napari_viewer_proxy because it does not
-    require Qt viewer construction and teardown.
-    """
-    return ViewerModel()
 
 
 @pytest.fixture
@@ -194,6 +184,12 @@ def test_layer_wiring_survives_closing_metawidget(
     viewer.window.remove_dock_widget(dock_widget)
     del meta_widget, dock_widget, loader
 
+    # `remove_dock_widget` deletes the dock widget with `deleteLater`,
+    # which only runs once Qt processes events. Run it now: since
+    # PyQt6 6.12 the dock widget holds on to the meta-widget until
+    # it is deleted.
+    QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+
     # Ensure the loader is gc-ed before asserting
     # (`remove_dock_widget` re-parents the meta-widget to None,
     # so the loader is reclaimed by ordinary Python gc once the
@@ -211,11 +207,11 @@ def test_layer_wiring_survives_closing_metawidget(
 
 
 def test_connect_viewer_callbacks_twice_does_not_duplicate(
-    make_napari_viewer_proxy,
+    headless_napari_viewer,
 ):
     """Test that wiring a viewer twice does not duplicate the callbacks."""
     # Wire the viewer callbacks once
-    viewer = make_napari_viewer_proxy()
+    viewer = headless_napari_viewer
     connect_viewer_callbacks(viewer)
 
     # Count callbacks linked to the viewer, for each of the four events

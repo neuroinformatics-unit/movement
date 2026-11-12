@@ -481,6 +481,11 @@ def load_multiview_dataset(
         ``movement`` dataset containing data concatenated along a new
         ``view`` dimension.
 
+    See Also
+    --------
+    movement.io.load_poses
+    movement.io.load_bboxes
+
     Notes
     -----
     The attributes of the resulting dataset will be taken from the first
@@ -490,11 +495,6 @@ def load_multiview_dataset(
     All input views must share identical ``time`` coordinates. If they
     do not, :func:`xarray.concat` raises a :class:`ValueError` naming
     the offending dimension. This is enforced via ``join="exact"``.
-
-    See Also
-    --------
-    movement.io.load_poses
-    movement.io.load_bboxes
 
     """
     views_list = list(file_dict.keys())

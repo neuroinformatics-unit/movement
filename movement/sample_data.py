@@ -262,6 +262,10 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
         the file is either not available or not requested
         (if ``with_video=False``).
 
+    See Also
+    --------
+    fetch_dataset
+
     Examples
     --------
     Fetch a sample dataset and get the paths to the file containing the
@@ -280,10 +284,6 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
 
     >>> paths = fetch_dataset_paths("VIA_multiple-crabs_5-frames_labels.csv")
     >>> bboxes_path = paths["bboxes"]
-
-    See Also
-    --------
-    fetch_dataset
 
     """
     available_data_files = list_datasets()
@@ -348,13 +348,17 @@ def fetch_dataset(
         Name of the file to fetch.
     with_video
         Whether to download the associated video file (if available). If set
-        to False, the "video" entry in the returned dictionary will be None.
-        Defaults to False.
+        to False, the ``video_path`` attribute will not be set on the
+        returned dataset. Defaults to False.
 
     Returns
     -------
     ds : xarray.Dataset
         Data contained in the fetched sample file.
+
+    See Also
+    --------
+    fetch_dataset_paths
 
     Examples
     --------
@@ -363,14 +367,10 @@ def fetch_dataset(
 
     >>> from movement.sample_data import fetch_dataset
     >>> ds = fetch_dataset(
-        "DLC_single-mouse_EPM.predictions.h5", with_video=True
-    )
+    ...     "DLC_single-mouse_EPM.predictions.h5", with_video=True
+    ... )
     >>> frame_path = ds.frame_path
     >>> video_path = ds.video_path
-
-    See Also
-    --------
-    fetch_dataset_paths
 
     """
     # If the filename start with "TRex", raise an NotImplementedError

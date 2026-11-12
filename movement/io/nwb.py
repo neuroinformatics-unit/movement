@@ -33,15 +33,15 @@ class NWBFileSaveConfig:
     to add custom metadata to the :class:`~pynwb.file.NWBFile` object(s)
     created from a given ``movement`` dataset.
 
-    References
-    ----------
-    .. [1] https://github.com/rly/ndx-pose
-
     See Also
     --------
     movement.io.save_poses.to_nwb_file_object
         Example usage of this class to save a ``movement`` dataset
         to an :class:`~pynwb.file.NWBFile` object.
+
+    References
+    ----------
+    .. [1] https://github.com/rly/ndx-pose
 
     """
 

@@ -63,7 +63,8 @@ napari = ["napari[all]>=0.6.0"]
 
 [dependency-groups]
 dev = [
-  "pytest",
+  # pytest 9.2 breaks pytest-benchmark 5.3 (Function._nodeid removed)
+  "pytest<9.2",
   "pytest-cov",
   "pytest-mock",
   "pytest-benchmark",
@@ -94,7 +95,7 @@ docs = [
   "pydata-sphinx-theme",
   "sphinx",
   "sphinx-autodoc-typehints>=3.10.4",
-  "sphinx-design",
+  "sphinx-design>=0.8",
   "sphinx-gallery",
   "sphinx-notfound-page",
   "sphinx-sitemap",
@@ -160,10 +161,8 @@ fix = true
 
 [tool.ruff.lint]
 # See https://docs.astral.sh/ruff/rules/
-ignore = [
-  "D203", # one blank line before class
-  "D213", # multi-line-summary second line
-]
+preview = true
+explicit-preview-rules = true
 select = [
   "E",      # pycodestyle errors
   "F",      # Pyflakes
@@ -175,6 +174,7 @@ select = [
   "C90",    # McCabe complexity
   "D",      # pydocstyle
   "NPY201", # checks for syntax that was deprecated in numpy2.0
+  "D420",   # incorrect docstring section order (preview rule)
 ]
 per-file-ignores = { "tests/*" = [
   "D100", # missing docstring in public module
@@ -184,9 +184,11 @@ per-file-ignores = { "tests/*" = [
   "B018", # Found useless expression
   "D103", # Missing docstring in public function
   "D400", # first line should end with a period.
-  "D415", # first line should end with a period, question mark...
   "D205", # missing blank line between summary and description
 ] }
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
 
 [tool.ruff.format]
 docstring-code-format = true # Also format code in docstrings

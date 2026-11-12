@@ -185,6 +185,12 @@ def make_broadcastable(
         ``@make_broadcastable(...)`` syntax. See Notes for a description of
         the action of the returned decorator.
 
+    See Also
+    --------
+    broadcastable_method : Convenience alias for ``is_classmethod = True``.
+    space_broadcastable : Convenience alias for
+        ``only_broadcastable_along = "space"``.
+
     Notes
     -----
     The returned decorator (the "``r_decorator``") extends a function that
@@ -212,23 +218,19 @@ def make_broadcastable(
     ``fr`` is not an ``xarray.DataArray``, it will fall back on the behaviour
     of ``f`` (and ignore the ``broadcast_dimension`` argument).
 
-    See Also
-    --------
-    broadcastable_method : Convenience alias for ``is_classmethod = True``.
-    space_broadcastable : Convenience alias for
-        ``only_broadcastable_along = "space"``.
-
     Examples
     --------
     Make a standalone function broadcast along the ``"space"`` axis of an
     ``xarray.DataArray``.
 
-    >>> @make_broadcastable(is_classmethod=False, only_broadcast_along="space")
-    ... def my_function(xyz_data, *args, **kwargs)
-    ...
-    ... # Call via the usual arguments, replacing the xyz_data argument with
-    ... # the xarray.DataArray to broadcast over
-    ... my_function(data_array, *args, **kwargs)
+    >>> @make_broadcastable(
+    ...     is_classmethod=False, only_broadcastable_along="space"
+    ... )
+    ... def my_function(xyz_data, *args, **kwargs): ...
+    >>>
+    >>> # Call via the usual arguments, replacing the xyz_data argument
+    >>> # with the xarray.DataArray to broadcast over
+    >>> my_function(data_array, *args, **kwargs)
 
     Make a class method broadcast along any axis of an ``xarray.DataArray``.
 

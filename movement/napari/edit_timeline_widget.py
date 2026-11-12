@@ -8,6 +8,7 @@ https://gist.github.com/jni/a0ae9793a0ca43868dd7dce7ea21df79
 from typing import TYPE_CHECKING
 
 import numpy as np
+import pandas as pd
 from matplotlib.backends.backend_qtagg import (
     FigureCanvasQTAgg as FigureCanvas,
 )
@@ -34,11 +35,11 @@ from movement.napari.edit_action_widgets import (
 from movement.napari.layer_wiring import (
     MAX_FRAME_IDX_KEY,
     POINTS_POSITION_KEY,
-    POINTS_PROPERTIES_KEY,
     TRACKS_LAYER_KEY,
     active_movement_points_layer,
     frame_axis_is_sliced,
     is_movement_points_layer,
+    removed_points,
     reset_edits,
 )
 
@@ -74,8 +75,9 @@ class EditControlsWidget(QWidget):
         self.viewer = napari_viewer
         instructions = QLabel(
             "Use the points layer controls to move or delete keypoints. "
-            "Frames with edited points are flagged as coloured bars on the "
-            "timeline below. Click a bar to jump to an edited frame."
+            "Frames with edited points are flagged as solid lines on the "
+            "timeline below, and the current frame as a dashed line. "
+            "Click a solid line to jump to an edited frame."
         )
         instructions.setWordWrap(True)
 
@@ -220,15 +222,15 @@ class EditControlsWidget(QWidget):
 class EditTimelineWidget(QWidget):
     """Dock widget flagging frames with edited points.
 
-    Draws a vertical bar for every frame that contains an edited point
-    on the currently active ``movement`` Points layer. By default all
-    bars share one lane and are drawn in a single colour (the napari
-    theme's ``current`` colour). With :meth:`set_show_individuals` on, bars
-    are split into one lane per individual (separated by thin horizontal
+    Draws a solid vertical line for every frame that contains an edited
+    point on the currently active ``movement`` Points layer. By default all
+    lines share one lane and are drawn in a single colour (the napari
+    theme's ``current`` colour). With :meth:`set_show_individuals` on,
+    lines are split into one lane per individual (separated by thin horizontal
     rules) and coloured per individual to match the ``face_color`` of
-    that individual's points in the Points layer. A playhead
-    line marks the frame currently shown in the viewer. Scroll to zoom
-    in/out on the timeline, and click a bar to jump to that frame.
+    that individual's points in the Points layer. A dashed line marks
+    the frame currently shown in the viewer. Scroll to zoom in/out on
+    the timeline, and click a solid line to jump to that frame.
     """
 
     def __init__(self, napari_viewer: Viewer, parent=None):
@@ -242,7 +244,6 @@ class EditTimelineWidget(QWidget):
         self._foreground = "#808080"  # overwritten by _apply_theme
         self._edit_bar_color = "#808080"  # overwritten by _apply_theme
         self._edited_frames = np.array([])
-        self._removed_points: list = []
         self._max_frame = 0
         self._press_pixel_x: float | None = None
         self._press_xlim: tuple[float, float] | None = None
@@ -332,7 +333,6 @@ class EditTimelineWidget(QWidget):
         if event.value is self.active_layer:
             self.active_layer = None
             self._max_frame = 0
-            self._removed_points = []
             self._redraw_bars()
 
     def set_show_individuals(self, checked: bool) -> None:
@@ -355,9 +355,6 @@ class EditTimelineWidget(QWidget):
             return
         self.active_layer = layer
         self._max_frame = layer.metadata.get(MAX_FRAME_IDX_KEY, 0)
-        self._removed_points = self._reconstruct_previously_removed_points(
-            layer
-        )
         self._redraw_bars()
         self._reset_xlim()
 
@@ -374,91 +371,24 @@ class EditTimelineWidget(QWidget):
             return
         self._set_active_layer(active)
 
-    @staticmethod
-    def _reconstruct_previously_removed_points(layer):
-        """Restore removed-point bars from a previously-saved session.
-
-        A point removed and saved in an earlier session comes back as a
-        NaN row, dropped from the live layer entirely -- so there is no
-        ``REMOVING`` event to capture it from this session. Reconstruct
-        those bars from ``POINTS_PROPERTIES_KEY``, the full properties
-        table (including NaN rows) stashed on the layer at load time.
-        Points edited without being removed need no such reconstruction,
-        since they're still live rows and ``_redraw_bars`` already reads
-        their ``edited`` property directly.
-        """
-        if layer is None:
-            return []
-        full_properties = layer.metadata.get(POINTS_PROPERTIES_KEY)
-        if full_properties is None or "edited" not in full_properties:
-            return []
-        previously_removed = full_properties[
-            full_properties["position_is_nan"] & full_properties["edited"]
-        ]
-        if previously_removed.empty:
-            return []
-        frame_times = np.sort(full_properties["time"].unique())
-        return [
-            (int(np.searchsorted(frame_times, row.time)), row.individual)
-            for row in previously_removed.itertuples()
-        ]
-
     def _on_layer_data_changed(self, event):
-        """React to point moves and removals on the active layer.
+        """Redraw after points on the active layer are moved or removed.
 
-        Connected to ``events.data`` rather than ``events.properties``:
-        napari's ``Points.remove()`` (Delete/Backspace) only fires
-        ``events.features``, never ``events.properties``, so a
-        properties-only listener misses removals entirely.
-
-        For a move (``CHANGED``), ``DataLoader._on_points_data_changed``
-        (loader_widgets.py) is also connected to this same event and
-        sets the ``edited`` property that ``_redraw_bars`` reads. But
-        the two callbacks' relative order isn't guaranteed. Deferring
-        the redraw with ``QTimer.singleShot(0, ...)`` runs it on the
-        next Qt event-loop tick, after every callback for this event
-        has finished, so ``edited`` is always up to date by then.
-
-        For a removal, the row (and its identity) is about to be
-        deleted from the layer entirely, so there will be nothing left
-        to read afterwards. ``REMOVING`` fires first, while the data is
-        still intact, so that's when we snapshot it.
+        ``on_points_data_changed`` (layer_wiring.py) is also connected to
+        this event and sets the ``edited`` property that ``_redraw_bars``
+        reads, but the two callbacks' relative order isn't guaranteed.
+        Deferring the redraw to the next Qt event-loop tick ensures it
+        runs after every callback for this event has finished.
         """
         if event.source is not self.active_layer:
             return
-        if event.action == ActionType.REMOVING:
-            self._capture_removed_points(event)
-            self._redraw_bars()
-        elif event.action == ActionType.CHANGED:
+        if event.action in (ActionType.CHANGED, ActionType.REMOVED):
             QTimer.singleShot(0, self._redraw_bars)
 
     def _on_edits_reset(self, event):
-        """Drop the removed-point bars of the reset frame(s).
-
-        Restored points are live rows again, so only the points removed
-        and saved in an earlier session remain flagged as removed.
-        """
-        if event.source is not self.active_layer:
-            return
-        frame = event.frame
-        previous = self._reconstruct_previously_removed_points(
-            self.active_layer
-        )
-        if frame is None:
-            self._removed_points = previous
-        else:
-            self._removed_points = [
-                point for point in self._removed_points if point[0] != frame
-            ] + [point for point in previous if point[0] == frame]
-        self._redraw_bars()
-
-    def _capture_removed_points(self, event):
-        """Snapshot the identity of points about to be removed."""
-        layer = event.source
-        frames = layer.data[:, 0]
-        individuals = layer.properties["individual"]
-        for idx in event.data_indices:
-            self._removed_points.append((frames[idx], individuals[idx]))
+        """Redraw once reset points are back on the active layer."""
+        if event.source is self.active_layer:
+            self._redraw_bars()
 
     def _on_step_changed(self, event=None):
         """Move the playhead line to the current frame."""
@@ -470,7 +400,7 @@ class EditTimelineWidget(QWidget):
         self.canvas.draw_idle()
 
     def _redraw_bars(self):
-        """Redraw the per-individual lanes of edited-frame bars."""
+        """Redraw the per-individual lanes of edited-frame lines."""
         for artist in (*self._bars, *self._lane_dividers):
             artist.remove()
         self._bars = []
@@ -484,11 +414,11 @@ class EditTimelineWidget(QWidget):
             return
 
         individuals = self.active_layer.properties["individual"]
-        removed_individuals = [ind for _, ind in self._removed_points]
+        removed_frames, removed_individuals = removed_points(self.active_layer)
         # Union with removed individuals so a lane survives even if an
         # individual's last remaining point has just been removed.
         unique_individuals = list(
-            dict.fromkeys([*individuals, *removed_individuals])
+            dict.fromkeys([*pd.unique(individuals), *removed_individuals])
         )
 
         if self._show_individuals:
@@ -527,7 +457,9 @@ class EditTimelineWidget(QWidget):
                 (frames[idx], individuals[idx])
                 for idx in np.nonzero(edited)[0]
             ]
-        all_points = moved_points + self._removed_points
+        all_points = moved_points + list(
+            zip(removed_frames, removed_individuals, strict=True)
+        )
 
         if all_points:
             # A frame may have several edited keypoints for the same
@@ -558,12 +490,13 @@ class EditTimelineWidget(QWidget):
         self._on_step_changed()
 
     def _bar_color_lookup(self):
-        """Return an ``individual -> bar colour`` function.
+        """Return an ``individual -> line colour`` function.
 
-        With lanes collapsed, every bar is the single ``self._edit_bar_color``
-        (the napari theme's ``current`` colour). With individuals displayed,
-        each bar takes its individual's colour read straight from the Points
-        layer's ``face_color``, so bars match the viewer exactly. An
+        With lanes collapsed, every line is the single
+        ``self._edit_bar_color`` (the napari theme's ``current`` colour).
+        With individuals displayed, each line takes its individual's colour
+        read straight from the Points layer's ``face_color``, so lines match
+        the viewer exactly. An
         individual with no live point left to read a colour from falls back
         to ``self._edit_bar_color``.
         """
@@ -656,7 +589,7 @@ class EditTimelineWidget(QWidget):
         """Jump the viewer to the edited frame nearest the click.
 
         Double-clicking resets the timeline to the full frame range.
-        Clicks too far from any edited-frame bar are ignored.
+        Clicks too far from any edited-frame line are ignored.
         """
         if event.dblclick:
             self._reset_xlim()
