@@ -517,13 +517,7 @@ def test_path_straightness_known_values(request, fixture_name, expected_value):
     """
     position = request.getfixturevalue(fixture_name)
     result = compute_path_straightness(position)
-    if np.isnan(expected_value):
-        assert result.isnull().all()
-    else:
-        xr.testing.assert_allclose(
-            result,
-            xr.full_like(result, expected_value),
-        )
+    xr.testing.assert_allclose(result, xr.full_like(result, expected_value))
 
 
 @pytest.mark.parametrize(
