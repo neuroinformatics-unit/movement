@@ -231,6 +231,11 @@ with pynwb.NWBHDF5IO("path/to/file.nwb", mode="r") as io:
         nwb_file, pose_estimation_key="PoseEstimation"
     )
 ```
+
+:::{note}
+The `time` coordinates are the sample times stored in the NWB file, in seconds.
+They don't necessarily start at 0, and gaps such as dropped frames are kept, so the poses stay aligned with other data recorded in the same session.
+:::
 ::::
 
 ::::{tab-item} From NumPy
