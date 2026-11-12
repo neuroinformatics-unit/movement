@@ -8,6 +8,16 @@
 .. currentmodule:: movement.napari.convert
 
 
+.. rubric:: Classes
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    LoadedPointKeys
+    
+
+
 
 
 .. rubric:: Functions
@@ -19,5 +29,7 @@
     ds_to_napari_layers
     
     napari_layers_to_ds
+    
+    removed_points_mask
     
 

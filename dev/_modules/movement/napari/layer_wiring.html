@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=cad26fbb"></script>
+    <script src="../../../_static/documentation_options.js?v=6eaaeba2"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -142,7 +142,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev86</p>
+    <p class="title logo__title">movement v0.17.1.dev87</p>
   
 </a></div>
     
@@ -495,7 +495,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">weakref</span><span class="w"> </span><span class="kn">import</span> <span class="n">WeakSet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">weakref</span><span class="w"> </span><span class="kn">import</span> <span class="n">WeakKeyDictionary</span><span class="p">,</span> <span class="n">WeakSet</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -504,6 +504,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">napari.layers.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActionType</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">napari.utils.events</span><span class="w"> </span><span class="kn">import</span> <span class="n">Event</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.napari.convert</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoadedPointKeys</span><span class="p">,</span> <span class="n">removed_points_mask</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.napari.layer_styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">EDITED_POINT_SYMBOL</span><span class="p">,</span> <span class="n">PointsStyle</span>
 
 <span class="c1"># Metadata keys stored on the movement Points layer.</span>
@@ -530,11 +531,6 @@
 <span class="n">DATASET_ATTRS_KEY</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"movement_dataset_attrs"</span>
 <span class="n">TRACKS_LAYER_KEY</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"movement_tracks_layer"</span>
 <span class="n">MAX_FRAME_IDX_KEY</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"movement_max_frame_idx"</span>
-
-<span class="c1"># Keep a set of viewers already wired by connect_viewer_callbacks,</span>
-<span class="c1"># so we don't wire them twice. We use a WeakSet so tracking a viewer here</span>
-<span class="c1"># does not prevent it from being garbage-collected when it is no longer used.</span>
-<span class="n">_WIRED_VIEWERS</span><span class="p">:</span> <span class="n">WeakSet</span> <span class="o">=</span> <span class="n">WeakSet</span><span class="p">()</span>
 
 
 <span class="c1"># ---- Layer helpers -------------------------------------</span>
@@ -568,7 +564,74 @@
 
 
 
+<div class="viewcode-block" id="drop_internal_properties">
+<a class="viewcode-back" href="../../../api/movement.napari.layer_wiring.drop_internal_properties.html#movement.napari.layer_wiring.drop_internal_properties">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">drop_internal_properties</span><span class="p">(</span><span class="n">properties</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Drop the internal columns not needed in Points layer properties.</span>
+
+<span class="sd">    The ``_factorized`` columns are used for Tracks/Shapes colouring and</span>
+<span class="sd">    ``position_is_nan`` for reconstructing the dataset on save; neither</span>
+<span class="sd">    is needed in the Points layer tooltips.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">properties</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="p">:,</span>
+        <span class="o">~</span><span class="n">properties</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"_factorized"</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">properties</span><span class="o">.</span><span class="n">columns</span> <span class="o">!=</span> <span class="s2">"position_is_nan"</span><span class="p">),</span>
+    <span class="p">]</span></div>
+
+
+
+<span class="c1"># Per-layer cache of the loaded point keys used by removed_points</span>
+<span class="n">_LOADED_POINT_KEYS</span><span class="p">:</span> <span class="n">WeakKeyDictionary</span> <span class="o">=</span> <span class="n">WeakKeyDictionary</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="removed_points">
+<a class="viewcode-back" href="../../../api/movement.napari.layer_wiring.removed_points.html#movement.napari.layer_wiring.removed_points">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">removed_points</span><span class="p">(</span><span class="n">layer</span><span class="p">:</span> <span class="n">Points</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return the frames and individuals of points removed from ``layer``.</span>
+
+<span class="sd">    Removal is defined by :func:`~movement.napari.convert.removed_points_mask`,</span>
+<span class="sd">    the same rule used to flag points as ``edited`` on save.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    layer</span>
+<span class="sd">        A movement Points layer. Its loaded state is read from</span>
+<span class="sd">        ``layer.metadata[POINTS_PROPERTIES_KEY]``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    frames : numpy.ndarray</span>
+<span class="sd">        Frame index of each removed point.</span>
+<span class="sd">    individuals : numpy.ndarray</span>
+<span class="sd">        Individual of each removed point, aligned with ``frames``.</span>
+<span class="sd">        Both arrays are empty if the layer was not created by ``movement``.</span>
+
+<span class="sd">    """</span>
+    <span class="n">loaded</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">POINTS_PROPERTIES_KEY</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">loaded</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+    <span class="n">cached</span> <span class="o">=</span> <span class="n">_LOADED_POINT_KEYS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cached</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">cached</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="n">loaded</span><span class="p">:</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">cached</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">LoadedPointKeys</span><span class="o">.</span><span class="n">from_properties</span><span class="p">(</span><span class="n">loaded</span><span class="p">)</span>
+        <span class="n">_LOADED_POINT_KEYS</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">loaded</span><span class="p">,</span> <span class="n">keys</span><span class="p">)</span>
+    <span class="n">removed</span> <span class="o">=</span> <span class="n">removed_points_mask</span><span class="p">(</span>
+        <span class="n">loaded</span><span class="p">,</span> <span class="n">layer</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">layer</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="n">keys</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">keys</span><span class="o">.</span><span class="n">frames</span><span class="p">[</span><span class="n">removed</span><span class="p">],</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">"individual"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()[</span><span class="n">removed</span><span class="p">]</span></div>
+
+
+
 <span class="c1"># ---- Callbacks with viewer lifetime --------------------</span>
+
+<span class="c1"># Keep a set of viewers already wired by connect_viewer_callbacks,</span>
+<span class="c1"># so we don't wire them twice. We use a WeakSet so tracking a viewer here</span>
+<span class="c1"># does not prevent it from being garbage-collected when it is no longer used.</span>
+<span class="n">_WIRED_VIEWERS</span><span class="p">:</span> <span class="n">WeakSet</span> <span class="o">=</span> <span class="n">WeakSet</span><span class="p">()</span>
+
+
 <div class="viewcode-block" id="connect_viewer_callbacks">
 <a class="viewcode-back" href="../../../api/movement.napari.layer_wiring.connect_viewer_callbacks.html#movement.napari.layer_wiring.connect_viewer_callbacks">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">connect_viewer_callbacks</span><span class="p">(</span><span class="n">viewer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -791,23 +854,6 @@
         <span class="n">tracks_layer</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
         <span class="n">tracks_layer</span><span class="o">.</span><span class="n">properties</span> <span class="o">=</span> <span class="n">properties</span>
         <span class="n">tracks_layer</span><span class="o">.</span><span class="n">color_by</span> <span class="o">=</span> <span class="n">color_by</span></div>
-
-
-
-<div class="viewcode-block" id="drop_internal_properties">
-<a class="viewcode-back" href="../../../api/movement.napari.layer_wiring.drop_internal_properties.html#movement.napari.layer_wiring.drop_internal_properties">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">drop_internal_properties</span><span class="p">(</span><span class="n">properties</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Drop the internal columns not needed in Points layer properties.</span>
-
-<span class="sd">    The ``_factorized`` columns are used for Tracks/Shapes colouring and</span>
-<span class="sd">    ``position_is_nan`` for reconstructing the dataset on save; neither</span>
-<span class="sd">    is needed in the Points layer tooltips.</span>
-<span class="sd">    """</span>
-    <span class="k">return</span> <span class="n">properties</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-        <span class="p">:,</span>
-        <span class="o">~</span><span class="n">properties</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"_factorized"</span><span class="p">)</span>
-        <span class="o">&amp;</span> <span class="p">(</span><span class="n">properties</span><span class="o">.</span><span class="n">columns</span> <span class="o">!=</span> <span class="s2">"position_is_nan"</span><span class="p">),</span>
-    <span class="p">]</span></div>
 
 
 

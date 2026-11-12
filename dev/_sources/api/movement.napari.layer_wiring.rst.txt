@@ -32,6 +32,8 @@
     
     remove_from_tracks_layer
     
+    removed_points
+    
     reset_edits
     
     set_point_symbol_by_edited

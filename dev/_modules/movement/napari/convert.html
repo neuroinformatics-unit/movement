@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=cad26fbb"></script>
+    <script src="../../../_static/documentation_options.js?v=6eaaeba2"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -142,7 +142,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev86</p>
+    <p class="title logo__title">movement v0.17.1.dev87</p>
   
 </a></div>
     
@@ -480,6 +480,8 @@
                    <h1>Source code for movement.napari.convert</h1><div class="highlight"><pre>
 <span></span><span class="sd">"""Conversion functions from ``movement`` datasets to napari layers."""</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
@@ -499,7 +501,8 @@
         <span class="n">data</span><span class="p">[</span><span class="s2">"keypoint"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">"keypoint"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
         <span class="n">desired_order</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"keypoint"</span><span class="p">)</span>
     <span class="k">if</span> <span class="s2">"edited"</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
-        <span class="n">data</span><span class="p">[</span><span class="s2">"edited"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"edited"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="n">edited</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"edited"</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">"edited"</span><span class="p">]</span> <span class="o">=</span> <span class="n">edited</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
         <span class="n">desired_order</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"edited"</span><span class="p">)</span>
 
     <span class="c1"># sort</span>
@@ -638,6 +641,118 @@
     <span class="n">properties</span> <span class="o">=</span> <span class="n">_construct_properties_dataframe</span><span class="p">(</span><span class="n">ds_</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">points_as_napari</span><span class="p">,</span> <span class="n">bboxes_as_napari</span><span class="p">,</span> <span class="n">properties</span></div>
+
+
+
+<div class="viewcode-block" id="LoadedPointKeys">
+<a class="viewcode-back" href="../../../api/movement.napari.convert.LoadedPointKeys.html#movement.napari.convert.LoadedPointKeys">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LoadedPointKeys</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Integer keys for the loaded points, to match against live napari points.</span>
+
+<span class="sd">    Each loaded point's (frame, keypoint, individual) is encoded as an</span>
+<span class="sd">    int, so matching can be done via array indexing.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    keys</span>
+<span class="sd">        Key of each row of the loaded properties table.</span>
+<span class="sd">    frames</span>
+<span class="sd">        Frame index of each row of the loaded properties table.</span>
+<span class="sd">    id_columns</span>
+<span class="sd">        ``(column, unique values)`` pairs for the identity columns</span>
+<span class="sd">        (``keypoint``, ``individual``) present in the loaded table.</span>
+<span class="sd">    n_keys</span>
+<span class="sd">        Number of possible keys.</span>
+
+<span class="sd">    """</span>
+
+    <span class="n">keys</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">frames</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">id_columns</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">n_keys</span><span class="p">:</span> <span class="nb">int</span>
+
+<div class="viewcode-block" id="LoadedPointKeys.from_properties">
+<a class="viewcode-back" href="../../../api/movement.napari.convert.LoadedPointKeys.html#movement.napari.convert.LoadedPointKeys.from_properties">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_properties</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">properties_with_nans</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"LoadedPointKeys"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Build keys for every row of the loaded properties table."""</span>
+        <span class="c1"># Frame index is the time's position along the sorted time axis,</span>
+        <span class="c1"># matching the frame column built by ds_to_napari_layers</span>
+        <span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">properties_with_nans</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+        <span class="n">frames</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">properties_with_nans</span><span class="p">[</span><span class="s2">"time"</span><span class="p">])</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">frames</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+        <span class="n">id_columns</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">n_keys</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"keypoint"</span><span class="p">,</span> <span class="s2">"individual"</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">properties_with_nans</span><span class="p">:</span>
+                <span class="n">codes</span><span class="p">,</span> <span class="n">uniques</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">factorize</span><span class="p">(</span><span class="n">properties_with_nans</span><span class="p">[</span><span class="n">col</span><span class="p">])</span>
+                <span class="n">keys</span> <span class="o">=</span> <span class="n">keys</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">uniques</span><span class="p">)</span> <span class="o">+</span> <span class="n">codes</span>
+                <span class="n">id_columns</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">col</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">uniques</span><span class="p">)))</span>
+                <span class="n">n_keys</span> <span class="o">*=</span> <span class="nb">len</span><span class="p">(</span><span class="n">uniques</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">frames</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">id_columns</span><span class="p">),</span> <span class="n">n_keys</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LoadedPointKeys.present">
+<a class="viewcode-back" href="../../../api/movement.napari.convert.LoadedPointKeys.html#movement.napari.convert.LoadedPointKeys.present">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">present</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">live_frames</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">live_properties</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Flag the loaded rows that have a matching live point."""</span>
+        <span class="n">live_keys</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">live_frames</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="n">live_keys</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">uniques</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_columns</span><span class="p">:</span>
+            <span class="n">codes</span> <span class="o">=</span> <span class="n">uniques</span><span class="o">.</span><span class="n">get_indexer</span><span class="p">(</span><span class="n">live_properties</span><span class="p">[</span><span class="n">col</span><span class="p">])</span>
+            <span class="n">valid</span> <span class="o">&amp;=</span> <span class="n">codes</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+            <span class="n">live_keys</span> <span class="o">=</span> <span class="n">live_keys</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">uniques</span><span class="p">)</span> <span class="o">+</span> <span class="n">codes</span>
+        <span class="n">valid</span> <span class="o">&amp;=</span> <span class="n">live_keys</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_keys</span>
+        <span class="n">present</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_keys</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">present</span><span class="p">[</span><span class="n">live_keys</span><span class="p">[</span><span class="n">valid</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">present</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">]</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="removed_points_mask">
+<a class="viewcode-back" href="../../../api/movement.napari.convert.removed_points_mask.html#movement.napari.convert.removed_points_mask">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">removed_points_mask</span><span class="p">(</span>
+    <span class="n">properties_with_nans</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">live_frames</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">live_properties</span><span class="p">,</span>
+    <span class="n">keys</span><span class="p">:</span> <span class="n">LoadedPointKeys</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Flag the loaded points that count as removed.</span>
+
+<span class="sd">    A point counts as removed if it has no corresponding live napari point and</span>
+<span class="sd">    was either present at load (removed in this session) or</span>
+<span class="sd">    flagged as ``edited`` at load (removed in an earlier session).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    properties_with_nans</span>
+<span class="sd">        Properties DataFrame of the loaded dataset, including the NaN</span>
+<span class="sd">        position rows flagged in its ``position_is_nan`` column.</span>
+<span class="sd">    live_frames</span>
+<span class="sd">        Frame index of each live point.</span>
+<span class="sd">    live_properties</span>
+<span class="sd">        Live point properties (DataFrame or dict of arrays), with the</span>
+<span class="sd">        identity columns of ``properties_with_nans``.</span>
+<span class="sd">    keys</span>
+<span class="sd">        Precomputed keys for ``properties_with_nans``, to avoid</span>
+<span class="sd">        rebuilding them on every call. Built here if not given.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray</span>
+<span class="sd">        Boolean mask, row-aligned with ``properties_with_nans``.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">keys</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">LoadedPointKeys</span><span class="o">.</span><span class="n">from_properties</span><span class="p">(</span><span class="n">properties_with_nans</span><span class="p">)</span>
+    <span class="n">removable</span> <span class="o">=</span> <span class="o">~</span><span class="n">properties_with_nans</span><span class="p">[</span><span class="s2">"position_is_nan"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="s2">"edited"</span> <span class="ow">in</span> <span class="n">properties_with_nans</span><span class="p">:</span>
+        <span class="n">removable</span> <span class="o">|=</span> <span class="n">properties_with_nans</span><span class="p">[</span><span class="s2">"edited"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">removable</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">keys</span><span class="o">.</span><span class="n">present</span><span class="p">(</span><span class="n">live_frames</span><span class="p">,</span> <span class="n">live_properties</span><span class="p">)</span></div>
 
 
 
@@ -794,37 +909,24 @@
             <span class="p">)</span>
         <span class="p">)</span>
 
-        <span class="c1"># A point missing from the live layer shows up as NaN position</span>
-        <span class="c1"># after the reindex above</span>
-        <span class="n">point_missing_now</span> <span class="o">=</span> <span class="n">position_da</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="s2">"space"</span><span class="p">)</span>
-        <span class="n">loaded_properties</span> <span class="o">=</span> <span class="n">properties_with_nans</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span>
-            <span class="p">[</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"keypoint"</span><span class="p">,</span> <span class="s2">"individual"</span><span class="p">]</span>
+        <span class="n">removed</span> <span class="o">=</span> <span class="n">removed_points_mask</span><span class="p">(</span>
+            <span class="n">properties_with_nans</span><span class="p">,</span>
+            <span class="n">live_frames</span><span class="o">=</span><span class="n">points_as_napari</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="n">live_properties</span><span class="o">=</span><span class="n">properties_df</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="s2">"edited"</span> <span class="ow">in</span> <span class="n">loaded_properties</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-            <span class="n">loaded_properties</span> <span class="o">=</span> <span class="n">loaded_properties</span><span class="p">[</span>
-                <span class="p">[</span><span class="s2">"position_is_nan"</span><span class="p">,</span> <span class="s2">"edited"</span><span class="p">]</span>
-            <span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">loaded_properties</span> <span class="o">=</span> <span class="n">loaded_properties</span><span class="p">[[</span><span class="s2">"position_is_nan"</span><span class="p">]]</span>
-        <span class="n">loaded_das</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">loaded_properties</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span>
+        <span class="n">removed_da</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">properties_with_nans</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">removed</span><span class="o">=</span><span class="n">removed</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"keypoint"</span><span class="p">,</span> <span class="s2">"individual"</span><span class="p">])[</span><span class="s2">"removed"</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span>
             <span class="o">.</span><span class="n">reindex</span><span class="p">(</span>
                 <span class="n">time</span><span class="o">=</span><span class="n">time_coords</span><span class="p">,</span>
                 <span class="n">keypoint</span><span class="o">=</span><span class="n">keypoint_coords</span><span class="p">,</span>
                 <span class="n">individual</span><span class="o">=</span><span class="n">individual_coords</span><span class="p">,</span>
-                <span class="n">fill_value</span><span class="o">=</span><span class="p">{</span><span class="s2">"position_is_nan"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">"edited"</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+                <span class="n">fill_value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
         <span class="p">)</span>
-        <span class="n">position_was_present_originally</span> <span class="o">=</span> <span class="o">~</span><span class="n">loaded_das</span><span class="p">[</span><span class="s2">"position_is_nan"</span><span class="p">]</span>
-        <span class="n">point_was_edited_originally</span> <span class="o">=</span> <span class="n">loaded_das</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"edited"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-        <span class="c1"># A point counts as edited if it was dragged in napari, or is now</span>
-        <span class="c1"># missing and was either present originally (removed by the user)</span>
-        <span class="c1"># or already edited when loaded (removed in an earlier session).</span>
-        <span class="n">edited_da</span> <span class="o">=</span> <span class="n">live_das</span><span class="p">[</span><span class="s2">"edited"</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span>
-            <span class="n">point_missing_now</span>
-            <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_was_present_originally</span> <span class="o">|</span> <span class="n">point_was_edited_originally</span><span class="p">)</span>
-        <span class="p">)</span>
+        <span class="c1"># A point counts as edited if it was dragged in napari or removed</span>
+        <span class="n">edited_da</span> <span class="o">=</span> <span class="n">live_das</span><span class="p">[</span><span class="s2">"edited"</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span> <span class="o">|</span> <span class="n">removed_da</span>
 
         <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
             <span class="n">data_vars</span><span class="o">=</span><span class="p">{</span>

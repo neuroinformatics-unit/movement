@@ -1,0 +1,41 @@
+LoadedPointKeys
+===============
+
+.. currentmodule:: movement.napari.convert
+
+.. autoclass:: LoadedPointKeys
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   
+
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+      ~LoadedPointKeys.from_properties
+   
+   
+      ~LoadedPointKeys.present
+   
+   
+   
+
+.. minigallery:: movement.napari.convert.LoadedPointKeys
+   :add-heading: Examples using ``LoadedPointKeys``
