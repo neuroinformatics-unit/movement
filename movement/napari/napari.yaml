@@ -1,5 +1,6 @@
 name: movement
 display_name: movement
+on_activate: movement.napari.keybindings:init_keybindings
 contributions:
   commands:
     - id: movement.make_widget
