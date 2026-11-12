@@ -114,7 +114,29 @@ def compute_path_length(
 
     """
     data = _validate_time_points(data, "path length")
-    return _path_length(data, nan_policy, nan_warn_threshold)
+    _warn_about_nan_proportion(data, nan_warn_threshold)
+    if nan_policy == "interpolate":
+        # Forward-fill, which gives the same segment-length sum as linear
+        # interpolation over the gaps.
+        result = _segment_lengths(data.ffill(dim="time")).sum(
+            dim="time", min_count=1
+        )
+    elif nan_policy == "omit":
+        # Sum the lengths of the segments between consecutive valid
+        # positions. Segments touching a NaN are skipped; a track is only
+        # NaN if all its segments are (hence min_count=1).
+        result = _segment_lengths(data).sum(dim="time", min_count=1)
+    else:
+        raise logger.error(
+            ValueError(
+                f"Invalid value for nan_policy: {nan_policy!r}. "
+                "Must be 'interpolate' or 'omit'. Note: 'ffill' was "
+                "renamed to 'interpolate' (identical behaviour)."
+            )
+        )
+    result.name = "path_length"
+    result.attrs["long_name"] = "Path Length"
+    return result
 
 
 def compute_path_straightness(
@@ -191,8 +213,10 @@ def compute_path_straightness(
     >>> si = compute_path_straightness(centroid.sel(time=slice(0, 100)))
 
     """
-    data = _validate_time_points(data, "path straightness")
-    path_length = _path_length(data, "interpolate", nan_warn_threshold)
+    # compute_path_length validates the input data
+    path_length = compute_path_length(
+        data, nan_warn_threshold=nan_warn_threshold
+    )
     # Compute D/L ratio, avoiding division by zero
     result = _path_distance(data) / path_length.where(path_length > 0)
     result.name = "straightness_index"
@@ -837,40 +861,6 @@ def _path_distance(data: xr.DataArray) -> xr.DataArray:
         anchored_data.isel(time=-1) - anchored_data.isel(time=0)
     )
     return distance
-
-
-def _path_length(
-    data: xr.DataArray,
-    nan_policy: Literal["interpolate", "omit"],
-    nan_warn_threshold: float,
-) -> xr.DataArray:
-    """Compute path length on already-validated data.
-
-    See :func:`compute_path_length` for parameter details.
-    """
-    _warn_about_nan_proportion(data, nan_warn_threshold)
-    if nan_policy == "interpolate":
-        # Forward-fill, which gives the same segment-length sum as linear
-        # interpolation over the gaps.
-        result = _segment_lengths(data.ffill(dim="time")).sum(
-            dim="time", min_count=1
-        )
-    elif nan_policy == "omit":
-        # Sum the lengths of the segments between consecutive valid
-        # positions. Segments touching a NaN are skipped; a track is only
-        # NaN if all its segments are (hence min_count=1).
-        result = _segment_lengths(data).sum(dim="time", min_count=1)
-    else:
-        raise logger.error(
-            ValueError(
-                f"Invalid value for nan_policy: {nan_policy!r}. "
-                "Must be 'interpolate' or 'omit'. Note: 'ffill' was "
-                "renamed to 'interpolate' (identical behaviour)."
-            )
-        )
-    result.name = "path_length"
-    result.attrs["long_name"] = "Path Length"
-    return result
 
 
 def _warn_about_nan_proportion(
