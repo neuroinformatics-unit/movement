@@ -344,21 +344,18 @@ def to_sleap_analysis_file(ds: xr.Dataset, file: str | Path) -> None:
     # Compute frame indices from fps, if set
     fps = getattr(ds, "fps", None)
     if fps is not None:
-        frame_idxs = np.rint(ds.time.values * fps).astype(int).tolist()
+        frame_idxs = np.rint(ds.time.values * fps).astype(int)
     else:
-        frame_idxs = ds.time.values.astype(int).tolist()
-    n_frames = frame_idxs[-1] - frame_idxs[0] + 1
-    rows = np.asarray(frame_idxs) - frame_idxs[0]
-    pos_x = ds.position.sel(space="x").values
-    # Mask denoting which individuals are present in each frame
-    track_occupancy = np.zeros((n_frames, n_individuals), dtype=int)
-    track_occupancy[rows] = ~np.all(np.isnan(pos_x), axis=1)
-    position = ds.position.data.transpose(3, 1, 2, 0)
-    tracks = np.full(position.shape[:-1] + (n_frames,), np.nan)
-    tracks[..., rows] = position
-    confidence = ds.confidence.data.T
-    point_scores = np.full(confidence.shape[:-1] + (n_frames,), np.nan)
-    point_scores[..., rows] = confidence
+        frame_idxs = ds.time.values.astype(int)
+    ds_full = ds.assign_coords(time=frame_idxs).reindex(
+        time=np.arange(frame_idxs.min(), frame_idxs.max() + 1)
+    )
+    n_frames = ds_full.sizes["time"]
+    track_occupancy = (
+        ds_full.position.notnull().any(["space", "keypoint"])
+    ).values.astype(int)
+    tracks = ds_full.position.data.transpose(3, 1, 2, 0)
+    point_scores = ds_full.confidence.data.T
     instance_scores = np.full((n_individuals, n_frames), np.nan, dtype=float)
     tracking_scores = np.full((n_individuals, n_frames), np.nan, dtype=float)
     source_file = getattr(ds, "source_file", None)
