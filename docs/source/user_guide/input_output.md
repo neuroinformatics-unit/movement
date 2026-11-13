@@ -399,9 +399,9 @@ Point-wise `confidence` is saved as `point_scores`, while individual-wise
 `labels_path` will only be saved if the source
 file of the dataset is a SLEAP .slp file. Otherwise, it will be an empty string.
 Other attributes and data variables
-(i.e., `tracking_scores`, `edge_names`, `edge_inds`, `video_path`,
-`video_ind`, and `provenance`) are not currently supported. To learn more about what
-each attribute and data variable represents, see the
+(e.g. `tracking_scores`, `edge_names`, `video_path`) are not currently supported.
+
+To learn more about what each attribute and data variable represents, see the
 [SLEAP documentation](sleap-docs:api/info/write_tracking_h5/#sleap.info.write_tracking_h5).
 ::::
 
@@ -633,7 +633,7 @@ available for this dataset, or if you did not request it.
 
 Some datasets also include a sample frame file, which is a single
 still frame extracted from the video. This can be useful for visualisation
-(e.g., as a background image for plotting trajectories). If available,
+(e.g. as a background image for plotting trajectories). If available,
 this file is always downloaded when fetching the dataset,
 and its path is stored in the `frame_path` attribute
 (i.e., `ds.frame_path`). If no frame file is available for the dataset,
