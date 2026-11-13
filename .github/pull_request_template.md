@@ -1,7 +1,9 @@
 <!--
-Thanks for contributing to movement! Before opening a PR, please read the
-contributing guide: https://movement.neuroinformatics.dev/latest/community/contributing.html
-If anything is unclear, open a draft PR and ask — we're happy to help.
+Before submitting a pull request (PR), please read the contributing guide:
+https://movement.neuroinformatics.dev/latest/community/contributing.html
+
+Please fill out as much of this template as you can, but if you have any
+problems or questions, just leave a comment and we will help out :)
 -->
 
 ## References
@@ -25,4 +27,6 @@ Note: We are humans who enjoy working with other humans. You may use
 whatever tools you like, but you are ultimately responsible for the changes
 you submit. Don't submit changes you haven't carefully read through
 yourself, and let us have a conversation with you, not a chatbot.
+Please read our AI policy before submitting:
+https://neuroinformatics.dev/get-involved/ai_policy.html
 -->
