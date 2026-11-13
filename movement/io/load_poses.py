@@ -688,10 +688,12 @@ def _ds_from_sleap_analysis_file(file: Path, fps: float | None) -> xr.Dataset:
         # instance scores, and transpose to shape (n_frames, n_keypoints,
         # n_tracks) or (n_frames, n_tracks) respectively.
         for key in ("point_scores", "instance_scores"):
-            if key in f and not np.all(np.isnan(f[key])):
-                scores = f[key][:].T
-                logger.info(f"Using {key} for confidence scores.")
-                break
+            if key in f:
+                candidate = f[key][:]
+                if not np.isnan(candidate).all():
+                    scores = candidate.T
+                    logger.info(f"Using {key} for confidence scores.")
+                    break
         return from_numpy(
             position_array=tracks.astype(np.float32),
             confidence_array=scores.astype(np.float32),
