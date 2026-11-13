@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=86b04860"></script>
+    <script src="../../../_static/documentation_options.js?v=dcd74bed"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -142,7 +142,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev88</p>
+    <p class="title logo__title">movement v0.18.1.dev1</p>
   
 </a></div>
     
@@ -795,13 +795,21 @@
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
-<span class="sd">    The output file will contain the following keys (as in SLEAP .h5 analysis</span>
-<span class="sd">    files):</span>
+<span class="sd">    The output file will contain the following keys (matching the structure of</span>
+<span class="sd">    SLEAP .h5 analysis files):</span>
 <span class="sd">    "track_names", "node_names", "tracks", "track_occupancy", "point_scores",</span>
 <span class="sd">    "instance_scores", "tracking_scores", "labels_path", "edge_names",</span>
 <span class="sd">    "edge_inds", "video_path", "video_ind", "provenance" [1]_.</span>
-<span class="sd">    However, only "track_names", "node_names", "tracks", "track_occupancy"</span>
-<span class="sd">    and "point_scores" will contain data extracted from the input dataset.</span>
+<span class="sd">    However, only "track_names", "node_names", "tracks" and "track_occupancy"</span>
+<span class="sd">    are guaranteed to contain data extracted from the input dataset.</span>
+<span class="sd">    For confidence scores, only one of "point_scores" or "instance_scores"</span>
+<span class="sd">    will be populated. The other will contain default NaN values. Specifically:</span>
+
+<span class="sd">    - "point_scores" is populated when ``ds`` contains keypoint-wise</span>
+<span class="sd">      confidence scores.</span>
+<span class="sd">    - "instance_scores" is populated when ``ds`` contains individual-wise</span>
+<span class="sd">      confidence scores.</span>
+
 <span class="sd">    "labels_path" will contain the path to the input file only if the source</span>
 <span class="sd">    file of the dataset is a SLEAP .slp file. Otherwise, it will be an empty</span>
 <span class="sd">    string.</span>
@@ -832,21 +840,27 @@
     <span class="n">individual_names</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">individual</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
     <span class="n">n_individuals</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">individual_names</span><span class="p">)</span>
     <span class="n">keypoint_names</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">keypoint</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-    <span class="c1"># Compute frame indices from fps, if set</span>
-    <span class="n">fps</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">"fps"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">fps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">frame_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">fps</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="c1"># Compute frame indices</span>
+    <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">time_unit</span> <span class="o">==</span> <span class="s2">"seconds"</span><span class="p">:</span>
+        <span class="n">frame_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">ds</span><span class="o">.</span><span class="n">fps</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">frame_idxs</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">frame_idxs</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
     <span class="n">n_frames</span> <span class="o">=</span> <span class="n">frame_idxs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">frame_idxs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
     <span class="n">pos_x</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">"x"</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
     <span class="c1"># Mask denoting which individuals are present in each frame</span>
     <span class="n">track_occupancy</span> <span class="o">=</span> <span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">pos_x</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
     <span class="n">tracks</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">point_scores</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">T</span>
-    <span class="n">instance_scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_individuals</span><span class="p">,</span> <span class="n">n_frames</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    <span class="n">tracking_scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_individuals</span><span class="p">,</span> <span class="n">n_frames</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    <span class="n">source_file</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">"source_file"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">point_scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">n_individuals</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">keypoint_names</span><span class="p">),</span> <span class="n">n_frames</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="p">)</span>
+    <span class="n">instance_scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_individuals</span><span class="p">,</span> <span class="n">n_frames</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">tracking_scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_individuals</span><span class="p">,</span> <span class="n">n_frames</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="c1"># Confidence is stored either per keypoint or per individual</span>
+    <span class="k">if</span> <span class="s2">"keypoint"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">point_scores</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">instance_scores</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">source_file</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"source_file"</span><span class="p">)</span>
     <span class="n">labels_path</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">source_file</span>
         <span class="k">if</span> <span class="n">source_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">Path</span><span class="p">(</span><span class="n">source_file</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">".slp"</span>

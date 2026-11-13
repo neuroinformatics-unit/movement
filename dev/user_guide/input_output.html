@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=86b04860"></script>
+    <script src="../_static/documentation_options.js?v=dcd74bed"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev88</p>
+    <p class="title logo__title">movement v0.18.1.dev1</p>
   
 </a></div>
     
@@ -912,13 +912,15 @@ SLEAP</label><div class="sd-tab-content docutils" id="sd-tab-item-10-content">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">save_poses</span><span class="o">.</span><span class="n">to_sleap_analysis_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">"/path/to/file.h5"</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>When saving to SLEAP-style files, only <code class="docutils literal notranslate"><span class="pre">track_names</span></code>, <code class="docutils literal notranslate"><span class="pre">node_names</span></code>, <code class="docutils literal notranslate"><span class="pre">tracks</span></code>, <code class="docutils literal notranslate"><span class="pre">track_occupancy</span></code>,
-and <code class="docutils literal notranslate"><span class="pre">point_scores</span></code> are saved. <code class="docutils literal notranslate"><span class="pre">labels_path</span></code> will only be saved if the source
+<p>When saving to SLEAP-style files, only <code class="docutils literal notranslate"><span class="pre">track_names</span></code>, <code class="docutils literal notranslate"><span class="pre">node_names</span></code>, <code class="docutils literal notranslate"><span class="pre">tracks</span></code>,
+<code class="docutils literal notranslate"><span class="pre">track_occupancy</span></code>, and either <code class="docutils literal notranslate"><span class="pre">point_scores</span></code> or <code class="docutils literal notranslate"><span class="pre">instance_scores</span></code> are saved.
+Point-wise <code class="docutils literal notranslate"><span class="pre">confidence</span></code> is saved as <code class="docutils literal notranslate"><span class="pre">point_scores</span></code>, while individual-wise
+<code class="docutils literal notranslate"><span class="pre">confidence</span></code> is saved as <code class="docutils literal notranslate"><span class="pre">instance_scores</span></code>; the other is filled with NaNs.
+<code class="docutils literal notranslate"><span class="pre">labels_path</span></code> will only be saved if the source
 file of the dataset is a SLEAP .slp file. Otherwise, it will be an empty string.
 Other attributes and data variables
-(i.e., <code class="docutils literal notranslate"><span class="pre">instance_scores</span></code>, <code class="docutils literal notranslate"><span class="pre">tracking_scores</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_names</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_inds</span></code>, <code class="docutils literal notranslate"><span class="pre">video_path</span></code>,
-<code class="docutils literal notranslate"><span class="pre">video_ind</span></code>, and <code class="docutils literal notranslate"><span class="pre">provenance</span></code>) are not currently supported. To learn more about what
-each attribute and data variable represents, see the
+(e.g. <code class="docutils literal notranslate"><span class="pre">tracking_scores</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_names</span></code>, <code class="docutils literal notranslate"><span class="pre">video_path</span></code>) are not currently supported.</p>
+<p>To learn more about what each attribute and data variable represents, see the
 <a class="reference external" href="https://docs.sleap.ai/latest/api/info/write_tracking_h5/#sleap.info.write_tracking_h5">SLEAP documentation</a>.</p>
 </div>
 <input id="sd-tab-item-11" name="sd-tab-set-2" type="radio">
@@ -1126,7 +1128,7 @@ This attribute will not be set if no video is
 available for this dataset, or if you did not request it.</p>
 <p>Some datasets also include a sample frame file, which is a single
 still frame extracted from the video. This can be useful for visualisation
-(e.g., as a background image for plotting trajectories). If available,
+(e.g. as a background image for plotting trajectories). If available,
 this file is always downloaded when fetching the dataset,
 and its path is stored in the <code class="docutils literal notranslate"><span class="pre">frame_path</span></code> attribute
 (i.e., <code class="docutils literal notranslate"><span class="pre">ds.frame_path</span></code>). If no frame file is available for the dataset,

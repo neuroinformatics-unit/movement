@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=86b04860"></script>
+    <script src="../_static/documentation_options.js?v=dcd74bed"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev88</p>
+    <p class="title logo__title">movement v0.18.1.dev1</p>
   
 </a></div>
     
@@ -719,14 +719,22 @@ and associated metadata.</p></li>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>The output file will contain the following keys (as in SLEAP .h5 analysis
-files):
+<p>The output file will contain the following keys (matching the structure of
+SLEAP .h5 analysis files):
 “track_names”, “node_names”, “tracks”, “track_occupancy”, “point_scores”,
 “instance_scores”, “tracking_scores”, “labels_path”, “edge_names”,
 “edge_inds”, “video_path”, “video_ind”, “provenance” <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.
-However, only “track_names”, “node_names”, “tracks”, “track_occupancy”
-and “point_scores” will contain data extracted from the input dataset.
-“labels_path” will contain the path to the input file only if the source
+However, only “track_names”, “node_names”, “tracks” and “track_occupancy”
+are guaranteed to contain data extracted from the input dataset.
+For confidence scores, only one of “point_scores” or “instance_scores”
+will be populated. The other will contain default NaN values. Specifically:</p>
+<ul class="simple">
+<li><p>“point_scores” is populated when <code class="docutils literal notranslate"><span class="pre">ds</span></code> contains keypoint-wise
+confidence scores.</p></li>
+<li><p>“instance_scores” is populated when <code class="docutils literal notranslate"><span class="pre">ds</span></code> contains individual-wise
+confidence scores.</p></li>
+</ul>
+<p>“labels_path” will contain the path to the input file only if the source
 file of the dataset is a SLEAP .slp file. Otherwise, it will be an empty
 string.
 The other attributes and data variables that are not present in the input

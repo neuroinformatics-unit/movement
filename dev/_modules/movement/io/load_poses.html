@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=86b04860"></script>
+    <script src="../../../_static/documentation_options.js?v=dcd74bed"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -142,7 +142,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev88</p>
+    <p class="title logo__title">movement v0.18.1.dev1</p>
   
 </a></div>
     
@@ -528,8 +528,9 @@
 <span class="sd">        :class:`xarray.DataArray` object named "position".</span>
 <span class="sd">    confidence_array</span>
 <span class="sd">        Array of shape (n_frames, n_keypoints, n_individuals) containing</span>
-<span class="sd">        the point-wise confidence scores. It will be converted to a</span>
-<span class="sd">        :class:`xarray.DataArray` object named "confidence".</span>
+<span class="sd">        point-wise confidence scores, or of shape (n_frames, n_individuals)</span>
+<span class="sd">        containing individual-wise confidence scores. It will be converted</span>
+<span class="sd">        to a :class:`xarray.DataArray` object named "confidence".</span>
 <span class="sd">        If None (default), the scores will be set to an array of NaNs.</span>
 <span class="sd">    individual_names</span>
 <span class="sd">        List of unique names for the individuals in the video. If None</span>
@@ -743,11 +744,19 @@
 <span class="sd">    "Export Analysis HDF5…" from the "File" menu) [1]_. This is the</span>
 <span class="sd">    preferred format for loading pose tracks from SLEAP into *movement*.</span>
 
+<span class="sd">    When loading an analysis file, ``point_scores`` are loaded as point-wise</span>
+<span class="sd">    ``confidence``, with dimensions ``(time, keypoint, individual)``, if</span>
+<span class="sd">    present. Otherwise, ``instance_scores`` are loaded as individual-wise</span>
+<span class="sd">    ``confidence``, with dimensions ``(time, individual)``. If neither is</span>
+<span class="sd">    available, the confidence scores are set to NaN.</span>
+
 <span class="sd">    You can also directly load the .slp file. However, if the file contains</span>
 <span class="sd">    multiple videos, only the pose tracks from the first video will be loaded.</span>
 <span class="sd">    If the file contains a mix of user-labelled and predicted instances, user</span>
 <span class="sd">    labels are prioritised over predicted instances to mirror SLEAP's approach</span>
-<span class="sd">    when exporting .h5 analysis files [2]_.</span>
+<span class="sd">    when exporting .h5 analysis files [2]_. Only point scores are loaded, as</span>
+<span class="sd">    point-wise ``confidence``; user-labelled instances have no scores, so</span>
+<span class="sd">    their confidence scores are set to NaN.</span>
 
 <span class="sd">    *movement* expects the tracks to be assigned and proofread before loading</span>
 <span class="sd">    them, meaning each track is interpreted as a single individual. If</span>
@@ -1182,10 +1191,16 @@
                 <span class="s2">"Assuming single-individual dataset and assigning "</span>
                 <span class="s2">"default individual name."</span>
             <span class="p">)</span>
-        <span class="c1"># If present, read the point-wise scores,</span>
-        <span class="c1"># and transpose to shape: (n_frames, n_keypoints, n_tracks)</span>
-        <span class="k">if</span> <span class="s2">"point_scores"</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">scores</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s2">"point_scores"</span><span class="p">][:]</span><span class="o">.</span><span class="n">T</span>
+        <span class="c1"># Prioritise point scores if present and non-empty, otherwise use</span>
+        <span class="c1"># instance scores, and transpose to shape (n_frames, n_keypoints,</span>
+        <span class="c1"># n_tracks) or (n_frames, n_tracks) respectively.</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"point_scores"</span><span class="p">,</span> <span class="s2">"instance_scores"</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">candidate</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">key</span><span class="p">][:]</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">candidate</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                    <span class="n">scores</span> <span class="o">=</span> <span class="n">candidate</span><span class="o">.</span><span class="n">T</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Using </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> for confidence scores."</span><span class="p">)</span>
+                    <span class="k">break</span>
         <span class="k">return</span> <span class="n">from_numpy</span><span class="p">(</span>
             <span class="n">position_array</span><span class="o">=</span><span class="n">tracks</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
             <span class="n">confidence_array</span><span class="o">=</span><span class="n">scores</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
