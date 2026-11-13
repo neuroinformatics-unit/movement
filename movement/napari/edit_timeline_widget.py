@@ -19,6 +19,8 @@ from napari.viewer import Viewer
 from qtpy.QtCore import QTimer, Signal
 from qtpy.QtWidgets import (
     QCheckBox,
+    QComboBox,
+    QGroupBox,
     QLabel,
     QMessageBox,
     QPushButton,
@@ -26,6 +28,10 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
+from movement.napari.edit_action_widgets import (
+    EditActionStack,
+    get_supported_edit_actions,
+)
 from movement.napari.layer_wiring import (
     MAX_FRAME_IDX_KEY,
     POINTS_POSITION_KEY,
@@ -87,6 +93,7 @@ class EditControlsWidget(QWidget):
         layout = QVBoxLayout()
         layout.addWidget(instructions)
         layout.addWidget(self.show_individuals_checkbox)
+
         self.reset_frame_button = QPushButton("Reset current frame")
         self.reset_all_button = QPushButton("Reset all frames")
         self.reset_frame_button.setToolTip(
@@ -101,6 +108,49 @@ class EditControlsWidget(QWidget):
             layout.addWidget(button)
         self.reset_frame_button.clicked.connect(self._on_reset_frame_clicked)
         self.reset_all_button.clicked.connect(self._on_reset_all_clicked)
+
+        # List of all edit action widget containers
+        self.valid_edit_actions = get_supported_edit_actions(napari_viewer)
+
+        # Dropdown for selecting an edit action
+        self.select_edit_action_dropdown = QComboBox()
+        self.select_edit_action_dropdown.setPlaceholderText(
+            "Select an action type..."
+        )
+        for edit_action in self.valid_edit_actions:
+            self.select_edit_action_dropdown.addItem(
+                edit_action.combo_box_label
+            )
+        self.select_edit_action_dropdown.setCurrentIndex(-1)
+
+        # Container for all bulk edit widgets
+        self.edit_action_container = QGroupBox("Edit Actions")
+        self.edit_action_container.setFlat(True)
+        edit_action_layout = QVBoxLayout()
+        edit_action_layout.addWidget(self.select_edit_action_dropdown)
+        self.edit_action_container.setLayout(edit_action_layout)
+        layout.addWidget(self.edit_action_container)
+
+        # Stacked widget to hold all edit action subwidgets
+        # Also adds a dummy widget at idx 0 so the user must
+        # deliberately select an edit action to access the editor UI
+        self.edit_action_stack = EditActionStack()
+        self.edit_action_stack.addWidget(QWidget())
+        for edit_action in self.valid_edit_actions:
+            self.edit_action_stack.addWidget(edit_action.widget)
+        self.edit_action_stack.setCurrentIndex(0)
+        edit_action_layout.addWidget(self.edit_action_stack)
+
+        # Connect edit action dropdown to the widget stack
+        self.select_edit_action_dropdown.currentIndexChanged.connect(
+            lambda: self.edit_action_stack.setCurrentIndex(
+                self.select_edit_action_dropdown.currentIndex() + 1
+            )
+        )
+        # Hide widget stack at first; the subwidgets will unhide it
+        # when a movement points layer is added.
+        self.edit_action_stack.setVisible(False)
+
         for event in (
             self.viewer.layers.events.inserted,
             self.viewer.layers.events.removed,
@@ -111,6 +161,11 @@ class EditControlsWidget(QWidget):
             event.connect(self._schedule_reset_enabled)
         self._update_reset_enabled()
         self.setLayout(layout)
+
+    def _update_edit_action_stack(self):
+        self.edit_action_stack.setCurrentIndex(
+            self.select_edit_action_dropdown.currentIndex() + 1
+        )
 
     def _resettable_layer(self):
         """Find a loaded pose layer with its companion still in the viewer."""
