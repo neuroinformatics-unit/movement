@@ -46,8 +46,9 @@ def from_numpy(
         :class:`xarray.DataArray` object named "position".
     confidence_array
         Array of shape (n_frames, n_keypoints, n_individuals) containing
-        the point-wise confidence scores. It will be converted to a
-        :class:`xarray.DataArray` object named "confidence".
+        point-wise confidence scores, or of shape (n_frames, n_individuals)
+        containing individual-wise confidence scores. It will be converted
+        to a :class:`xarray.DataArray` object named "confidence".
         If None (default), the scores will be set to an array of NaNs.
     individual_names
         List of unique names for the individuals in the video. If None
@@ -255,11 +256,19 @@ def from_sleap_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     "Export Analysis HDF5…" from the "File" menu) [1]_. This is the
     preferred format for loading pose tracks from SLEAP into *movement*.
 
+    When loading an analysis file, ``point_scores`` are loaded as point-wise
+    ``confidence``, with dimensions ``(time, keypoint, individual)``, if
+    present. Otherwise, ``instance_scores`` are loaded as individual-wise
+    ``confidence``, with dimensions ``(time, individual)``. If neither is
+    available, the confidence scores are set to NaN.
+
     You can also directly load the .slp file. However, if the file contains
     multiple videos, only the pose tracks from the first video will be loaded.
     If the file contains a mix of user-labelled and predicted instances, user
     labels are prioritised over predicted instances to mirror SLEAP's approach
-    when exporting .h5 analysis files [2]_.
+    when exporting .h5 analysis files [2]_. Only point scores are loaded, as
+    point-wise ``confidence``; user-labelled instances have no scores, so
+    their confidence scores are set to NaN.
 
     *movement* expects the tracks to be assigned and proofread before loading
     them, meaning each track is interpreted as a single individual. If
