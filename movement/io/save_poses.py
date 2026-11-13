@@ -304,13 +304,21 @@ def to_sleap_analysis_file(ds: xr.Dataset, file: str | Path) -> None:
 
     Notes
     -----
-    The output file will contain the following keys (as in SLEAP .h5 analysis
-    files):
+    The output file will contain the following keys (matching the structure of
+    SLEAP .h5 analysis files):
     "track_names", "node_names", "tracks", "track_occupancy", "point_scores",
     "instance_scores", "tracking_scores", "labels_path", "edge_names",
     "edge_inds", "video_path", "video_ind", "provenance" [1]_.
-    However, only "track_names", "node_names", "tracks", "track_occupancy"
-    and "point_scores" will contain data extracted from the input dataset.
+    However, only "track_names", "node_names", "tracks" and "track_occupancy"
+    are guaranteed to contain data extracted from the input dataset.
+    For confidence scores, only one of "point_scores" or "instance_scores"
+    will be populated. The other will contain default NaN values. Specifically:
+
+    - "point_scores" is populated when ``ds`` contains keypoint-wise
+      confidence scores.
+    - "instance_scores" is populated when ``ds`` contains individual-wise
+      confidence scores.
+
     "labels_path" will contain the path to the input file only if the source
     file of the dataset is a SLEAP .slp file. Otherwise, it will be an empty
     string.
@@ -341,21 +349,27 @@ def to_sleap_analysis_file(ds: xr.Dataset, file: str | Path) -> None:
     individual_names = ds.individual.values.tolist()
     n_individuals = len(individual_names)
     keypoint_names = ds.keypoint.values.tolist()
-    # Compute frame indices from fps, if set
-    fps = getattr(ds, "fps", None)
-    if fps is not None:
-        frame_idxs = np.rint(ds.time.values * fps).astype(int).tolist()
+    # Compute frame indices
+    if ds.time_unit == "seconds":
+        frame_idxs = np.rint(ds.time.values * ds.fps).astype(int)
     else:
-        frame_idxs = ds.time.values.astype(int).tolist()
+        frame_idxs = ds.time.values.astype(int)
     n_frames = frame_idxs[-1] - frame_idxs[0] + 1
     pos_x = ds.position.sel(space="x").values
     # Mask denoting which individuals are present in each frame
     track_occupancy = (~np.all(np.isnan(pos_x), axis=1)).astype(int)
     tracks = ds.position.data.transpose(3, 1, 2, 0)
-    point_scores = ds.confidence.data.T
-    instance_scores = np.full((n_individuals, n_frames), np.nan, dtype=float)
-    tracking_scores = np.full((n_individuals, n_frames), np.nan, dtype=float)
-    source_file = getattr(ds, "source_file", None)
+    point_scores = np.full(
+        (n_individuals, len(keypoint_names), n_frames), np.nan
+    )
+    instance_scores = np.full((n_individuals, n_frames), np.nan)
+    tracking_scores = np.full((n_individuals, n_frames), np.nan)
+    # Confidence is stored either per keypoint or per individual
+    if "keypoint" in ds.confidence.dims:
+        point_scores = ds.confidence.data.T
+    else:
+        instance_scores = ds.confidence.data.T
+    source_file = ds.attrs.get("source_file")
     labels_path = (
         source_file
         if source_file is not None and Path(source_file).suffix == ".slp"
