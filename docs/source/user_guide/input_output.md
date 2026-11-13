@@ -392,11 +392,14 @@ To save as a SLEAP analysis file in .h5 format:
 ```python
 save_poses.to_sleap_analysis_file(ds, "/path/to/file.h5")
 ```
-When saving to SLEAP-style files, only `track_names`, `node_names`, `tracks`, `track_occupancy`,
-and `point_scores` are saved. `labels_path` will only be saved if the source
+When saving to SLEAP-style files, only `track_names`, `node_names`, `tracks`,
+`track_occupancy`, and either `point_scores` or `instance_scores` are saved.
+Point-wise `confidence` is saved as `point_scores`, while individual-wise
+`confidence` is saved as `instance_scores`; the other is filled with NaNs.
+`labels_path` will only be saved if the source
 file of the dataset is a SLEAP .slp file. Otherwise, it will be an empty string.
 Other attributes and data variables
-(i.e., `instance_scores`, `tracking_scores`, `edge_names`, `edge_inds`, `video_path`,
+(i.e., `tracking_scores`, `edge_names`, `edge_inds`, `video_path`,
 `video_ind`, and `provenance`) are not currently supported. To learn more about what
 each attribute and data variable represents, see the
 [SLEAP documentation](sleap-docs:api/info/write_tracking_h5/#sleap.info.write_tracking_h5).
