@@ -349,12 +349,11 @@ def to_sleap_analysis_file(ds: xr.Dataset, file: str | Path) -> None:
     individual_names = ds.individual.values.tolist()
     n_individuals = len(individual_names)
     keypoint_names = ds.keypoint.values.tolist()
-    # Compute frame indices from fps, if set
-    fps = ds.attrs.get("fps")
-    if fps is not None:
-        frame_idxs = np.rint(ds.time.values * fps).astype(int).tolist()
+    # Compute frame indices
+    if ds.time_unit == "seconds":
+        frame_idxs = np.rint(ds.time.values * ds.fps).astype(int)
     else:
-        frame_idxs = ds.time.values.astype(int).tolist()
+        frame_idxs = ds.time.values.astype(int)
     n_frames = frame_idxs[-1] - frame_idxs[0] + 1
     pos_x = ds.position.sel(space="x").values
     # Mask denoting which individuals are present in each frame
