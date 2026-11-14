@@ -4,12 +4,17 @@ from pathlib import Path
 from typing import cast
 
 import numpy as np
+import pandas as pd
 import xarray as xr
 
 from movement.io.load import register_loader
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidBboxesInputs
-from movement.validators.files import DEFAULT_FRAME_REGEXP, ValidVIATracksCSV
+from movement.validators.files import (
+    DEFAULT_FRAME_REGEXP,
+    ValidOCTRONCSV,
+    ValidVIATracksCSV,
+)
 
 
 def from_numpy(
@@ -343,3 +348,82 @@ def _numpy_arrays_from_valid_via_object(
         "ID_array": unique_ids.reshape(-1, 1),
         "frame_array": unique_frames.reshape(-1, 1),
     }
+
+
+@register_loader("OCTRON", file_validators=[ValidOCTRONCSV])
+def from_octron_file(
+    file: str | Path,
+    fps: float | None = None,
+    additional_files: list[str | Path] | None = None,
+) -> xr.Dataset:
+    """Load OCTRON tracking CSVs from one video as bounding boxes.
+
+    Parameters
+    ----------
+    file
+        Path to an OCTRON per-track CSV, including its metadata header.
+    fps
+        Sampling rate of the original video. If omitted, time is in frames.
+    additional_files
+        Other per-track CSVs from the same video to combine with ``file``.
+        The video name, dimensions and frame counts must agree.
+
+    Returns
+    -------
+    xarray.Dataset
+        Bounding box centres, widths, heights and confidence scores.
+        Original zero-based ``frame_idx`` values are preserved over the full
+        video duration. Missing observations remain NaN. Individuals are named
+        ``id_<track_id>``; OCTRON class labels do not identify individuals.
+
+    Notes
+    -----
+    Position is calculated from bounding box corners, rather than OCTRON's
+    ``pos_x`` and ``pos_y``, which can describe segmentation centroids.
+    No interpolation, smoothing or identity reassignment is performed.
+
+    """
+    first = cast("ValidOCTRONCSV", file)
+    files = [first] + [ValidOCTRONCSV(path) for path in additional_files or []]
+    for other in files[1:]:
+        for key in (
+            "video_name",
+            "frame_count",
+            "frame_count_analyzed",
+            "video_height",
+            "video_width",
+        ):
+            if other.metadata[key] != first.metadata[key]:
+                raise ValueError("OCTRON CSVs must describe the same video.")
+    data = pd.concat([item.data for item in files], ignore_index=True)
+    if data.duplicated(["frame_idx", "track_id"]).any():
+        raise ValueError(
+            "Duplicate OCTRON frame_idx and track_id observations."
+        )
+    ids = np.sort(data.track_id.unique())
+    frames = np.arange(int(first.metadata["frame_count"]))
+    position = np.full((len(frames), 2, len(ids)), np.nan)
+    shape = np.full_like(position, np.nan)
+    confidence = np.full((len(frames), len(ids)), np.nan)
+    for individual, track_id in enumerate(ids):
+        track = data[data.track_id == track_id]
+        indices = track.frame_idx.to_numpy()
+        for axis, name in enumerate(("x", "y")):
+            lower = track[f"bbox_{name}_min"].to_numpy()
+            upper = track[f"bbox_{name}_max"].to_numpy()
+            position[indices, axis, individual] = (lower + upper) / 2
+            shape[indices, axis, individual] = upper - lower
+        confidence[indices, individual] = track.confidence.to_numpy()
+    ds = from_numpy(
+        position_array=position,
+        shape_array=shape,
+        confidence_array=confidence,
+        individual_names=[f"id_{track_id}" for track_id in ids],
+        frame_array=frames.reshape(-1, 1),
+        fps=fps,
+        source_software="OCTRON",
+    )
+    ds.attrs["source_file"] = first.file.as_posix()
+    if len(files) > 1:
+        ds.attrs["source_files"] = [item.file.as_posix() for item in files]
+    return ds
