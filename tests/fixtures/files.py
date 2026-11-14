@@ -539,13 +539,12 @@ def invalid_netcdf_file_missing_confidence(
     """Create an invalid 'poses' netCDF file missing the
     'confidence' variable.
     """
-    ds = xr.open_dataset(valid_netcdf_file)
+    ds = xr.load_dataset(valid_netcdf_file)
     del ds["confidence"]
-
     temp_dir = tmp_path_factory.mktemp("invalid_netcdf")
     invalid_path = temp_dir / "invalid_file_missing_confidence.nc"
     ds.to_netcdf(invalid_path)
-    yield str(invalid_path)
+    return str(invalid_path)
 
 
 @pytest.fixture(scope="session")
@@ -557,18 +556,29 @@ def unopenable_netcdf_file(tmp_path_factory):
     invalid_path = temp_dir / "unopenable_file.nc"
     with open(invalid_path, "w") as f:
         f.write("This is not a real netCDF file")
-    yield str(invalid_path)
+    return str(invalid_path)
 
 
 @pytest.fixture(scope="session")
 def invalid_dstype_netcdf_file(tmp_path_factory, valid_netcdf_file):
     """Create a valid netCDF file but with an invalid 'ds_type' attribute."""
-    ds = xr.open_dataset(valid_netcdf_file)
-
+    ds = xr.load_dataset(valid_netcdf_file)
     ds.attrs["ds_type"] = "not_a_valid_type"
-
     temp_dir = tmp_path_factory.mktemp("invalid_netcdf")
     invalid_path = temp_dir / "invalid_dstype_file.nc"
     ds.to_netcdf(invalid_path)
+    return str(invalid_path)
 
-    yield str(invalid_path)
+
+@pytest.fixture(scope="session")
+def legacy_dims_netcdf_file(tmp_path_factory, valid_netcdf_file):
+    """Create a netCDF file with the plural dimension names used by
+    movement < 0.17.0 ("keypoints", "individuals").
+    """
+    ds = xr.load_dataset(valid_netcdf_file).rename(
+        {"keypoint": "keypoints", "individual": "individuals"}
+    )
+    temp_dir = tmp_path_factory.mktemp("invalid_netcdf")
+    legacy_path = temp_dir / "legacy_dims_file.nc"
+    ds.to_netcdf(legacy_path)
+    return str(legacy_path)

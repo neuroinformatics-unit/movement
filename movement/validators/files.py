@@ -12,6 +12,7 @@ import jsonschema
 import numpy as np
 import orjson
 import pandas as pd
+import xarray as xr
 from attrs import Attribute, converters, define, field, validators
 from pynwb import NWBFile
 
@@ -22,6 +23,7 @@ from movement.validators._json_schemas import (
     ROI_COLLECTION_SCHEMA,
     ROI_TYPE_TO_GEOMETRY,
 )
+from movement.validators.datasets import DS_TYPE_VALIDATORS
 
 DEFAULT_FRAME_REGEXP = r"(0\d*)\.\w+$"
 JSON_SUFFIX = ".json"
@@ -1218,3 +1220,57 @@ class ValidROICollectionGeoJSON:
 
     data: dict = field(init=False, factory=dict)
     """Parsed JSON data from the file, available after validation."""
+
+
+@define
+class ValidMovementNetCDF:
+    """Class for validating movement netCDF (.nc) files.
+
+    The validator ensures that the file:
+
+    - is a valid netCDF (.nc) file, and
+    - contains the expected dimensions and variables for a ``movement``
+      dataset.
+
+    Raises
+    ------
+    ValueError
+        If the file is not a valid netCDF file or does not match the expected
+        structure for a ``movement`` dataset.
+
+    """
+
+    suffixes: ClassVar[set[str]] = {".nc"}
+    """Expected suffix(es) for the file."""
+
+    file: Path = field(
+        converter=Path,
+        validator=_file_validator(permission="r", suffixes=suffixes),
+    )
+    """Path to the movement netCDF (.nc) file to validate."""
+
+    def __attrs_post_init__(self) -> None:
+        """Validate the dimensions and variables of the dataset."""
+        with xr.open_dataset(self.file) as ds:
+            # Datasets saved with movement < 0.17.0 used plural dim names
+            legacy_dims = {"keypoints", "individuals"} & set(ds.dims)
+            if legacy_dims:
+                raise logger.error(
+                    ValueError(
+                        "The netCDF file uses legacy dimension names "
+                        f"{sorted(legacy_dims)} from movement < 0.17.0. "
+                        "Open it with xarray.load_dataset, rename the "
+                        "dimensions with ds.rename({'keypoints': 'keypoint', "
+                        "'individuals': 'individual'}), and save it again "
+                        "with movement.io.save.save_dataset."
+                    )
+                )
+            ds_type = ds.attrs.get("ds_type", None)
+            if ds_type not in DS_TYPE_VALIDATORS:
+                raise logger.error(
+                    ValueError(
+                        f"The netCDF file has an unknown 'ds_type' "
+                        f"attribute: {ds_type}."
+                    )
+                )
+            DS_TYPE_VALIDATORS[ds_type].validate(ds)

@@ -151,7 +151,7 @@ Below is a small example showing how to save a GUI-compatible
 netCDF file with `movement`:
 
 ```python
-from movement.io import load_dataset
+from movement.io import load_dataset, save_dataset
 from movement.filtering import rolling_filter
 
 ds_orig = load_dataset(
@@ -168,7 +168,7 @@ ds_new["position"] = rolling_filter(
 )
 
 # Save the processed dataset to a netCDF file
-ds_new.to_netcdf("my_data_processed.nc")
+save_dataset(ds_new, "my_data_processed.nc")
 ```
 
 Because `ds_new` is copied from the original dataset, it retains all required
@@ -179,9 +179,9 @@ after processing, as expected.
 
 To load tracked data in `napari`:
 
-1. From the `source software` dropdown menu select the name of the tracking software you used to generate the data (e.g. "DeepLabCut"), or choose "movement (netCDF)".
+1. From the `source software` dropdown menu select the name of the tracking software you used to generate the data (e.g. "DeepLabCut"), or choose "movement" if you are loading a `movement` netCDF file.
 2. Set the `fps` (frames per second) of the video the data refers to. This only changes the time units shown when you hover over a keypoint. An unknown `fps` can be set to `1`, which makes the displayed time equal to the frame index.
-The `fps` option is disabled when loading a netCDF file because the `fps` is directly read from the file's attributes.
+The `fps` option is disabled when loading a `movement` netCDF file, because the `fps` is read from the file's attributes and shown in the box once the file is loaded.
 3. Specify the file containing the tracked data. You can paste the path to the file directly in the text box, or click `Browse` to use the file browser.
 4. Click `Load`.
 
