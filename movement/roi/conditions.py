@@ -1,6 +1,7 @@
 """Functions for computing condition arrays involving RoIs."""
 
 from collections import defaultdict
+from typing import Literal
 
 import numpy as np
 import xarray as xr
@@ -96,3 +97,214 @@ def compute_region_occupancy(
     return xr.concat(occupancies.values(), dim="region").assign_coords(
         region=list(occupancies.keys())
     )
+
+
+def _debounce_columns(flat: np.ndarray, min_frames: int) -> np.ndarray:
+    """Debounce each column of a 2-D boolean array along axis 0.
+
+    A state change is only accepted after it has been sustained for
+    ``min_frames`` consecutive frames.  The initial state at row 0 is
+    always accepted as-is.
+
+    Parameters
+    ----------
+    flat : np.ndarray
+        2-D boolean array of shape ``(T, n_cols)``.
+    min_frames : int
+        Minimum number of consecutive frames required for a state change
+        to be accepted.
+
+    Returns
+    -------
+    np.ndarray
+        Debounced boolean array of the same shape as ``flat``.
+
+    """
+    T, n_cols = flat.shape
+    debounced = flat.copy()
+    for col in range(n_cols):
+        state = bool(flat[0, col])
+        debounced[0, col] = state
+        diff_run = 0
+        for t in range(1, T):
+            v = bool(flat[t, col])
+            if v == state:
+                diff_run = 0
+                debounced[t, col] = state
+            else:
+                diff_run += 1
+                if diff_run >= min_frames:
+                    state = v
+                    debounced[t, col] = state
+                    diff_run = 0
+                else:
+                    debounced[t, col] = state
+    return debounced
+
+
+def _debounce_occupancy(
+    occupancy: xr.DataArray, min_frames: int
+) -> xr.DataArray:
+    """Apply a symmetric debounce filter along the time axis.
+
+    Parameters
+    ----------
+    occupancy : xr.DataArray
+        Boolean DataArray containing occupancy information.
+    min_frames : int
+        Minimum number of consecutive frames required for a state change
+        to be accepted.
+
+    Returns
+    -------
+    xr.DataArray
+        Debounced boolean DataArray with the same shape and coordinates
+        as ``occupancy``.
+
+    """
+    time_axis = occupancy.get_axis_num("time")
+    occ_np = occupancy.values
+    occ_time_first = np.moveaxis(occ_np, time_axis, 0)
+    T = occ_time_first.shape[0]
+    if T == 0:
+        return occupancy
+    flat = occ_time_first.reshape(T, -1)
+    debounced_2d = _debounce_columns(flat, min_frames)
+    debounced_nd = debounced_2d.reshape(occ_time_first.shape)
+    result_np = np.moveaxis(debounced_nd, 0, time_axis)
+    return xr.DataArray(
+        result_np.astype(bool),
+        coords=occupancy.coords,
+        dims=occupancy.dims,
+    )
+
+
+def compute_entry_exits(
+    data: xr.DataArray,
+    regions: ROICollection,
+    mode: Literal["centroid", "all", "any", "majority"] = "centroid",
+    min_frames: int = 1,
+) -> xr.DataArray:
+    """Return an array indicating when keypoints entered or exited regions.
+
+    Detects transitions into and out of Regions of Interest (RoIs) and
+    returns an integer ``DataArray`` where ``+1`` marks an entry event
+    and ``-1`` marks an exit event.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        Position data to check against the ``regions``. Must contain at
+        least ``time`` and ``space`` dimensions. If a ``keypoints``
+        dimension is present, it is collapsed according to ``mode``.
+    regions : Sequence[BaseRegionOfInterest]
+        Regions of Interest to detect entries and exits for.
+    mode : {"centroid", "all", "any", "majority"}, optional
+        How to aggregate across the ``keypoints`` dimension when present.
+
+        - ``"centroid"``: compute the spatial mean across keypoints
+          first, then check occupancy of the resulting centroid point.
+        - ``"all"``: the subject is inside only if **all** keypoints
+          are inside the region.
+        - ``"any"``: the subject is inside if **any** keypoint is
+          inside the region.
+        - ``"majority"``: the subject is inside if **more than half**
+          of the keypoints are inside the region.
+
+        If no ``keypoints`` dimension is present, ``mode`` has no
+        effect. Default is ``"centroid"``.
+    min_frames : int, optional
+        Minimum number of consecutive frames a subject must remain in
+        the new state (inside or outside) for the transition to be
+        registered. Transitions that last fewer than ``min_frames``
+        frames are treated as noise and suppressed. Default is ``1``
+        (no filtering).
+
+    Returns
+    -------
+    xarray.DataArray
+        An integer ``DataArray`` with the same dimensions as the output
+        of :func:`compute_region_occupancy` — i.e. ``space`` and
+        ``keypoints`` are removed, and ``region`` is added. Values:
+
+        - ``+1`` at time points where an entry event occurred.
+        - ``-1`` at time points where an exit event occurred.
+        - ``0`` at all other time points.
+
+        At ``time=0``, the value is ``+1`` if the subject starts
+        inside the region, and ``0`` otherwise.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import xarray as xr
+    >>> from movement.roi import PolygonOfInterest, compute_entry_exits
+    >>> square = PolygonOfInterest(
+    ...     [(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)],
+    ...     name="square",
+    ... )
+    >>> positions = xr.DataArray(
+    ...     np.array([[1.5, 1.5], [0.5, 0.5], [0.5, 0.5], [1.5, 1.5]]),
+    ...     dims=["time", "space"],
+    ...     coords={"space": ["x", "y"], "time": [0, 1, 2, 3]},
+    ... )
+    >>> events = compute_entry_exits(positions, [square])
+    >>> events.sel(region="square").values
+    array([ 0,  1,  0, -1])
+
+    Notes
+    -----
+    The ``min_frames`` parameter uses a debounce approach: a state
+    change (entry or exit) is only registered after the new state has
+    been sustained for ``min_frames`` consecutive frames.  Both brief
+    entries and brief exits are suppressed symmetrically.  The
+    subject's state at ``time=0`` is always accepted as-is, so a
+    ``+1`` entry is correctly recorded at the first frame when the
+    subject starts inside a region.
+
+    """
+    valid_modes = {"centroid", "all", "any", "majority"}
+    if mode not in valid_modes:
+        raise ValueError(
+            f"Invalid mode {mode!r}. Expected one of {sorted(valid_modes)}."
+        )
+    if min_frames < 1:
+        raise ValueError(f"min_frames must be >= 1, got {min_frames}.")
+
+    # Collapse keypoints via spatial centroid before computing occupancy
+    if mode == "centroid" and "keypoints" in data.dims:
+        position_data = data.mean(dim="keypoints")
+    else:
+        position_data = data
+
+    # Compute per-region boolean occupancy
+    occupancy = compute_region_occupancy(position_data, regions)
+
+    # Reduce keypoints dimension for non-centroid modes
+    if "keypoints" in occupancy.dims:
+        if mode == "all":
+            occupancy = occupancy.all(dim="keypoints")
+        elif mode == "any":
+            occupancy = occupancy.any(dim="keypoints")
+        elif mode == "majority":
+            n_kp = occupancy.sizes["keypoints"]
+            occupancy = occupancy.sum(dim="keypoints") > (n_kp / 2)
+
+    # Suppress brief border noise: debounce state changes symmetrically
+    # for both entries and exits; time=0 is always accepted as-is.
+    if min_frames > 1:
+        occupancy = _debounce_occupancy(occupancy, min_frames)
+
+    # Compute transitions: diff gives +1 (entry) or -1 (exit)
+    # diff removes the first time point; we prepend t=0 separately
+    transitions = occupancy.astype(int).diff(dim="time")
+
+    # At t=0: +1 if the subject starts inside, 0 otherwise
+    initial = occupancy.isel(time=0).astype(int).expand_dims("time")
+
+    result = xr.concat([initial, transitions], dim="time")
+
+    # Ensure region is the leading dimension, consistent with
+    # compute_region_occupancy
+    dims_order = ["region"] + [d for d in result.dims if d != "region"]
+    return result.transpose(*dims_order)
