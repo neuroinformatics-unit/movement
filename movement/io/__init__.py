@@ -3,6 +3,7 @@ from . import (  # Trigger register_loader/register_writer decorators
     load_poses,
     save_bboxes,
     save_poses,
+    save_pynapple,
 )
 from .load import (
     load_dataset,
