@@ -28,7 +28,19 @@ JSON_SUFFIX = ".json"
 
 
 class ValidFile(Protocol):
-    """Protocol for file validation classes."""
+    """Protocol for file validators used to validate input files.
+
+    Output paths are validated by :func:`_validate_file_path`, which permits
+    overwriting existing writable files by default. Pass ``overwrite=False``
+    to that function to reject an existing destination.
+
+    Attributes
+    ----------
+    suffixes : ClassVar[set[str]]
+        Expected suffix(es) for the file.
+    file : Path | NWBFile
+        Path to the file to validate or an NWBFile object.
+    """
 
     suffixes: ClassVar[set[str]]
     """Expected suffix(es) for the file."""
@@ -44,6 +56,7 @@ def _file_validator(
     *,
     permission: Literal["r", "w", "rw"] = "r",
     suffixes: set[str] | None = None,
+    overwrite: bool = True,
 ) -> Callable[[Any, Attribute, Any], Any]:
     """Return a validator that composes file checks.
 
@@ -51,7 +64,7 @@ def _file_validator(
 
     - is not a directory,
     - exists if it is meant to be read,
-    - does not exist if it is meant to be written,
+    - is writable if it is meant to be written,
     - has the expected access permission(s), and
     - has one of the expected suffix(es).
 
@@ -65,27 +78,33 @@ def _file_validator(
     suffixes
         Expected suffix(es) for the file.
         If None (default), this check is skipped.
+    overwrite : bool, default True
+        Whether an existing writable file may be overwritten when
+        ``permission`` includes ``"w"``. If False, an existing file raises
+        ``FileExistsError``.
 
     Raises
     ------
     TypeError
         If the value is not a :class:`pathlib.Path` object.
     IsADirectoryError
-        If the file points to a directory.
-    PermissionError
-        If the expected access permission(s) are not met.
+        If the value points to a directory.
     FileNotFoundError
-        If the file does not exist when ``permission`` is "r" or "rw".
+        If the file does not exist when ``permission`` includes ``"r"``.
     FileExistsError
-        If the file exists when ``permission`` is "w".
+        If the file exists, ``permission`` includes ``"w"``, and
+        ``overwrite=False``.
+    PermissionError
+        If the file exists and is not writable, or the parent directory is
+        not writable for a new output file.
     ValueError
-        If the file does not have one of the expected suffix(es).
+        If ``permission`` is invalid or the file has an unexpected suffix.
 
     """
     v = [
         validators.instance_of(Path),
         _file_is_not_dir,
-        _file_is_accessible(permission),
+        _file_is_accessible(permission, overwrite=overwrite),
     ]
     if suffixes:
         v.append(_file_has_expected_suffix(suffixes))
@@ -115,23 +134,51 @@ def _file_is_readable(value: Path) -> None:
         )
 
 
-def _file_is_writable(value: Path) -> None:
-    """Ensure the file does not exist and parent directory is writable."""
+def _file_is_writable(value: Path, *, overwrite: bool = True) -> None:
+    """Ensure the file is writable.
+
+    If ``overwrite=True`` (default), allow an existing file to be
+    overwritten provided it has write permission. If ``overwrite=False``,
+    raise ``FileExistsError`` when the file already exists.
+    """
     if value.exists():
-        raise logger.error(FileExistsError(f"File {value} already exists."))
-    if not os.access(value.parent, os.W_OK):
-        raise logger.error(
-            PermissionError(
-                f"Unable to write to file: {value}. "
-                "Make sure that you have write permissions."
+        if overwrite:
+            if not os.access(value, os.W_OK):
+                raise logger.error(
+                    PermissionError(
+                        f"File {value} already exists and is not writable."
+                    )
+                )
+        else:
+            raise logger.error(
+                FileExistsError(f"File {value} already exists.")
             )
-        )
+    else:
+        if not os.access(value.parent, os.W_OK):
+            raise logger.error(
+                PermissionError(
+                    f"Unable to write to file: {value}. "
+                    "Make sure that you have write permissions."
+                )
+            )
 
 
 def _file_is_accessible(
     expected_permission: Literal["r", "w", "rw"],
+    overwrite: bool = True,
 ) -> Callable[[Any, Any, Path], None]:
-    """Ensure the file can be accessed with the expected permission(s)."""
+    """Return a validator for expected file permissions.
+
+    Parameters
+    ----------
+    expected_permission : {"r", "w", "rw"}
+        Permissions the file must support: reading, writing, or both.
+    overwrite : bool, default True
+        Whether an existing writable file is allowed when write permission
+        is required. If False, an existing destination raises
+        ``FileExistsError``.
+
+    """
     if expected_permission not in {"r", "w", "rw"}:
         raise logger.error(
             ValueError(
@@ -144,7 +191,7 @@ def _file_is_accessible(
         if "r" in expected_permission:
             _file_is_readable(value)
         if "w" in expected_permission:
-            _file_is_writable(value)
+            _file_is_writable(value, overwrite=overwrite)
 
     return _validator
 
@@ -356,6 +403,45 @@ def validate_file_path(
     except (OSError, ValueError) as error:
         logger.error(error)
         raise
+
+
+def _validate_file_path(
+    path: Path | str,
+    *,
+    overwrite: bool = True,
+    suffixes: set[str] | None = None,
+) -> Path:
+    """Validate a file path for writing, with overwrite semantics.
+
+    Parameters
+    ----------
+    path
+        Output file path.
+    overwrite : bool, default True
+        Whether to allow overwriting an existing writable file. If False,
+        raise ``FileExistsError`` when the file already exists.
+    suffixes
+        Optional set of expected file suffixes.
+
+    Returns
+    -------
+    Path
+        The validated path.
+
+    Raises
+    ------
+    FileExistsError
+        If the file exists and ``overwrite=False``.
+    PermissionError
+        If the file exists, ``overwrite=True``, but is not writable.
+    """
+    path = Path(path)
+    _file_validator(
+        permission="w",
+        suffixes=suffixes,
+        overwrite=overwrite,
+    )(None, None, path)
+    return path
 
 
 # --- File validator classes --- #
