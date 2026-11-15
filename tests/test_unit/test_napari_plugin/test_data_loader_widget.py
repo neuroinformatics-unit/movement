@@ -34,6 +34,7 @@ from qtpy.QtWidgets import (
     QPushButton,
 )
 
+from movement.io.load import get_supported_source_software
 from movement.napari.layer_wiring import (
     MAX_FRAME_IDX_KEY,
     on_points_data_changed,
@@ -41,7 +42,7 @@ from movement.napari.layer_wiring import (
     update_frame_slider_range,
 )
 from movement.napari.loader_widgets import (
-    SUPPORTED_BBOXES_FILES,
+    GUI_UNSUPPORTED_SOURCE_SOFTWARE,
     DataLoader,
 )
 
@@ -100,6 +101,19 @@ def test_button_connected_to_on_clicked(
     button = data_loader_widget.findChild(QPushButton, f"{button}_button")
     button.click()
     mock_method.assert_called_once()
+
+
+def test_source_software_combo_items(make_napari_viewer_proxy):
+    """Test that the combo lists all registered loaders the GUI supports,
+    plus the netCDF option, and excludes the unsupported ones.
+    """
+    data_loader_widget = DataLoader(make_napari_viewer_proxy())
+    combo = data_loader_widget.source_software_combo
+    items = {combo.itemText(i) for i in range(combo.count())}
+    expected = (
+        set(get_supported_source_software()) - GUI_UNSUPPORTED_SOURCE_SOFTWARE
+    ) | {"movement (netCDF)"}
+    assert items == expected
 
 
 def test_source_software_combo_connected_to_handler(
@@ -228,10 +242,11 @@ def test_on_browse_clicked(file_path, make_napari_viewer_proxy, mocker):
 @pytest.mark.parametrize(
     "source_software, expected_file_filter",
     [
-        ("DeepLabCut", "*.h5 *.csv"),
+        ("DeepLabCut", "*.csv *.h5"),
         ("SLEAP", "*.h5 *.slp"),
         ("LightningPose", "*.csv"),
         ("VIA-tracks", "*.csv"),
+        ("COCO", "*.json"),
         ("movement (netCDF)", "*.nc"),
     ],
 )
@@ -380,7 +395,7 @@ def test_on_load_clicked_with_valid_file_path(
     assert tracks_layer.name == f"tracks: {file_path.name}"
 
     # Check that a Shapes layer was added to the viewer if the data is bboxes
-    if source_software in SUPPORTED_BBOXES_FILES:
+    if is_bbox:
         boxes_layer = viewer.layers[2]
         assert boxes_layer.name == f"boxes: {file_path.name}"
 

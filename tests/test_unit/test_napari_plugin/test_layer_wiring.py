@@ -13,6 +13,7 @@ import numpy as np
 import pytest
 from napari.components.dims import RangeTuple
 from napari.layers.base import ActionType
+from qtpy.QtCore import QCoreApplication, QEvent
 
 from movement.napari.layer_wiring import (
     MAX_FRAME_IDX_KEY,
@@ -182,6 +183,12 @@ def test_layer_wiring_survives_closing_metawidget(
     # Close the movement panel, as clicking its "x" does
     viewer.window.remove_dock_widget(dock_widget)
     del meta_widget, dock_widget, loader
+
+    # `remove_dock_widget` deletes the dock widget with `deleteLater`,
+    # which only runs once Qt processes events. Run it now: since
+    # PyQt6 6.12 the dock widget holds on to the meta-widget until
+    # it is deleted.
+    QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
 
     # Ensure the loader is gc-ed before asserting
     # (`remove_dock_widget` re-parents the meta-widget to None,

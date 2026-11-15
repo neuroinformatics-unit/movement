@@ -1,0 +1,1376 @@
+"""Generate annotated screenshots and videos of the movement napari GUI.
+
+Each screenshot is built by driving the real GUI: load sample data,
+set widget values, grab the window, then draw labels next to chosen
+widgets. Label positions come from the widgets' on-screen geometry,
+so they follow the widgets if the GUI layout changes.
+
+Videos (see ``Recording``) drive the GUI with real mouse and keyboard
+events, grab a frame after each step, and draw the mouse pointer and a
+caption on each frame.
+
+Usage::
+
+    python docs/make_gui_media.py                 # all of them
+    python docs/make_gui_media.py poses_layers    # only some, by name
+
+Requires napari 0.9 or newer.
+"""
+
+import math
+import re
+import sys
+import time
+from collections.abc import Callable
+from dataclasses import dataclass
+from pathlib import Path
+
+import imageio.v2 as imageio
+import matplotlib
+import napari
+import numpy as np
+from packaging.version import Version
+from PIL import Image, ImageDraw, ImageFont
+from PIL.PngImagePlugin import PngInfo
+from qtpy.QtCore import QPoint, QPointF, QRect, Qt
+from qtpy.QtGui import QFont, QFontDatabase, QWheelEvent
+from qtpy.QtTest import QTest
+from qtpy.QtWidgets import QApplication, QLayout, QWidget
+
+from movement import sample_data
+from movement.napari.layer_wiring import sync_tracks_layer
+from movement.napari.meta_widget import MovementMetaWidget
+
+# The script uses napari APIs added in 0.9 (e.g. viewer.scene.camera)
+MIN_NAPARI_VERSION = "0.9"
+if Version(napari.__version__) < Version(MIN_NAPARI_VERSION):
+    sys.exit(
+        f"This script needs napari {MIN_NAPARI_VERSION} or newer "
+        f"(found {napari.__version__}). Upgrade with:\n"
+        f'    uv pip install -U "napari[all]>={MIN_NAPARI_VERSION}"'
+    )
+
+# Recorded in each screenshot and video, as napari versions draw the GUI
+# differently
+NAPARI_VERSION = f"napari {napari.__version__}"
+
+DEFAULT_WINDOW_SIZE = (1100, 660)
+LINE_COLOR = (255, 255, 255, 255)
+TEXT_BACKGROUND = (38, 40, 46, 200)  # napari's dark grey, see-through
+LINE_WIDTH = 3
+FONT_SIZE = 22
+PADDING = 6
+# Space between an arrow's tip and the box (or widget) it points at
+ARROW_GAP = 12
+# Step numbers such as "2. " or "3a. ", which get a hanging indent
+STEP_NUMBER = re.compile(r"^\d+[a-z]?\. ")
+# Labels are drawn this many times larger, then shrunk for smooth edges
+SMOOTHING = 4
+
+# Font for labels: DejaVu Sans, which ships with matplotlib, so everyone
+# who runs the script gets the same font
+FONT_PATH = (
+    Path(matplotlib.get_data_path()) / "fonts" / "ttf" / "DejaVuSans.ttf"
+)
+
+# Screenshots and videos are saved next to the other docs images
+STATIC_PATH = Path(__file__).resolve().parent / "source" / "_static"
+
+OCTAGON = "SLEAP_two-mice_octagon.analysis.h5"
+CRAB = "VIA_single-crab_MOCA-crab-1_linear-interp.csv"
+EPM = "SLEAP_single-mouse_EPM.analysis.h5"
+
+# Titles of the movement widget sections
+LOAD_SECTION = "Load tracked data"
+EDIT_SECTION = "Edit tracked data"
+SAVE_SECTION = "Save tracked data"
+REGIONS_SECTION = "Define regions of interest"
+
+
+# ----------------------------------------------------------------------
+# Labels
+# ----------------------------------------------------------------------
+@dataclass
+class Label:
+    """A text label pointing at a region of the window.
+
+    Parameters
+    ----------
+    target
+        Region to point at, in window coordinates (logical pixels).
+    text
+        Label text. Use a newline character for line breaks.
+    side
+        Where the text goes relative to ``target``: ``"left"``,
+        ``"right"``, ``"above"``, ``"below"``, or ``"inside"``
+        (top-left corner of the target, with no arrow).
+    box
+        Whether to draw a box around ``target``.
+    gap
+        Distance between the text and ``target``.
+    shift
+        Moves the text along the side it sits on (down for left/right,
+        right for above/below). Useful to avoid overlaps.
+    group
+        Labels with the same group get text boxes of the same width
+        (the widest of them), e.g. a column of labels next to each other.
+
+    """
+
+    target: QRect
+    text: str
+    side: str = "right"
+    box: bool = True
+    gap: int = 40
+    shift: int = 0
+    group: str | None = None
+
+
+def text_position(label: Label, size: tuple[float, float]) -> QPoint:
+    """Return the top-left corner of a label's text (logical pixels)."""
+    t, (w, h) = label.target, size
+    cx, cy = t.center().x(), t.center().y()
+    if label.side == "right":
+        x, y = t.right() + label.gap, cy - h / 2 + label.shift
+    elif label.side == "left":
+        x, y = t.left() - label.gap - w, cy - h / 2 + label.shift
+    elif label.side == "above":
+        x, y = cx - w / 2 + label.shift, t.top() - label.gap - h
+    elif label.side == "below":
+        x, y = cx - w / 2 + label.shift, t.bottom() + label.gap
+    elif label.side == "inside":
+        x, y = t.left() + label.gap, t.top() + label.gap + label.shift
+    else:
+        raise ValueError(f"Unknown label side: {label.side!r}")
+    return QPoint(round(x), round(y))
+
+
+def arrow_points(label: Label, text_box: QRect) -> tuple[QPoint, QPoint]:
+    """Return the start (at the text) and end (at the target) of an arrow."""
+    t = label.target
+    gap = ARROW_GAP
+    if label.side == "right":
+        start = QPoint(text_box.left() - 4, text_box.center().y())
+        end = QPoint(t.right() + gap, t.center().y())
+    elif label.side == "left":
+        start = QPoint(text_box.right() + 4, text_box.center().y())
+        end = QPoint(t.left() - gap, t.center().y())
+    elif label.side == "above":
+        start = QPoint(text_box.center().x(), text_box.bottom() + 4)
+        end = QPoint(t.center().x(), t.top() - gap)
+    else:  # below
+        start = QPoint(text_box.center().x(), text_box.top() - 4)
+        end = QPoint(t.center().x(), t.bottom() + gap)
+    return start, end
+
+
+def draw_arrow(draw, start, end, ratio) -> None:
+    """Draw a line from ``start`` to ``end`` with an open arrowhead at ``end``.
+
+    The head is a V shape made of two short lines.
+    """
+    width = round(LINE_WIDTH * ratio)
+    angle = math.atan2(end[1] - start[1], end[0] - start[0])
+    size = 12 * ratio
+    left, right = (
+        (
+            end[0] - size * math.cos(angle + delta),
+            end[1] - size * math.sin(angle + delta),
+        )
+        for delta in (-math.pi / 6, math.pi / 6)
+    )
+    draw.line((*start, *end), fill=LINE_COLOR, width=width)
+    draw.line(
+        (*left, *end, *right), fill=LINE_COLOR, width=width, joint="curve"
+    )
+    # Round the line ends, so the head's tips are not cut off square
+    radius = width / 2
+    for x, y in (left, end, right):
+        draw.ellipse(
+            (x - radius, y - radius, x + radius, y + radius), fill=LINE_COLOR
+        )
+
+
+def draw_labels(
+    draw: ImageDraw.ImageDraw, labels: list[Label], ratio: float, window: QRect
+) -> None:
+    """Draw boxes, arrows and text for ``labels``.
+
+    ``ratio`` converts window coordinates to pixels of the drawing,
+    and ``window`` is the window's region in window coordinates.
+    """
+    font = ImageFont.truetype(FONT_PATH, round(FONT_SIZE * ratio))
+    width = round(LINE_WIDTH * ratio)
+
+    # Widest text box of each label group, in logical pixels
+    group_widths: dict[str, float] = {}
+    for label in labels:
+        if label.group is not None:
+            bbox = draw.multiline_textbbox((0, 0), label.text, font=font)
+            text_w = (bbox[2] - bbox[0]) / ratio + 2 * PADDING
+            group_widths[label.group] = max(
+                text_w, group_widths.get(label.group, 0)
+            )
+
+    def scaled(rect: QRect) -> tuple[float, float, float, float]:
+        return (
+            rect.left() * ratio,
+            rect.top() * ratio,
+            (rect.right() + 1) * ratio,
+            (rect.bottom() + 1) * ratio,
+        )
+
+    for label in labels:
+        if label.box:
+            # Keep the box inside the image, so no edge gets cut off
+            box = label.target.adjusted(-4, -4, 4, 4).intersected(
+                window.adjusted(2, 2, -2, -2)
+            )
+            draw.rounded_rectangle(
+                scaled(box),
+                radius=4 * ratio,
+                outline=LINE_COLOR,
+                width=width,
+            )
+
+        # Wrapped lines of a numbered step line up after the number,
+        # as in a numbered list
+        match = STEP_NUMBER.match(label.text)
+        number = match.group() if match else ""
+        body = label.text[len(number) :]
+        indent = draw.textlength(number, font=font)
+
+        # Measure the text in logical pixels, then place it
+        bbox = draw.multiline_textbbox((indent, 0), body, font=font)
+        if number:
+            number_bbox = draw.textbbox((0, 0), number, font=font)
+            bbox = (
+                min(bbox[0], number_bbox[0]),
+                min(bbox[1], number_bbox[1]),
+                bbox[2],
+                bbox[3],
+            )
+        text_w = (bbox[2] - bbox[0]) / ratio + 2 * PADDING
+        text_h = (bbox[3] - bbox[1]) / ratio + 2 * PADDING
+        text_w = max(text_w, group_widths.get(label.group, 0))
+        top_left = text_position(label, (text_w, text_h))
+        # Keep the text inside the window
+        max_x = window.width() - text_w - 2
+        max_y = window.height() - text_h - 2
+        top_left = QPoint(
+            round(min(max(top_left.x(), 2), max_x)),
+            round(min(max(top_left.y(), 2), max_y)),
+        )
+        text_box = QRect(
+            top_left.x(), top_left.y(), round(text_w), round(text_h)
+        )
+
+        if label.side != "inside":
+            start, end = arrow_points(label, text_box)
+            draw_arrow(
+                draw,
+                (start.x() * ratio, start.y() * ratio),
+                (end.x() * ratio, end.y() * ratio),
+                ratio,
+            )
+
+        draw.rounded_rectangle(
+            scaled(text_box), radius=4 * ratio, fill=TEXT_BACKGROUND
+        )
+        origin = (
+            (top_left.x() + PADDING) * ratio - bbox[0],
+            (top_left.y() + PADDING) * ratio - bbox[1],
+        )
+        draw.text(origin, number, font=font, fill=LINE_COLOR)
+        draw.multiline_text(
+            (origin[0] + indent, origin[1]), body, font=font, fill=LINE_COLOR
+        )
+
+
+@dataclass
+class Tooltip:
+    """A mouse pointer with a tooltip, as napari shows on hover.
+
+    Qt draws tooltips in their own popup window, which a window grab
+    does not capture, so they are drawn onto the screenshot instead.
+
+    Parameters
+    ----------
+    position
+        Tip of the mouse pointer, in window coordinates (logical pixels).
+    text
+        Tooltip text, as napari would show it (see ``GUI.tooltip_at``).
+
+    """
+
+    position: QPoint
+    text: str
+
+
+def draw_pointer(
+    draw: ImageDraw.ImageDraw, position: QPoint, ratio: float
+) -> None:
+    """Draw a mouse pointer (a white arrow with a black outline)."""
+    x, y = position.x() * ratio, position.y() * ratio
+    pointer = [
+        (0, 0), (0, 17), (4, 13), (7, 20), (10, 19), (7, 12), (12, 12),
+    ]  # fmt: skip
+    draw.polygon(
+        [(x + px * ratio, y + py * ratio) for px, py in pointer],
+        fill="white",
+        outline="black",
+        width=max(1, round(ratio)),
+    )
+
+
+def draw_tooltip(
+    draw: ImageDraw.ImageDraw, tooltip: Tooltip, ratio: float
+) -> None:
+    """Draw a mouse pointer and a Qt-style tooltip."""
+    x, y = tooltip.position.x() * ratio, tooltip.position.y() * ratio
+    s = ratio
+    draw_pointer(draw, tooltip.position, ratio)
+
+    # Tooltip box, offset below-right of the pointer like Qt does
+    font = ImageFont.truetype(FONT_PATH, round(13 * ratio))
+    bbox = draw.multiline_textbbox((0, 0), tooltip.text, font=font, spacing=4)
+    pad = 6 * ratio
+    left, top = x + 16 * s, y + 22 * s
+    right = left + bbox[2] - bbox[0] + 2 * pad
+    bottom = top + bbox[3] - bbox[1] + 2 * pad
+    draw.rectangle(
+        (left, top, right, bottom),
+        fill=(38, 40, 46),
+        outline=(160, 160, 160),
+        width=max(1, round(s)),
+    )
+    draw.multiline_text(
+        (left + pad - bbox[0], top + pad - bbox[1]),
+        tooltip.text,
+        font=font,
+        fill=(240, 241, 242),
+        spacing=4,
+    )
+
+
+@dataclass
+class Caption:
+    """Text shown in a video, e.g. the step being demonstrated.
+
+    Parameters
+    ----------
+    text
+        Caption text. Use a newline character for line breaks.
+    area
+        Region the caption is centred in, in window coordinates.
+    where
+        ``"top"`` or ``"bottom"`` of ``area``.
+    """
+
+    text: str
+    area: QRect
+    where: str = "bottom"
+
+
+def draw_caption(
+    draw: ImageDraw.ImageDraw, caption: Caption, ratio: float
+) -> None:
+    """Draw a caption in a see-through box, like the labels."""
+    font = ImageFont.truetype(FONT_PATH, round(FONT_SIZE * ratio))
+    bbox = draw.multiline_textbbox(
+        (0, 0), caption.text, font=font, align="center"
+    )
+    pad, margin = 2 * PADDING * ratio, 16 * ratio
+    width = bbox[2] - bbox[0] + 2 * pad
+    height = bbox[3] - bbox[1] + 2 * pad
+    area = caption.area
+    left = (area.left() + area.width() / 2) * ratio - width / 2
+    if caption.where == "top":
+        top = area.top() * ratio + margin
+    else:
+        top = area.bottom() * ratio - margin - height
+    draw.rounded_rectangle(
+        (left, top, left + width, top + height),
+        radius=PADDING * ratio,
+        fill=TEXT_BACKGROUND,
+    )
+    draw.multiline_text(
+        (left + pad - bbox[0], top + pad - bbox[1]),
+        caption.text,
+        font=font,
+        fill=LINE_COLOR,
+        align="center",
+    )
+
+
+# ----------------------------------------------------------------------
+# Finding things on screen
+# ----------------------------------------------------------------------
+class GUI:
+    """A napari viewer with the movement widget, plus lookup helpers."""
+
+    def __init__(self, size: tuple[int, int] = DEFAULT_WINDOW_SIZE):
+        """Open the viewer at ``size`` and dock the movement widget."""
+        # Use the labels' font for napari too, so the GUI looks the same
+        # on every machine (system fonts differ)
+        app = napari.qt.get_qapp()
+        font_id = QFontDatabase.addApplicationFont(str(FONT_PATH))
+        family = QFontDatabase.applicationFontFamilies(font_id)[0]
+        app.setFont(QFont(family, 10))
+        self.viewer = napari.Viewer()
+        self.window = self.viewer.window._qt_window
+        self.window.resize(*size)
+        self.widget = MovementMetaWidget(self.viewer)
+        self.viewer.window.add_dock_widget(self.widget, name="movement")
+        # Open and close widget sections instantly, so the GUI is never
+        # captured with a section halfway through its animation
+        for section in self.widget.collapsible_widgets:
+            section.setDuration(0)
+        settle()
+
+    # -- setup ---------------------------------------------------------
+    def open_video(self, dataset: str):
+        """Open the sample video of ``dataset`` and return its layer."""
+        paths = sample_data.fetch_dataset_paths(dataset, with_video=True)
+        layer = self.viewer.open(paths["video"], plugin="napari_video")[0]
+        # Show the file name only, not the full local path
+        layer.name = Path(paths["video"]).name
+        return layer
+
+    def load_tracks(self, dataset: str, source_software: str, fps: float):
+        """Load a sample dataset through the movement loader widget."""
+        paths = sample_data.fetch_dataset_paths(dataset)
+        file_path = paths.get("poses") or paths.get("bboxes")
+        loader = self.section(LOAD_SECTION).content()
+        loader.source_software_combo.setCurrentText(source_software)
+        loader.fps_spinbox.setValue(fps)
+        loader.file_path_edit.setText(str(file_path))
+        loader.load_button.click()
+        settle()
+
+    def expand_only(self, title: str) -> None:
+        """Expand one movement widget section and collapse the others."""
+        # Applied twice: an animation started before (e.g. when the
+        # widget first opens) could otherwise undo the first pass
+        for _ in range(2):
+            for section in self.widget.collapsible_widgets:
+                if section.text() == title:
+                    section.expand(animate=False)
+                else:
+                    section.collapse(animate=False)
+            settle()
+
+    def layer(self, prefix: str):
+        """Return the first layer whose name starts with ``prefix``."""
+        return next(
+            ly for ly in self.viewer.layers if ly.name.startswith(prefix)
+        )
+
+    # -- geometry ------------------------------------------------------
+    def rect(self, *widgets: QWidget | QLayout) -> QRect:
+        """Return the region covering ``widgets``, in window coordinates.
+
+        Qt layouts (e.g. a grid of buttons) are accepted too.
+        """
+        rect = QRect()
+        for w in widgets:
+            if isinstance(w, QLayout):
+                geometry = w.geometry()
+                top_left = w.parentWidget().mapTo(
+                    self.window, geometry.topLeft()
+                )
+                rect = rect.united(QRect(top_left, geometry.size()))
+            else:
+                top_left = w.mapTo(self.window, QPoint(0, 0))
+                rect = rect.united(QRect(top_left, w.size()))
+        return rect
+
+    def section(self, title: str) -> QWidget:
+        """Return a movement widget section (header and content)."""
+        for section in self.widget.collapsible_widgets:
+            if section.text() == title:
+                return section
+        titles = [s.text() for s in self.widget.collapsible_widgets]
+        raise RuntimeError(f"No section {title!r}; found {titles}.")
+
+    def layer_row(self, prefix: str) -> QRect:
+        """Return the layer list row of the layer named ``prefix...``."""
+        view = self.viewer.window._qt_viewer.layers
+        model = view.model()
+        for row in range(model.rowCount()):
+            index = model.index(row, 0)
+            name = model.data(index, Qt.ItemDataRole.DisplayRole)
+            if name.startswith(prefix):
+                rect = view.visualRect(index)
+                top_left = view.viewport().mapTo(self.window, rect.topLeft())
+                return QRect(top_left, rect.size())
+        raise RuntimeError(f"No layer list row starting with {prefix!r}.")
+
+    def layer_controls(self, layer) -> QWidget:
+        """Return the layer controls panel napari shows for ``layer``."""
+        self.viewer.layers.selection.active = layer
+        settle()
+        return self.viewer.window._qt_viewer.controls.widgets[layer]
+
+    def controls_rect(self, layer, *names: str) -> QRect:
+        """Return the region covering napari layer controls ``names``.
+
+        Each name is the attribute napari uses for the control,
+        e.g. ``"_tail_length_slider_control"``.
+        """
+        controls = self.layer_controls(layer)
+        widgets = []
+        for name in names:
+            try:
+                control = getattr(controls, name)
+            except AttributeError as e:
+                raise RuntimeError(
+                    f"napari has no layer control '{name}'. It may have "
+                    "been renamed in this napari version; update the script."
+                ) from e
+            widgets += [
+                w for pair in control.get_widget_controls() for w in pair
+            ]
+        return self.rect(*widgets)
+
+    @property
+    def canvas(self) -> QRect:
+        """Return the region of the main canvas."""
+        return self.rect(self.viewer.window._qt_viewer.canvas.native)
+
+    @property
+    def frame_slider(self) -> QRect:
+        """Return the region of the frame slider below the canvas."""
+        return self.rect(self.viewer.window._qt_viewer.dims)
+
+    def world_to_window(self, y: float, x: float) -> QPoint:
+        """Return where data coordinates ``(y, x)`` appear in the window."""
+        camera = self.viewer.scene.camera
+        center_y, center_x = camera.center[-2:]
+        canvas = self.canvas
+        return QPoint(
+            round(
+                canvas.left()
+                + canvas.width() / 2
+                + (x - center_x) * camera.zoom
+            ),
+            round(
+                canvas.top()
+                + canvas.height() / 2
+                + (y - center_y) * camera.zoom
+            ),
+        )
+
+    def timeline_point(self, frame: float, height: float = 0.5) -> QPoint:
+        """Return where ``frame`` appears on the edit timeline.
+
+        ``height`` goes from 0 (bottom of the plot) to 1 (top).
+        """
+        timeline = self.widget.edit_timeline_widget
+        canvas = timeline.canvas
+        # Matplotlib uses physical pixels, counted from the bottom
+        x, y = timeline.ax.transData.transform(
+            (frame, timeline.ax.get_ylim()[0])
+        )
+        top_y = timeline.ax.transData.transform(
+            (frame, timeline.ax.get_ylim()[1])
+        )[1]
+        y = y + (top_y - y) * height
+        ratio = canvas.device_pixel_ratio
+        local = QPoint(round(x / ratio), round(canvas.height() - y / ratio))
+        return canvas.mapTo(self.window, local)
+
+    def tooltip_at(self, position: tuple[float, ...]) -> str:
+        """Move napari's cursor to ``position`` and return its tooltip text.
+
+        Uses the active layer. This also updates the status bar, as
+        hovering would.
+        """
+        # napari only computes tooltips while the mouse is on the canvas
+        self.viewer.mouse_over_canvas = True
+        self.viewer.tooltip.visible = True
+        self.viewer.cursor.position = position
+        self.viewer.update_status_from_cursor()
+        settle()
+        return self.viewer.tooltip.text
+
+    # -- output --------------------------------------------------------
+    def render(
+        self,
+        labels: list[Label] | None = None,
+        tooltips: list[Tooltip] | None = None,
+        pointer: QPoint | None = None,
+        caption: Caption | None = None,
+        smoothing: int = SMOOTHING,
+    ) -> Image.Image:
+        """Take a screenshot and draw labels, tooltips, pointer, caption."""
+        # Screenshot of the whole napari window, as an RGBA array
+        array = self.viewer.screenshot(canvas_only=False, flash=False)
+        image = Image.fromarray(array)
+        # Screens with display scaling give more pixels than window size
+        ratio = image.width / self.window.width()
+
+        # Draw on a larger transparent layer, then shrink it onto the
+        # screenshot. Pillow does not smooth diagonal lines, so this
+        # avoids jagged arrows.
+        size = (image.width * smoothing, image.height * smoothing)
+        overlay = Image.new("RGBA", size, (0, 0, 0, 0))
+        draw = ImageDraw.Draw(overlay)
+        window = QRect(0, 0, self.window.width(), self.window.height())
+        draw_labels(draw, labels or [], ratio * smoothing, window)
+        for tooltip in tooltips or []:
+            draw_tooltip(draw, tooltip, ratio * smoothing)
+        if caption is not None:
+            draw_caption(draw, caption, ratio * smoothing)
+        if pointer is not None:
+            draw_pointer(draw, pointer, ratio * smoothing)
+        overlay = overlay.resize(image.size, Image.Resampling.LANCZOS)
+        image = Image.alpha_composite(image.convert("RGBA"), overlay)
+        # Keep the window size, so screens with display scaling give
+        # the same image size as others
+        if ratio != 1:
+            image = image.resize(
+                (self.window.width(), self.window.height()),
+                Image.Resampling.LANCZOS,
+            )
+        return image
+
+    def save(
+        self,
+        path: Path,
+        labels: list[Label],
+        tooltips: list[Tooltip] | None = None,
+    ) -> Path:
+        """Take a screenshot, draw ``labels`` on it and save it to ``path``."""
+        settle()
+        image = self.render(labels, tooltips)
+        info = PngInfo()
+        info.add_text("Software", NAPARI_VERSION)
+        image.convert("RGB").save(path, pnginfo=info)
+        self.viewer.close()
+        return path
+
+
+def settle(seconds: float = 0.5) -> None:
+    """Let Qt finish pending layout, animation and paint events."""
+    end = time.monotonic() + seconds
+    while time.monotonic() < end:
+        QApplication.processEvents()
+        time.sleep(0.01)
+
+
+# ----------------------------------------------------------------------
+# Screenshots
+# ----------------------------------------------------------------------
+def video_slider(out: Path) -> Path:
+    """Make the video layer screenshot, with the frame slider labelled."""
+    gui = GUI()
+    gui.open_video(OCTAGON)
+    gui.viewer.dims.set_current_step(0, 4499)
+    labels = [Label(gui.frame_slider, "Frame slider", side="above", gap=70)]
+    return gui.save(out / "napari_video_slider.png", labels)
+
+
+def poses_layers(out: Path) -> Path:
+    """Make the screenshot of a poses dataset loaded over its video."""
+    gui = GUI()
+    gui.open_video(OCTAGON)
+    gui.load_tracks(OCTAGON, "SLEAP", fps=50)
+    gui.viewer.dims.set_current_step(0, 223)
+    labels = [
+        Label(
+            gui.rect(gui.section(LOAD_SECTION).toggleButton()),
+            "Widget for loading \ntracked data",
+            side="left",
+            box=False,
+        ),
+        *row_labels(
+            gui, ["tracks", "points", ""], ["Tracks", "Points", "Image"]
+        ),
+    ]
+    return gui.save(out / "napari_poses_layers.png", labels)
+
+
+def bboxes_layers(out: Path) -> Path:
+    """Make the screenshot of a bboxes dataset loaded over its video."""
+    gui = GUI()
+    gui.open_video(CRAB)
+    gui.load_tracks(CRAB, "VIA-tracks", fps=1)
+    frame = 38
+    gui.viewer.dims.set_current_step(0, frame)
+    # Zoom in on the crab, so the box edges and centroid stay visible
+    points = gui.layer("points")
+    centroid = points.data[points.data[:, 0] == frame][0, 1:]
+    gui.viewer.scene.camera.center = centroid
+    gui.viewer.scene.camera.zoom = 0.9
+    settle()
+    labels = [
+        Label(
+            gui.rect(gui.section(LOAD_SECTION).toggleButton()),
+            "Widget for loading \ntracked data",
+            side="left",
+            box=False,
+        ),
+        *row_labels(
+            gui,
+            ["boxes", "tracks", "points", ""],
+            ["Boxes", "Tracks", "Points", "Image"],
+        ),
+    ]
+    return gui.save(out / "napari_bboxes_layers.png", labels)
+
+
+def row_labels(gui: GUI, prefixes: list[str], names: list[str]) -> list[Label]:
+    """Return labels pointing at layer list rows from the right.
+
+    An empty prefix stands for the video layer (named after its file).
+    """
+    labels = []
+    for prefix, name in zip(prefixes, names, strict=True):
+        if not prefix:
+            prefix = next(
+                ly.name
+                for ly in gui.viewer.layers
+                if not ly.name.startswith(("tracks", "points", "boxes"))
+            )
+        labels.append(
+            Label(
+                gui.layer_row(prefix),
+                f"{name} layer",
+                box=False,
+                gap=50,
+                group="layer rows",
+            )
+        )
+    return labels
+
+
+def points_tooltip(out: Path) -> Path:
+    """Make the screenshot of the tooltip shown when hovering a point."""
+    gui = GUI()
+    gui.open_video(OCTAGON)
+    gui.load_tracks(OCTAGON, "SLEAP", fps=50)
+    frame, individual, keypoint = 6865, "2", "Nose"
+    gui.layer("tracks").visible = False
+    points = gui.layer("points")
+    points.size = 6
+    points.current_size = 6
+    points.text.visible = True
+    gui.viewer.layers.selection.active = points
+    gui.viewer.dims.set_current_step(0, frame)
+
+    # Zoom in on one animal
+    in_frame = points.data[:, 0] == frame
+    features = points.features[in_frame].reset_index(drop=True)
+    coords = points.data[in_frame]
+    animal = coords[(features["individual"] == individual).to_numpy()]
+    gui.viewer.scene.camera.center = animal[:, 1:].mean(axis=0)
+    gui.viewer.scene.camera.zoom = 3.5
+    settle()
+
+    # Hover the chosen keypoint
+    is_target = (features["individual"] == individual) & (
+        features["keypoint"] == keypoint
+    )
+    target = coords[is_target.to_numpy()][0]
+    text = gui.tooltip_at(tuple(target))
+    tooltip = Tooltip(gui.world_to_window(*target[1:]), text)
+    return gui.save(out / "napari_points_tooltip.png", [], [tooltip])
+
+
+def tracks_sliders(out: Path) -> Path:
+    """Make the tracks layer screenshot, with its length sliders labelled."""
+    gui = GUI()
+    gui.open_video(OCTAGON)
+    gui.load_tracks(OCTAGON, "SLEAP", fps=50)
+    tracks = gui.layer("tracks")
+    # Show a short stretch of trajectory ahead of the current frame
+    tracks.tail_length = 1
+    tracks.head_length = 400
+    gui.viewer.dims.set_current_step(0, 2000)
+    sliders = gui.controls_rect(
+        tracks, "_tail_length_slider_control", "_head_length_slider_control"
+    )
+    labels = [Label(sliders, "Tail and head length sliders", side="right")]
+    return gui.save(out / "napari_tracks_sliders.png", labels)
+
+
+def new_region_layer(out: Path) -> Path:
+    """Make the screenshot showing how to create a new region layer."""
+    gui = GUI()
+    video = gui.open_video(EPM)
+    gui.viewer.dims.set_current_step(0, 8557)
+    gui.expand_only(REGIONS_SECTION)
+    section = gui.section(REGIONS_SECTION)
+    regions = section.content()
+    regions.add_layer_button.click()
+    settle()
+    labels = [
+        Label(
+            gui.layer_row(video.name),
+            "1. Load a background layer",
+            box=False,
+            gap=50,
+            shift=30,
+        ),
+        Label(
+            gui.rect(section.toggleButton()),
+            "2. Expand regions of\ninterest widget",
+            side="left",
+            box=False,
+        ),
+        Label(
+            gui.rect(regions.add_layer_button),
+            "3a. Add new\nregion layer",
+            side="left",
+            gap=230,
+            shift=20,
+        ),
+        Label(
+            gui.layer_row("regions"),
+            "3b. Region layer appears",
+            box=False,
+            gap=50,
+        ),
+    ]
+    return gui.save(out / "napari_new_region_layer.png", labels)
+
+
+def drawing_regions(out: Path) -> Path:
+    """Make the screenshot of a region layer and the drawing controls."""
+    gui = GUI()
+    gui.open_video(EPM)
+    gui.viewer.dims.set_current_step(0, 8557)
+    gui.expand_only(REGIONS_SECTION)
+    regions = gui.section(REGIONS_SECTION).content()
+    regions.add_layer_button.click()
+    settle()
+
+    # Open arms of the elevated plus maze, as (row, column) corners in pixels
+    open_arms = {
+        "open-left": [[460, 335], [575, 590]],
+        "open-right": [[460, 708], [575, 975]],
+    }
+    layer = gui.layer("regions")
+    for corners in open_arms.values():
+        layer.add_rectangles(corners)
+    layer.properties = {"name": list(open_arms)}
+    layer.mode = "add_rectangle"
+    layer.selected_data = {0}
+    gui.viewer.scene.camera.center = (517, 655)
+    gui.viewer.scene.camera.zoom = 0.5
+    settle()
+
+    controls = gui.layer_controls(layer)
+    labels = [
+        Label(
+            gui.rect(controls.button_grid),
+            "Shape\ndrawing\ntools",
+            side="right",
+            gap=60,
+        ),
+        Label(
+            gui.controls_rect(
+                layer,
+                "_edge_width_slider_control",
+                "_edge_color_control",
+                "_face_color_control",
+                "_text_visibility_control",
+            ),
+            "Shape\nappearance",
+            side="right",
+            gap=60,
+        ),
+        Label(gui.layer_row("regions"), "Region layer", box=False, gap=50),
+        Label(
+            gui.rect(regions.region_table_view),
+            "Table of\nregions",
+            side="left",
+            box=False,
+            gap=80,
+            shift=60,
+        ),
+    ]
+    return gui.save(out / "napari_drawing_regions.png", labels)
+
+
+def edit_overview(out: Path) -> Path:
+    """Make the screenshot of the GUI parts involved in editing."""
+    gui = GUI(size=(1300, 860))  # bigger, to fit the edit timeline
+    gui.open_video(OCTAGON)
+    gui.load_tracks(OCTAGON, "SLEAP", fps=50)
+    points = gui.layer("points")
+    gui.viewer.layers.selection.active = points
+
+    # Open the edit timeline first: it only records removals it sees
+    gui.expand_only(EDIT_SECTION)
+    gui.window.resizeDocks(
+        [gui.widget._edit_timeline_dock_widget], [170], Qt.Vertical
+    )
+
+    # Remove a few keypoints, so the edit timeline shows some lines
+    for frame in (1500, 3400, 3500, 5200, 7600):
+        in_frame = np.flatnonzero(points.data[:, 0] == frame)
+        points.selected_data = set(in_frame[:2].tolist())
+        points.remove_selected()
+    points.selected_data = set()
+    points.mode = "select"  # show the select tool as active
+    gui.viewer.help = ""  # clear the key hints left in the status bar
+    gui.viewer.dims.set_current_step(0, 223)
+    settle()
+
+    controls = gui.layer_controls(points)
+    labels = [
+        Label(gui.canvas, "The viewer", side="inside"),
+        # Below the buttons, one lower than the other so they do not overlap
+        Label(
+            gui.rect(controls.delete_button),
+            "Remove\nkeypoints",
+            side="below",
+            shift=-70,
+        ),
+        Label(
+            gui.rect(controls.select_button),
+            "Select\nkeypoints",
+            side="below",
+            gap=130,
+            shift=15,
+        ),
+        Label(
+            gui.rect(gui.section(EDIT_SECTION).toggleButton()),
+            "Edit tracked\ndata menu",
+            side="left",
+            box=False,
+        ),
+        Label(
+            gui.rect(gui.widget.edit_timeline_widget),
+            "Edit timeline",
+            side="inside",
+        ),
+        Label(
+            gui.rect(gui.section(SAVE_SECTION).toggleButton()),
+            "Save tracked\ndata menu",
+            side="left",
+            box=False,
+        ),
+    ]
+    return gui.save(out / "napari_edit_overview.png", labels)
+
+
+# ----------------------------------------------------------------------
+# Videos
+# ----------------------------------------------------------------------
+VIDEO_FPS = 15
+LEFT = Qt.MouseButton.LeftButton
+SHIFT = Qt.KeyboardModifier.ShiftModifier
+NO_MODIFIER = Qt.KeyboardModifier.NoModifier
+
+
+class Recording:
+    """Record a video of the GUI while driving it with mouse and keys.
+
+    Every action sends real Qt events to the widget under the (drawn)
+    mouse pointer, so napari and the movement widgets respond exactly
+    as they do to a user. A frame is grabbed after each step.
+    """
+
+    def __init__(self, gui: GUI, pointer: QPoint):
+        """Start a recording of ``gui`` with the pointer at ``pointer``."""
+        self.gui = gui
+        self.pointer = pointer
+        self.caption: Caption | None = None
+        self.frames: list[np.ndarray] = []
+
+    # -- frames --------------------------------------------------------
+    def grab(self, repeat: int = 1) -> None:
+        """Add the current view as ``repeat`` video frames."""
+        settle(0.05)
+        self.gui.viewer.help = ""  # no key hints in the status bar
+        # Less smoothing than for screenshots: faster, and video encoding
+        # softens edges anyway
+        image = self.gui.render(
+            pointer=self.pointer, caption=self.caption, smoothing=2
+        )
+        frame = np.asarray(image.convert("RGB"))
+        self.frames.extend([frame] * repeat)
+
+    def hold(self, seconds: float) -> None:
+        """Keep the current view on screen for ``seconds``."""
+        self.grab(max(1, round(seconds * VIDEO_FPS)))
+
+    def say(self, text: str, area: QRect, where: str = "bottom") -> None:
+        """Show ``text`` as the caption from now on."""
+        self.caption = Caption(text, area, where)
+
+    # -- mouse and keyboard --------------------------------------------
+    def _target(self) -> tuple[QWidget, QPoint]:
+        """Return the widget under the pointer and the local position."""
+        # Gaps between panels have no widget: use the window itself
+        widget = self.gui.window.childAt(self.pointer) or self.gui.window
+        return widget, widget.mapFrom(self.gui.window, self.pointer)
+
+    def move(self, target: QPoint, seconds: float = 0.6) -> None:
+        """Glide the pointer to ``target``, sending mouse moves."""
+        start = QPoint(self.pointer)
+        steps = max(1, round(seconds * VIDEO_FPS))
+        for i in range(1, steps + 1):
+            t = i / steps
+            t = t * t * (3 - 2 * t)  # ease in and out
+            self.pointer = start + (target - start) * t
+            widget, local = self._target()
+            QTest.mouseMove(widget, local)
+            self.grab()
+
+    def click(self, modifier=NO_MODIFIER) -> None:
+        """Click where the pointer is."""
+        widget, local = self._target()
+        QTest.mouseClick(widget, LEFT, modifier, local)
+        self.grab()
+
+    def double_click(self) -> None:
+        """Double-click where the pointer is."""
+        widget, local = self._target()
+        QTest.mouseDClick(widget, LEFT, NO_MODIFIER, local)
+        # Qt's test double-click may leave the button pressed: release it
+        QTest.mouseRelease(widget, LEFT, NO_MODIFIER, local)
+        self.grab()
+
+    def drag(self, target: QPoint, seconds: float = 1.0) -> None:
+        """Press at the pointer, glide to ``target`` and release."""
+        widget, local = self._target()
+        QTest.mousePress(widget, LEFT, NO_MODIFIER, local)
+        start = QPoint(self.pointer)
+        steps = max(1, round(seconds * VIDEO_FPS))
+        for i in range(1, steps + 1):
+            self.pointer = start + (target - start) * (i / steps)
+            # Keep sending to the pressed widget, as Qt does while dragging
+            QTest.mouseMove(
+                widget, widget.mapFrom(self.gui.window, self.pointer)
+            )
+            self.grab()
+        QTest.mouseRelease(
+            widget,
+            LEFT,
+            NO_MODIFIER,
+            widget.mapFrom(self.gui.window, self.pointer),
+        )
+        self.grab()
+
+    def scroll(self, steps: int, seconds: float = 1.0) -> None:
+        """Turn the mouse wheel ``steps`` notches (positive is up)."""
+        for _ in range(abs(steps)):
+            widget, local = self._target()
+            event = QWheelEvent(
+                QPointF(local),
+                QPointF(widget.mapToGlobal(local)),
+                QPoint(0, 0),
+                QPoint(0, 120 if steps > 0 else -120),
+                Qt.MouseButton.NoButton,
+                NO_MODIFIER,
+                Qt.ScrollPhase.NoScrollPhase,
+                False,
+            )
+            QApplication.sendEvent(widget, event)
+            self.hold(seconds / abs(steps))
+
+    def press_key(self, key) -> None:
+        """Press ``key`` on the viewer canvas."""
+        canvas = self.gui.viewer.window._qt_viewer.canvas.native
+        QTest.keyClick(canvas, key)
+        self.grab()
+
+    # -- output --------------------------------------------------------
+    def save(self, path: Path) -> Path:
+        """Write the frames to an MP4 video at ``path``."""
+        writer = imageio.get_writer(
+            path,
+            fps=VIDEO_FPS,
+            codec="libx264",
+            quality=7,
+            pixelformat="yuv420p",
+            macro_block_size=16,
+            ffmpeg_params=["-metadata", f"comment={NAPARI_VERSION}"],
+            ffmpeg_log_level="error",
+        )
+        with writer:
+            for frame in self.frames:
+                writer.append_data(frame)
+        self.gui.viewer.close()
+        return path
+
+
+# ----------------------------------------------------------------------
+# Editing videos
+# ----------------------------------------------------------------------
+VIDEO_WINDOW_SIZE = (1200, 720)  # multiples of 16, as video codecs prefer
+EDIT_FRAME = 4500  # both mice fully tracked, apart from each other
+CLOSEUP_INDIVIDUAL = "2"  # red points, easier to see than the purple ones
+
+
+def editing_gui(frame: int = EDIT_FRAME, individual: str | None = None):
+    """Open the GUI ready for editing, zoomed in on the mice at ``frame``.
+
+    Zooms in on one ``individual`` if given, otherwise on all of them.
+    Returns the GUI and the points layer.
+    """
+    gui = GUI(size=VIDEO_WINDOW_SIZE)
+    gui.open_video(OCTAGON)
+    gui.load_tracks(OCTAGON, "SLEAP", fps=50)
+    points = gui.layer("points")
+    gui.layer("tracks").tail_length = 15  # short tails, to see the points
+    gui.viewer.layers.selection.active = points
+    gui.expand_only(EDIT_SECTION)
+    gui.window.resizeDocks(
+        [gui.widget._edit_timeline_dock_widget], [150], Qt.Vertical
+    )
+    gui.viewer.dims.set_current_step(0, frame)
+    rows = point_rows(points, frame, individual)
+    yx = points.data[rows, 1:]
+    canvas = gui.canvas
+    extent = np.ptp(yx, axis=0) + 80  # data pixels, with a margin
+    gui.viewer.scene.camera.center = yx.mean(axis=0)
+    gui.viewer.scene.camera.zoom = min(
+        canvas.height() / extent[0], canvas.width() / extent[1], 4
+    )
+    points.mode = "select"
+    gui.viewer.help = ""  # no key hints in the status bar
+    settle()
+    return gui, points
+
+
+def point_rows(points, frame: int, individual: str | None = None):
+    """Return the points layer rows in ``frame`` (of one individual)."""
+    rows = points.data[:, 0] == frame
+    if individual is not None:
+        rows &= points.properties["individual"] == individual
+    return np.flatnonzero(rows)
+
+
+def remove_points_in_frames(points, frames, individual=None) -> None:
+    """Remove a few points in each frame, to put lines on the timeline."""
+    for frame in frames:
+        points.selected_data = set(
+            point_rows(points, frame, individual)[:2].tolist()
+        )
+        points.remove_selected()
+    points.selected_data = set()
+
+
+# (y, x) offset in data pixels for the fake nose error: off to one side
+NOSE_ERROR = (-10, 30)
+
+
+def misplace_keypoint(points, row: int, offset) -> None:
+    """Shift a keypoint away from its tracked position, to fake an error.
+
+    The data event is blocked so the shift does not count as an edit,
+    and the tracks layer is updated by hand to match.
+    """
+    data = points.data.copy()
+    data[row, 1:] += offset
+    with points.events.data.blocker():
+        points.data = data
+    sync_tracks_layer(points, [row])
+    settle()
+
+
+def select_keypoints(out: Path) -> Path:
+    """Record selecting keypoints by clicking and by dragging a box."""
+    gui, points = editing_gui(individual=CLOSEUP_INDIVIDUAL)
+    rows = point_rows(points, EDIT_FRAME, CLOSEUP_INDIVIDUAL)
+    at = [gui.world_to_window(*points.data[r, 1:]) for r in rows]
+    rec = Recording(gui, gui.canvas.center())
+    canvas = gui.canvas
+
+    rec.say("1. Click a keypoint to select it.", canvas)
+    rec.hold(0.5)
+    rec.move(at[0])
+    rec.click()
+    rec.hold(1.5)
+
+    rec.say("2. Hold Shift while clicking\nto select more keypoints.", canvas)
+    for p in at[1:3]:
+        rec.move(p)
+        rec.click(SHIFT)
+        rec.hold(0.7)
+    rec.hold(1)
+
+    rec.say("3. Drag a box to select\na group of keypoints.", canvas)
+    # A box around all keypoints of the mouse, starting on empty space
+    xs, ys = [p.x() for p in at], [p.y() for p in at]
+    rec.move(QPoint(min(xs) - 30, min(ys) - 30))
+    rec.drag(QPoint(max(xs) + 30, max(ys) + 30), seconds=1.5)
+    rec.hold(2.5)
+    return rec.save(out / "napari_select_keypoints.mp4")
+
+
+def move_keypoints(out: Path) -> Path:
+    """Record dragging a keypoint to a new position."""
+    gui, points = editing_gui(individual=CLOSEUP_INDIVIDUAL)
+    nose = point_rows(points, EDIT_FRAME, CLOSEUP_INDIVIDUAL)[0]
+    # The tracking is good here, so fake an error for the drag to fix
+    correct = gui.world_to_window(*points.data[nose, 1:])
+    misplace_keypoint(points, nose, NOSE_ERROR)
+    wrong = gui.world_to_window(*points.data[nose, 1:])
+    rec = Recording(gui, gui.canvas.center())
+    canvas = gui.canvas
+
+    rec.say("Drag a keypoint to\nits correct position.", canvas)
+    rec.hold(0.5)
+    rec.move(wrong)
+    rec.hold(0.5)
+    rec.drag(correct, seconds=1.5)
+    rec.hold(1)
+
+    rec.say(
+        "Moved keypoints are shown as rings.",
+        canvas,
+    )
+    # Click on empty space to unselect, so the ring is easy to see
+    rec.move(canvas.topLeft() + QPoint(40, 40))
+    rec.click()
+    rec.hold(3)
+    return rec.save(out / "napari_move_keypoints.mp4")
+
+
+def remove_keypoints(out: Path) -> Path:
+    """Record removing selected keypoints with the delete button."""
+    gui, points = editing_gui(individual=CLOSEUP_INDIVIDUAL)
+    # The back half of the mouse
+    rows = point_rows(points, EDIT_FRAME, CLOSEUP_INDIVIDUAL)[4:]
+    at = [gui.world_to_window(*points.data[r, 1:]) for r in rows]
+    xs, ys = [p.x() for p in at], [p.y() for p in at]
+    rec = Recording(gui, gui.canvas.center())
+    canvas = gui.canvas
+
+    rec.say("Select the keypoints to remove.", canvas)
+    rec.move(QPoint(min(xs) - 30, min(ys) - 30))
+    rec.drag(QPoint(max(xs) + 30, max(ys) + 30), seconds=1)
+    rec.hold(1)
+
+    rec.say(
+        "Click × in the layer controls,\nor press Delete, Backspace or 1.",
+        canvas,
+    )
+    delete_button = gui.layer_controls(points).delete_button
+    rec.move(gui.rect(delete_button).center(), seconds=1)
+    rec.hold(0.5)
+    rec.click()
+    rec.hold(0.5)
+
+    rec.say("Removed keypoints disappear\nfrom the viewer.", canvas)
+    rec.move(canvas.center(), seconds=1)
+    rec.hold(2.5)
+    return rec.save(out / "napari_remove_keypoints.mp4")
+
+
+# Frames edited before recording the timeline videos. A few are close
+# together, so they only show as separate lines when zoomed in.
+TIMELINE_EDITS = {"1": [1500, 4200, 4212, 6600], "2": [4225, 7800]}
+
+
+def timeline_gui():
+    """Open the GUI for editing, with some edits on the timeline."""
+    gui, points = editing_gui()
+    for individual, frames in TIMELINE_EDITS.items():
+        remove_points_in_frames(points, frames, individual)
+    gui.viewer.reset_view()  # whole arena: the mice move between frames
+    gui.viewer.dims.set_current_step(0, 500)
+    settle()
+    return gui, points
+
+
+def edit_timeline(out: Path) -> Path:
+    """Record using the edit timeline to navigate edited frames."""
+    gui, _ = timeline_gui()
+    rec = Recording(gui, gui.canvas.center())
+    canvas = gui.canvas
+
+    rec.say(
+        "1. Click a solid line to go\nto that edited frame.", canvas, "top"
+    )
+    rec.hold(0.5)
+    for frame in (6600, 1500):
+        rec.move(gui.timeline_point(frame), seconds=1)
+        rec.click()
+        rec.hold(1.5)
+
+    rec.say(
+        "2. Scroll to zoom in or out,\ncentred on the pointer.", canvas, "top"
+    )
+    rec.move(gui.timeline_point(4212), seconds=1)
+    rec.scroll(6, seconds=2)
+    rec.hold(1.5)
+
+    rec.say("3. Click and drag to pan\nalong the timeline.", canvas, "top")
+    rec.drag(rec.pointer + QPoint(-200, 0), seconds=1.5)
+    rec.hold(1.5)
+
+    rec.say("4. Double-click to show\nall frames again.", canvas, "top")
+    rec.double_click()
+    rec.hold(2.5)
+    return rec.save(out / "napari_edit_timeline.mp4")
+
+
+def edit_timeline_individuals(out: Path) -> Path:
+    """Record splitting the edit timeline into one row per individual."""
+    gui, _ = timeline_gui()
+    checkbox = gui.section(EDIT_SECTION).content().show_individuals_checkbox
+    rec = Recording(gui, gui.canvas.center())
+
+    rec.say(
+        "Tick Display individuals to show\none row per individual.",
+        gui.canvas,
+        "top",
+    )
+    rec.hold(1)
+    rec.move(gui.rect(checkbox).topLeft() + QPoint(8, 10), seconds=1)
+    rec.click()
+    rec.hold(3)
+    return rec.save(out / "napari_edit_timeline_individuals.mp4")
+
+
+SCREENSHOTS: dict[str, Callable[[Path], Path]] = {
+    "video_slider": video_slider,
+    "poses_layers": poses_layers,
+    "bboxes_layers": bboxes_layers,
+    "points_tooltip": points_tooltip,
+    "tracks_sliders": tracks_sliders,
+    "new_region_layer": new_region_layer,
+    "drawing_regions": drawing_regions,
+    "edit_overview": edit_overview,
+}
+
+VIDEOS: dict[str, Callable[[Path], Path]] = {
+    "select_keypoints": select_keypoints,
+    "move_keypoints": move_keypoints,
+    "remove_keypoints": remove_keypoints,
+    "edit_timeline": edit_timeline,
+    "edit_timeline_individuals": edit_timeline_individuals,
+}
+
+# Everything the script can make, by name
+OUTPUTS = {**SCREENSHOTS, **VIDEOS}
+
+
+if __name__ == "__main__":
+    # Make the screenshots and videos named on the command line, or all
+    names = sys.argv[1:] or list(OUTPUTS)
+    unknown = set(names) - set(OUTPUTS)
+    if unknown:
+        sys.exit(
+            f"Unknown names: {sorted(unknown)}. Choose from: {list(OUTPUTS)}."
+        )
+    failed = []
+    for name in names:
+        try:
+            print(f"Saved {OUTPUTS[name](STATIC_PATH)}")
+        except Exception as e:
+            print(f"Failed {name}: {e!r}")
+            failed.append(name)
+        finally:
+            # Close the viewer even if this one failed halfway
+            napari.Viewer.close_all()
+    print(f"Made with {NAPARI_VERSION}")
+    if failed:
+        sys.exit(f"Failed: {failed}")

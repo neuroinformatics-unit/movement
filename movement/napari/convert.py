@@ -1,5 +1,7 @@
 """Conversion functions from ``movement`` datasets to napari layers."""
 
+from dataclasses import dataclass
+
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -19,7 +21,8 @@ def _construct_properties_dataframe(ds: xr.Dataset) -> pd.DataFrame:
         data["keypoint"] = ds.coords["keypoint"].values
         desired_order.insert(1, "keypoint")
     if "edited" in ds:
-        data["edited"] = ds["edited"].values.flatten()
+        edited = ds["edited"].fillna(False).astype(bool)
+        data["edited"] = edited.values.flatten()
         desired_order.append("edited")
 
     # sort
@@ -156,6 +159,106 @@ def ds_to_napari_layers(
     properties = _construct_properties_dataframe(ds_)
 
     return points_as_napari, bboxes_as_napari, properties
+
+
+@dataclass(frozen=True)
+class LoadedPointKeys:
+    """Integer keys for the loaded points, to match against live napari points.
+
+    Each loaded point's (frame, keypoint, individual) is encoded as an
+    int, so matching can be done via array indexing.
+
+    Attributes
+    ----------
+    keys
+        Key of each row of the loaded properties table.
+    frames
+        Frame index of each row of the loaded properties table.
+    id_columns
+        ``(column, unique values)`` pairs for the identity columns
+        (``keypoint``, ``individual``) present in the loaded table.
+    n_keys
+        Number of possible keys.
+
+    """
+
+    keys: np.ndarray
+    frames: np.ndarray
+    id_columns: tuple[tuple[str, pd.Index], ...]
+    n_keys: int
+
+    @classmethod
+    def from_properties(
+        cls, properties_with_nans: pd.DataFrame
+    ) -> "LoadedPointKeys":
+        """Build keys for every row of the loaded properties table."""
+        # Frame index is the time's position along the sorted time axis,
+        # matching the frame column built by ds_to_napari_layers
+        times = np.sort(properties_with_nans["time"].unique())
+        frames = np.searchsorted(times, properties_with_nans["time"])
+        keys = frames.astype(np.int64)
+        id_columns = []
+        n_keys = len(times)
+        for col in ("keypoint", "individual"):
+            if col in properties_with_nans:
+                codes, uniques = pd.factorize(properties_with_nans[col])
+                keys = keys * len(uniques) + codes
+                id_columns.append((col, pd.Index(uniques)))
+                n_keys *= len(uniques)
+        return cls(keys, frames, tuple(id_columns), n_keys)
+
+    def present(self, live_frames: np.ndarray, live_properties) -> np.ndarray:
+        """Flag the loaded rows that have a matching live point."""
+        live_keys = np.asarray(live_frames).astype(np.int64)
+        valid = live_keys >= 0
+        for col, uniques in self.id_columns:
+            codes = uniques.get_indexer(live_properties[col])
+            valid &= codes >= 0
+            live_keys = live_keys * len(uniques) + codes
+        valid &= live_keys < self.n_keys
+        present = np.zeros(self.n_keys, dtype=bool)
+        present[live_keys[valid]] = True
+        return present[self.keys]
+
+
+def removed_points_mask(
+    properties_with_nans: pd.DataFrame,
+    live_frames: np.ndarray,
+    live_properties,
+    keys: LoadedPointKeys | None = None,
+) -> np.ndarray:
+    """Flag the loaded points that count as removed.
+
+    A point counts as removed if it has no corresponding live napari point and
+    was either present at load (removed in this session) or
+    flagged as ``edited`` at load (removed in an earlier session).
+
+    Parameters
+    ----------
+    properties_with_nans
+        Properties DataFrame of the loaded dataset, including the NaN
+        position rows flagged in its ``position_is_nan`` column.
+    live_frames
+        Frame index of each live point.
+    live_properties
+        Live point properties (DataFrame or dict of arrays), with the
+        identity columns of ``properties_with_nans``.
+    keys
+        Precomputed keys for ``properties_with_nans``, to avoid
+        rebuilding them on every call. Built here if not given.
+
+    Returns
+    -------
+    numpy.ndarray
+        Boolean mask, row-aligned with ``properties_with_nans``.
+
+    """
+    if keys is None:
+        keys = LoadedPointKeys.from_properties(properties_with_nans)
+    removable = ~properties_with_nans["position_is_nan"].to_numpy()
+    if "edited" in properties_with_nans:
+        removable |= properties_with_nans["edited"].to_numpy(dtype=bool)
+    return removable & ~keys.present(live_frames, live_properties)
 
 
 def napari_layers_to_ds(
@@ -309,27 +412,24 @@ def napari_layers_to_ds(
             )
         )
 
-        # A point missing from the live layer shows up as NaN position
-        # after the reindex above
-        point_missing_now = position_da.isnull().all("space")
-        position_was_present_originally = ~(
-            properties_with_nans.set_index(["time", "keypoint", "individual"])[
-                "position_is_nan"
-            ]
+        removed = removed_points_mask(
+            properties_with_nans,
+            live_frames=points_as_napari[:, 0],
+            live_properties=properties_df,
+        )
+        removed_da = (
+            properties_with_nans.assign(removed=removed)
+            .set_index(["time", "keypoint", "individual"])["removed"]
             .to_xarray()
             .reindex(
                 time=time_coords,
                 keypoint=keypoint_coords,
                 individual=individual_coords,
-                fill_value=True,
+                fill_value=False,
             )
-            .astype(bool)
         )
-        # A point counts as edited if it was dragged in napari, or removed
-        # by the user (i.e. is now missing but was present originally).
-        edited_da = live_das["edited"].fillna(False).astype(bool) | (
-            point_missing_now & position_was_present_originally
-        )
+        # A point counts as edited if it was dragged in napari or removed
+        edited_da = live_das["edited"].fillna(False).astype(bool) | removed_da
 
         ds = xr.Dataset(
             data_vars={

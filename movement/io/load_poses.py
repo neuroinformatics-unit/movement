@@ -46,8 +46,9 @@ def from_numpy(
         :class:`xarray.DataArray` object named "position".
     confidence_array
         Array of shape (n_frames, n_keypoints, n_individuals) containing
-        the point-wise confidence scores. It will be converted to a
-        :class:`xarray.DataArray` object named "confidence".
+        point-wise confidence scores, or of shape (n_frames, n_individuals)
+        containing individual-wise confidence scores. It will be converted
+        to a :class:`xarray.DataArray` object named "confidence".
         If None (default), the scores will be set to an array of NaNs.
     individual_names
         List of unique names for the individuals in the video. If None
@@ -167,6 +168,10 @@ def from_dlc_style_df(
         ``movement`` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
+    See Also
+    --------
+    movement.io.load_poses.from_dlc_file
+
     Notes
     -----
     The DataFrame must have a multi-index column with the following levels:
@@ -182,10 +187,6 @@ def from_dlc_style_df(
       <https://deeplabcut.github.io/DeepLabCut/docs/Overviewof3D.html>`__).
 
     The row index corresponds to the frame number.
-
-    See Also
-    --------
-    movement.io.load_poses.from_dlc_file
 
     """
     # Read names of individuals and keypoints from the DataFrame
@@ -255,11 +256,19 @@ def from_sleap_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     "Export Analysis HDF5…" from the "File" menu) [1]_. This is the
     preferred format for loading pose tracks from SLEAP into *movement*.
 
+    When loading an analysis file, ``point_scores`` are loaded as point-wise
+    ``confidence``, with dimensions ``(time, keypoint, individual)``, if
+    present. Otherwise, ``instance_scores`` are loaded as individual-wise
+    ``confidence``, with dimensions ``(time, individual)``. If neither is
+    available, the confidence scores are set to NaN.
+
     You can also directly load the .slp file. However, if the file contains
     multiple videos, only the pose tracks from the first video will be loaded.
     If the file contains a mix of user-labelled and predicted instances, user
     labels are prioritised over predicted instances to mirror SLEAP's approach
-    when exporting .h5 analysis files [2]_.
+    when exporting .h5 analysis files [2]_. Only point scores are loaded, as
+    point-wise ``confidence``; user-labelled instances have no scores, so
+    their confidence scores are set to NaN.
 
     *movement* expects the tracks to be assigned and proofread before loading
     them, meaning each track is interpreted as a single individual. If
@@ -362,13 +371,6 @@ def from_dlc_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     --------
     movement.io.load_poses.from_dlc_style_df
 
-    Examples
-    --------
-    >>> from movement.io import load_poses
-    >>> ds = load_poses.from_dlc_file(  # doctest: +SKIP
-    ...     "path/to/file.h5", fps=30
-    ... )
-
     Notes
     -----
     In ``movement``, pose data can only be loaded if all individuals have
@@ -377,6 +379,13 @@ def from_dlc_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     individuals (see the `DeepLabCut documentation for multi-animal projects
     <https://deeplabcut.github.io/DeepLabCut/docs/quick-start/tutorial_maDLC.html>`_),
     this feature is not currently supported in ``movement``.
+
+    Examples
+    --------
+    >>> from movement.io import load_poses
+    >>> ds = load_poses.from_dlc_file(  # doctest: +SKIP
+    ...     "path/to/file.h5", fps=30
+    ... )
 
     """
     return _ds_from_lp_or_dlc_file(
@@ -690,10 +699,16 @@ def _ds_from_sleap_analysis_file(file: Path, fps: float | None) -> xr.Dataset:
                 "Assuming single-individual dataset and assigning "
                 "default individual name."
             )
-        # If present, read the point-wise scores,
-        # and transpose to shape: (n_frames, n_keypoints, n_tracks)
-        if "point_scores" in f:
-            scores = f["point_scores"][:].T
+        # Prioritise point scores if present and non-empty, otherwise use
+        # instance scores, and transpose to shape (n_frames, n_keypoints,
+        # n_tracks) or (n_frames, n_tracks) respectively.
+        for key in ("point_scores", "instance_scores"):
+            if key in f:
+                candidate = f[key][:]
+                if not np.isnan(candidate).all():
+                    scores = candidate.T
+                    logger.info(f"Using {key} for confidence scores.")
+                    break
         return from_numpy(
             position_array=tracks.astype(np.float32),
             confidence_array=scores.astype(np.float32),

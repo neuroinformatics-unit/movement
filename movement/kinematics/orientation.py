@@ -312,6 +312,11 @@ def compute_angular_time_derivative(
         time (raised to the power of ``order``). It has the dimensions of
         the input, without ``space``.
 
+    See Also
+    --------
+        compute_angular_velocity : Wrapper for ``order=1``.
+        compute_angular_acceleration : Wrapper for ``order=2``.
+
     Notes
     -----
     **Wrap-around.** Differentiating angles directly produces spurious
@@ -350,11 +355,6 @@ def compute_angular_time_derivative(
     :math:`\pm\pi`. Windowed estimates require uniform sampling, so make sure
     to resample irregularly sampled data onto a uniform ``time`` grid first,
     e.g. with :meth:`xarray.DataArray.interp` on the vectors.
-
-    See Also
-    --------
-    compute_angular_velocity : Wrapper for ``order=1``.
-    compute_angular_acceleration : Wrapper for ``order=2``.
 
     """
     _validate_type_data_array(data)

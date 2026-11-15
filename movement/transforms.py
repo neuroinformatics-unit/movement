@@ -159,6 +159,10 @@ def poses_to_bboxes(
         If the position array is missing required dimensions or coordinates,
         is not 2D, or ``padding`` is negative.
 
+    See Also
+    --------
+    movement.transforms.scale : Scale spatial coordinates
+
     Notes
     -----
     - Keypoints with NaN in any spatial coordinate are excluded from bounding
@@ -182,10 +186,6 @@ def poses_to_bboxes(
     Compute bounding boxes from a poses dataset with 10 pixels of padding:
 
     >>> bbox_position, bbox_shape = poses_to_bboxes(ds["position"], padding=10)
-
-    See Also
-    --------
-    movement.transforms.scale : Scale spatial coordinates
 
     """
     if not isinstance(position, xr.DataArray):

@@ -179,7 +179,7 @@ print(f"Number of keypoints in 'world' dataset: {len(ds_world.keypoint)}")
 # ``right_hand_0006`` keypoint. This keypoint tracks the right index finger
 # used for writing in the air.  Note that at the moment, FreeMoCap can only
 # track `one individual at a time
-# <https://docs.freemocap.org/documentation/frequently-asked-questions-faq.html#can-freemocap-track-multiple-people-at-once>`_.
+# <https://docs.freemocap.org/about/faq/#can-freemocap-track-multiple-people-at-once>`_.
 
 right_index_position_hello = ds_hello.position.sel(time=range(30, 180)).sel(
     keypoint="right_hand_0006", individual="id_0"
