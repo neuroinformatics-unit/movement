@@ -13,7 +13,7 @@ from movement.roi.line import LineOfInterest
 from movement.roi.polygon import PolygonOfInterest
 from movement.validators.files import (
     ValidROICollectionGeoJSON,
-    _validate_file_path,
+    validate_file_path,
 )
 
 if TYPE_CHECKING:
@@ -70,8 +70,9 @@ def save_rois(
     >>> save_rois([square, diagonal], "/path/to/rois.geojson")
 
     """
-    valid_path = _validate_file_path(
+    valid_path = validate_file_path(
         file,
+        permission="w",
         overwrite=overwrite,
         suffixes=ValidROICollectionGeoJSON.suffixes,
     )

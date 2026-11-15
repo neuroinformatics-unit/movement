@@ -24,7 +24,6 @@ from movement.validators.files import (
     _hdf5_validator,
     _if_instance_of,
     _json_validator,
-    _validate_file_path,
     validate_file_path,
 )
 from tests.fixtures.coco import COCO_KEYPOINT_RESULT_1, COCO_KEYPOINT_RESULT_2
@@ -84,14 +83,14 @@ def test_validate_file_path(
 @pytest.mark.parametrize("overwrite", [True, False])
 def test_validate_file_path_nonexistent_write_target(tmp_path, overwrite):
     path = tmp_path / "new.csv"
-    assert _validate_file_path(path, overwrite=overwrite) == path
+    assert validate_file_path(path, "w", overwrite) == path
 
 
 def test_validate_file_path_overwrite_existing_file(tmp_path):
     path = tmp_path / "existing.csv"
     path.write_text("old")
-    assert _validate_file_path(path) == path
-    assert _validate_file_path(path, overwrite=True) == path
+    assert validate_file_path(path, "w") == path
+    assert validate_file_path(path, "w", overwrite=True) == path
 
 
 def test_validate_file_path_rejects_existing_file_when_overwrite_disabled(
@@ -100,7 +99,7 @@ def test_validate_file_path_rejects_existing_file_when_overwrite_disabled(
     path = tmp_path / "existing.csv"
     path.write_text("old")
     with pytest.raises(FileExistsError):
-        _validate_file_path(path, overwrite=False)
+        validate_file_path(path, "w", overwrite=False)
 
 
 def test_validate_file_path_rejects_read_only_existing_file(
@@ -113,7 +112,7 @@ def test_validate_file_path_rejects_read_only_existing_file(
         lambda target, mode: Path(target) != path,
     )
     with pytest.raises(PermissionError):
-        _validate_file_path(path, overwrite=True)
+        validate_file_path(path, "w", overwrite=True)
 
 
 @pytest.mark.parametrize(
