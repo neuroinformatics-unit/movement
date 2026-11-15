@@ -200,8 +200,8 @@ class MyClass:
 
 #### Docstring examples
 
-The code in the "Examples" section of docstrings is run as part of our CI, using pytest's [doctest integration](https://docs.pytest.org/en/stable/how-to/doctest.html).
-You can run these checks locally with:
+Any code written with `>>>` in a docstring is run as part of our CI, using pytest's [doctest integration](https://docs.pytest.org/en/stable/how-to/doctest.html).
+You can run these checks locally from the root of the repository with:
 
 ```sh
 pytest --doctest-modules movement --no-cov
@@ -210,6 +210,8 @@ pytest --doctest-modules movement --no-cov
 Each example should be self-contained, i.e. it should import what it uses and create any data it needs.
 As an exception, examples may refer to a poses dataset `ds` without creating it.
 This is a small synthetic dataset, provided by the `conftest.py` file at the root of the repository.
+It has 200 frames, two individuals (`ind1`, `ind2`) and three keypoints (`key1`, `key2`, `key3`), with 2D positions.
+It has no `fps`, so `time` is in frames, and its `confidence` values are all NaN.
 
 Examples that cannot run in CI, for instance because they read files from placeholder paths, download data, or write files to disk, should be marked with `# doctest: +SKIP`.
 These directives are hidden in the rendered documentation.
@@ -219,6 +221,10 @@ These directives are hidden in the rendered documentation.
 ...     "path/to/file.h5", fps=30
 ... )
 ```
+
+Note that `# doctest: +SKIP` only skips the example it is attached to.
+Later lines still run, so a line that uses `ds` after a skipped `ds = ...` will run on the synthetic `ds` from `conftest.py`.
+If such a line needs the real data, mark it with `# doctest: +SKIP` too.
 
 ### Testing
 

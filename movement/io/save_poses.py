@@ -435,7 +435,7 @@ def to_nwb_file_object(
     >>> from movement.io import save_poses
     >>> from pynwb import NWBHDF5IO
     >>> ds = fetch_dataset("DLC_two-mice.predictions.csv")  # doctest: +SKIP
-    >>> nwb_files = save_poses.to_nwb_file_object(ds)
+    >>> nwb_files = save_poses.to_nwb_file_object(ds)  # doctest: +SKIP
     >>> for file in nwb_files:  # doctest: +SKIP
     ...     with NWBHDF5IO(f"{file.identifier}.nwb", "w") as io:
     ...         io.write(file)
@@ -585,7 +585,7 @@ def to_nwb_file(
     >>> from movement.io import save_poses
     >>> from pynwb import NWBHDF5IO
     >>> ds = fetch_dataset("DLC_two-mice.predictions.csv")  # doctest: +SKIP
-    >>> nwb_files = save_poses.to_nwb_file_object(ds)
+    >>> nwb_files = save_poses.to_nwb_file_object(ds)  # doctest: +SKIP
     >>> for file in nwb_files:  # doctest: +SKIP
     ...     with NWBHDF5IO(f"{file.identifier}.nwb", "w") as io:
     ...         io.write(file)

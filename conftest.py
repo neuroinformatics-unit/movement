@@ -2,7 +2,6 @@
 
 import numpy as np
 import pytest
-from _pytest.doctest import DoctestItem
 
 from movement.io import load_poses
 
@@ -17,7 +16,7 @@ def add_doctest_namespace(request, doctest_namespace):
     A new dataset is created for each docstring, so that changes made
     in one example do not affect the others.
     """
-    if not isinstance(request.node, DoctestItem):
+    if not isinstance(request.node, pytest.DoctestItem):
         return
     rng = np.random.default_rng(seed=42)
     steps = rng.normal(scale=5, size=(200, 2, 3, 2))
