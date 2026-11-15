@@ -12,7 +12,7 @@ import xarray as xr
 
 from movement.io.save import register_writer
 from movement.utils.logging import logger
-from movement.validators.files import _validate_file_path
+from movement.validators.files import validate_file_path
 
 if TYPE_CHECKING:
     import _csv
@@ -135,7 +135,9 @@ def to_via_tracks_file(
 
     """
     # Validate the output path before doing any work
-    _validate_file_path(file, overwrite=overwrite, suffixes={".csv"})
+    validate_file_path(
+        file, permission="w", overwrite=overwrite, suffixes={".csv"},
+    )
 
     # Check the number of digits required to represent the frame numbers
     frame_n_digits = _check_frame_required_digits(

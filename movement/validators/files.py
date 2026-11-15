@@ -30,7 +30,7 @@ JSON_SUFFIX = ".json"
 class ValidFile(Protocol):
     """Protocol for file validators used to validate input files.
 
-    Output paths are validated by :func:`_validate_file_path`, which permits
+    Output paths are validated by :func:`validate_file_path`, which permits
     overwriting existing writable files by default. Pass ``overwrite=False``
     to that function to reject an existing destination.
 
@@ -352,22 +352,27 @@ def _if_instance_of(
 
 
 def validate_file_path(
-    file: Path | str,
-    *,
+    file_path: str | Path,
     permission: Literal["r", "w", "rw"] = "r",
+    overwrite: bool = True,
+    *,
     suffixes: set[str] | None = None,
 ) -> Path:
     """Validate the file has the expected permission(s) and suffix(es).
 
     Parameters
     ----------
-    file
+    file_path
         Path to the file to validate.
     permission
         Expected access permission(s) for the file. If "r", the file is
         expected to be readable. If "w", the file is expected to be writable.
         If "rw", the file is expected to be both readable and writable.
         Default is "r".
+    overwrite : bool, default True
+        Whether an existing writable file is permitted when ``permission``
+        includes ``"w"``. If False, an existing file raises
+        ``FileExistsError``.
     suffixes
         Expected suffix(es) for the file. If None (default),
         this check is skipped.
@@ -379,6 +384,12 @@ def validate_file_path(
 
     Raises
     ------
+    FileExistsError
+        If the file exists, ``permission`` includes ``"w"``, and
+        ``overwrite=False``.
+    PermissionError
+        If an existing file is not writable, or the parent directory is not
+        writable for a new output file.
     OSError
         If the file does not meet the expected access ``permission`` or
         if it is a directory.
@@ -394,54 +405,14 @@ def validate_file_path(
             file: Path = field(
                 converter=Path,
                 validator=_file_validator(
-                    permission=permission, suffixes=suffixes
+                    permission=permission, suffixes=suffixes, overwrite=overwrite,
                 ),
             )
 
-        validator = _TempValidator(file=file)
-        return validator.file
+        return _TempValidator(file=file_path).file
     except (OSError, ValueError) as error:
         logger.error(error)
         raise
-
-
-def _validate_file_path(
-    path: Path | str,
-    *,
-    overwrite: bool = True,
-    suffixes: set[str] | None = None,
-) -> Path:
-    """Validate a file path for writing, with overwrite semantics.
-
-    Parameters
-    ----------
-    path
-        Output file path.
-    overwrite : bool, default True
-        Whether to allow overwriting an existing writable file. If False,
-        raise ``FileExistsError`` when the file already exists.
-    suffixes
-        Optional set of expected file suffixes.
-
-    Returns
-    -------
-    Path
-        The validated path.
-
-    Raises
-    ------
-    FileExistsError
-        If the file exists and ``overwrite=False``.
-    PermissionError
-        If the file exists, ``overwrite=True``, but is not writable.
-    """
-    path = Path(path)
-    _file_validator(
-        permission="w",
-        suffixes=suffixes,
-        overwrite=overwrite,
-    )(None, None, path)
-    return path
 
 
 # --- File validator classes --- #

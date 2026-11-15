@@ -18,7 +18,7 @@ from movement.io.nwb import (
 from movement.io.save import register_writer
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidPosesInputs
-from movement.validators.files import _validate_file_path
+from movement.validators.files import validate_file_path
 
 
 def _ds_to_dlc_style_df(
@@ -94,8 +94,11 @@ def _save_dlc_df(
         If False, raise ``FileExistsError`` if the file exists.
 
     """
-    _validate_file_path(
-        filepath, overwrite=overwrite, suffixes={".csv", ".h5"}
+    validate_file_path(
+        filepath,
+        permission="w",
+        overwrite=overwrite,
+        suffixes={".csv", ".h5"},
     )
     if filepath.suffix == ".csv":
         df.to_csv(filepath, sep=",")
@@ -267,8 +270,8 @@ def to_dlc_file(
         derived_paths = []
         for indiv in individuals:
             derived = file_path.with_name(f"{file_path.stem}_{indiv}{suffix}")
-            _validate_file_path(
-                derived, overwrite=overwrite, suffixes={".csv", ".h5"}
+            validate_file_path(
+                derived, permission="w", overwrite=overwrite, suffixes={".csv", ".h5"},
             )
             derived_paths.append((indiv, derived))
 
@@ -277,20 +280,65 @@ def to_dlc_file(
             _save_dlc_df(derived, df_dict[indiv], overwrite=overwrite)
             logger.info(f"Saved poses dataset to {derived}.")
     elif split_individuals:
-        _validate_file_path(
-            file_path, overwrite=overwrite, suffixes={".csv", ".h5"}
+        validate_file_path(
+            file_path, permission="w", overwrite=overwrite, suffixes={".csv", ".h5"},
         )
         individual = ds.individual.values[0]
         df_dict = to_dlc_style_df(ds, split_individuals=True)
         _save_dlc_df(file_path, df_dict[individual], overwrite=overwrite)
         logger.info(f"Saved poses dataset to {file_path}.")
     else:
-        _validate_file_path(
-            file_path, overwrite=overwrite, suffixes={".csv", ".h5"}
+        validate_file_path(
+            file_path, permission="w", overwrite=overwrite, suffixes={".csv", ".h5"},
         )
         df = to_dlc_style_df(ds, split_individuals=False)
         _save_dlc_df(file_path, df, overwrite=overwrite)
         logger.info(f"Saved poses dataset to {file_path}.")
+
+
+@register_writer("LightningPose", ds_type="poses", suffixes={".csv"})
+def to_lp_file(
+    ds: xr.Dataset,
+    file: str | Path,
+    *,
+    overwrite: bool = True,
+) -> None:
+    """Save a ``movement`` dataset to LightningPose-style CSV file(s).
+
+    Parameters
+    ----------
+    ds
+        ``movement`` dataset containing pose tracks and confidence scores.
+    file
+        Path to the output CSV file. For datasets with multiple individuals,
+        each individual's name is appended to the filename stem and a
+        separate CSV file is written per individual.
+    overwrite : bool, default True
+        Whether to overwrite existing writable output files. If False, a
+        ``FileExistsError`` is raised if any target file already exists.
+
+    Raises
+    ------
+    FileExistsError
+        If an output file exists and ``overwrite=False``.
+    PermissionError
+        If an existing output file is not writable.
+
+    See Also
+    --------
+    to_dlc_file : Save pose data in DeepLabCut format.
+
+    Notes
+    -----
+    LightningPose saves pose estimation outputs as CSV files using the
+    single-animal DeepLabCut format. This function calls
+    :func:`movement.io.save_poses.to_dlc_file` with
+    ``split_individuals=True``. For multiple individuals, each individual's
+    name is appended to the file stem. For a single individual, the requested
+    file path is used as is.
+
+    """
+    to_dlc_file(ds, file, split_individuals=True, overwrite=overwrite)
 
 
 @register_writer("SLEAP", ds_type="poses", suffixes={".h5"})
@@ -359,7 +407,9 @@ def to_sleap_analysis_file(
     file_path = Path(file)
 
     # Validate before doing any work
-    _validate_file_path(file_path, overwrite=overwrite, suffixes={".h5"})
+    validate_file_path(
+        file_path, permission="w", overwrite=overwrite, suffixes={".h5"}
+    )
 
     ds = _remove_unoccupied_tracks(ds)
     # Target shapes:
@@ -425,51 +475,6 @@ def to_sleap_analysis_file(
             else:
                 f.create_dataset(key, data=val)
     logger.info(f"Saved poses dataset to {file_path}.")
-
-
-@register_writer("LightningPose", ds_type="poses", suffixes={".csv"})
-def to_lp_file(
-    ds: xr.Dataset,
-    file: str | Path,
-    *,
-    overwrite: bool = True,
-) -> None:
-    """Save a ``movement`` dataset to LightningPose-style CSV file(s).
-
-    Parameters
-    ----------
-    ds
-        ``movement`` dataset containing pose tracks and confidence scores.
-    file
-        Path to the output CSV file. For datasets with multiple individuals,
-        each individual's name is appended to the filename stem and a
-        separate CSV file is written per individual.
-    overwrite : bool, default True
-        Whether to overwrite existing writable output files. If False, a
-        ``FileExistsError`` is raised if any target file already exists.
-
-    Raises
-    ------
-    FileExistsError
-        If an output file exists and ``overwrite=False``.
-    PermissionError
-        If an existing output file is not writable.
-
-    See Also
-    --------
-    to_dlc_file : Save pose data in DeepLabCut format.
-
-    Notes
-    -----
-    LightningPose saves pose estimation outputs as CSV files using the
-    single-animal DeepLabCut format. This function calls
-    :func:`movement.io.save_poses.to_dlc_file` with
-    ``split_individuals=True``. For multiple individuals, each individual's
-    name is appended to the file stem. For a single individual, the requested
-    file path is used as is.
-
-    """
-    to_dlc_file(ds, file, split_individuals=True, overwrite=overwrite)
 
 
 def to_nwb_file_object(
@@ -757,8 +762,8 @@ def _write_nwb_file(ds: xr.Dataset, file: str | Path, **kwargs) -> None:
             individual_path = valid_path.with_name(
                 f"{valid_path.stem}_{nwb_file.identifier}{valid_path.suffix}"
             )
-            individual_path = _validate_file_path(
-                individual_path, overwrite=True, suffixes={".nwb"}
+            individual_path = validate_file_path(
+                individual_path, permission="w", overwrite=True, suffixes={".nwb"},
             )
             _write_nwb_to_disk(nwb_file, individual_path)
 
