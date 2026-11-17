@@ -160,15 +160,16 @@ def from_via_tracks_file(
         ``use_frame_numbers_from_file`` is True, and the first tracked frame
         written in the file otherwise.
     use_frame_numbers_from_file
-        If True, the frame numbers in the resulting dataset are
-        the same as the ones in the VIA tracks .csv file. This may be useful if
-        the bounding boxes are tracked for a subset of frames in a video,
-        but you want to maintain the start of the full video as the time
-        origin. If False (default), the frame numbers in the VIA tracks .csv
-        file are offset so that the first tracked frame in the file is frame 0.
-        Note that in both cases the spacing between the tracked frames is
-        preserved, so any gaps in the tracked frames are reflected in the
-        ``time`` coordinates.
+        If False (default), frame numbers are offset so that the first
+        tracked frame in the file becomes frame 0 in the dataset. If True,
+        frame numbers in the dataset are as specified in the file (in the
+        ``file_attributes`` column or in the frame filenames, see
+        ``frame_regexp``). A True value may be useful if only a subset of the
+        video's frames were tracked, but you want to keep the start of the
+        video as the time origin of the dataset. In all cases, the spacing
+        between tracked frames is preserved: frames ``[5, 6, 9]`` in the file
+        become ``[0, 1, 4]`` in the dataset by default, and stay ``[5, 6, 9]``
+        if True.
     frame_regexp
         Regular expression pattern to extract the frame number from the frame
         filename. By default, the frame number is expected to be encoded in
