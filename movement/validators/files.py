@@ -33,13 +33,6 @@ class ValidFile(Protocol):
     Output paths are validated by :func:`validate_file_path`, which permits
     overwriting existing writable files by default. Pass ``overwrite=False``
     to that function to reject an existing destination.
-
-    Attributes
-    ----------
-    suffixes : ClassVar[set[str]]
-        Expected suffix(es) for the file.
-    file : Path | NWBFile
-        Path to the file to validate or an NWBFile object.
     """
 
     suffixes: ClassVar[set[str]]
