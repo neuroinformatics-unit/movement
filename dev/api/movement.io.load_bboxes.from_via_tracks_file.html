@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=dcd74bed"></script>
+    <script src="../_static/documentation_options.js?v=eb2fc187"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.18.1.dev1</p>
+    <p class="title logo__title">movement v0.18.1.dev2</p>
   
 </a></div>
     
@@ -714,21 +714,24 @@ For more information on the VIA tracks .csv file format, see the VIA
 tutorial for tracking <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p></li>
 <li><p><strong>fps</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> | <span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span>) – The video sampling rate. If None (default), the <code class="docutils literal notranslate"><span class="pre">time</span></code> coordinates
 of the resulting <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset will be in frame numbers. If
-<code class="docutils literal notranslate"><span class="pre">fps</span></code> is provided, the <code class="docutils literal notranslate"><span class="pre">time</span></code> coordinates  will be in seconds. If
-the <code class="docutils literal notranslate"><span class="pre">time</span></code> coordinates are in seconds, they will indicate the
-elapsed time from the capture of the first frame (assumed to be frame
-0).</p></li>
-<li><p><strong>use_frame_numbers_from_file</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – If True, the frame numbers in the resulting dataset are
-the same as the ones in the VIA tracks .csv file. This may be useful if
-the bounding boxes are tracked for a subset of frames in a video,
-but you want to maintain the start of the full video as the time
-origin. If False (default), the frame numbers in the VIA tracks .csv
-file are instead mapped to a 0-based sequence of consecutive integers.</p></li>
-<li><p><strong>frame_regexp</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Regular expression pattern to extract the frame number from the frame
-filename. By default, the frame number is expected to be encoded in
-the filename as an integer number led by at least one zero, followed
-by the file extension. Only used if <code class="docutils literal notranslate"><span class="pre">use_frame_numbers_from_file</span></code> is
-True.</p></li>
+<code class="docutils literal notranslate"><span class="pre">fps</span></code> is provided, the <code class="docutils literal notranslate"><span class="pre">time</span></code> coordinates will be in seconds, i.e.
+frame numbers divided by <code class="docutils literal notranslate"><span class="pre">fps</span></code>. See <code class="docutils literal notranslate"><span class="pre">use_frame_numbers_from_file</span></code>
+for which frame is taken as the time origin.</p></li>
+<li><p><strong>use_frame_numbers_from_file</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – If False (default), frame numbers are offset so that the first
+tracked frame in the file becomes frame 0 in the dataset. If True,
+frame numbers in the dataset are as specified in the file (in the
+<code class="docutils literal notranslate"><span class="pre">file_attributes</span></code> column or in the frame filenames, see
+<code class="docutils literal notranslate"><span class="pre">frame_regexp</span></code>). A True value may be useful if only a subset of the
+video’s frames were tracked, but you want to keep the start of the
+video as the time origin of the dataset. In all cases, the spacing
+between tracked frames is preserved: frames <code class="docutils literal notranslate"><span class="pre">[5,</span> <span class="pre">6,</span> <span class="pre">9]</span></code> in the file
+become <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1,</span> <span class="pre">4]</span></code> in the dataset by default, and stay <code class="docutils literal notranslate"><span class="pre">[5,</span> <span class="pre">6,</span> <span class="pre">9]</span></code>
+if True.</p></li>
+<li><p><strong>frame_regexp</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Regular expression pattern to extract the frame number from the
+frame filename, used only if frame numbers are not defined in the
+<code class="docutils literal notranslate"><span class="pre">file_attributes</span></code> column. By default, the frame number is expected
+to be encoded in the filename as an integer number led by at least
+one zero, followed by the file extension.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -758,7 +761,9 @@ with N being the bounding box ID.</p>
 <p class="rubric">Examples</p>
 <p>Create a dataset from the VIA tracks .csv file at “path/to/file.csv”, with
 the time coordinates in frames, and setting the first tracked frame in the
-file as frame 0.</p>
+file as frame 0. The spacing between the tracked frames is preserved, so
+if the file holds data for frames 100, 105, 110, …, the time
+coordinates will be 0, 5, 10, …</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_bboxes</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_bboxes</span><span class="o">.</span><span class="n">from_via_tracks_file</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="s2">"path/to/file.csv"</span><span class="p">,</span>
@@ -777,7 +782,7 @@ the first tracked frame in the file.</p>
 </div>
 <p>Create a dataset from the VIA tracks .csv file at “path/to/file.csv”, with
 the time coordinates in frames, and using the same frame numbers as
-in the VIA tracks .csv file.</p>
+in the VIA tracks .csv file (e.g. frames 100, 105, 110, … stay as is).</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_bboxes</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_bboxes</span><span class="o">.</span><span class="n">from_via_tracks_file</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="s2">"path/to/file.csv"</span><span class="p">,</span>
@@ -787,7 +792,7 @@ in the VIA tracks .csv file.</p>
 </div>
 <p>Create a dataset from the VIA tracks .csv file at “path/to/file.csv”, with
 the time coordinates in seconds, and assuming t = 0 seconds corresponds to
-the 0th frame in the full video.</p>
+frame 0 in the full video.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_bboxes</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_bboxes</span><span class="o">.</span><span class="n">from_via_tracks_file</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="s2">"path/to/file.csv"</span><span class="p">,</span>

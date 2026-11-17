@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=dcd74bed"></script>
+    <script src="../_static/documentation_options.js?v=eb2fc187"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.18.1.dev1</p>
+    <p class="title logo__title">movement v0.18.1.dev2</p>
   
 </a></div>
     
@@ -643,7 +643,9 @@ These can be passed directly as keyword arguments to <a class="reference interna
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>Or to load bounding box tracks from a VIA tracks .csv file while retaining the original frame numbers from the file instead of starting from 0:</p>
+<p>Or to load bounding box tracks from a VIA tracks .csv file while retaining
+the original frame numbers from the file (rather than offsetting them so
+that the first tracked frame is frame 0):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span>
     <span class="s2">"/path/to/file.csv"</span><span class="p">,</span>
     <span class="n">source_software</span><span class="o">=</span><span class="s2">"VIA-tracks"</span><span class="p">,</span>

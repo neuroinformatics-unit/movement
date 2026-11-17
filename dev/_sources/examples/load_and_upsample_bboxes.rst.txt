@@ -64,7 +64,7 @@ Camouflaged Animals Dataset (MoCA) dataset
 
 We will also download the associated video for visualising the data later.
 
-.. GENERATED FROM PYTHON SOURCE LINES 34-47
+.. GENERATED FROM PYTHON SOURCE LINES 34-51
 
 .. code-block:: Python
 
@@ -77,6 +77,10 @@ We will also download the associated video for visualising the data later.
     file_path = dataset_dict["bboxes"]
     print(file_path)
 
+    # We pass ``use_frame_numbers_from_file=True`` to keep the frame
+    # numbers as specified in the input file in the ``time`` dimension. Without
+    # it, the frame numbers are offset so that the first tracked frame is frame
+    # 0. In both cases the spacing between the tracked frames is preserved.
     ds = load_bboxes.from_via_tracks_file(
         file_path, use_frame_numbers_from_file=True
     )
@@ -94,12 +98,12 @@ We will also download the associated video for visualising the data later.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 48-50
+.. GENERATED FROM PYTHON SOURCE LINES 52-54
 
 The loaded dataset is made up of three data arrays:
 ``position``, ``shape``, and ``confidence``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 50-52
+.. GENERATED FROM PYTHON SOURCE LINES 54-56
 
 .. code-block:: Python
 
@@ -128,13 +132,13 @@ The loaded dataset is made up of three data arrays:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 53-56
+.. GENERATED FROM PYTHON SOURCE LINES 57-60
 
 We can see that the coordinates in the time dimension are expressed in
 frames, and that we only have data for 1 in 5 frames of the video, plus
 the last frame (frame number 167).
 
-.. GENERATED FROM PYTHON SOURCE LINES 56-59
+.. GENERATED FROM PYTHON SOURCE LINES 60-63
 
 .. code-block:: Python
 
@@ -157,18 +161,18 @@ the last frame (frame number 167).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 60-62
+.. GENERATED FROM PYTHON SOURCE LINES 64-66
 
 In the following sections of the notebook we will explore options to upsample
 the dataset by filling in values for the video frames with no data.
 
-.. GENERATED FROM PYTHON SOURCE LINES 64-67
+.. GENERATED FROM PYTHON SOURCE LINES 68-71
 
 Inspect associated video
 --------------------------------
 The video associated to the data contains all 168 frames.
 
-.. GENERATED FROM PYTHON SOURCE LINES 67-78
+.. GENERATED FROM PYTHON SOURCE LINES 71-82
 
 .. code-block:: Python
 
@@ -198,12 +202,12 @@ The video associated to the data contains all 168 frames.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 79-81
+.. GENERATED FROM PYTHON SOURCE LINES 83-85
 
 Let's inspect the first 6 frames of the video for which we have
 annotations, and plot the annotated bounding box and centroid at each frame.
 
-.. GENERATED FROM PYTHON SOURCE LINES 81-153
+.. GENERATED FROM PYTHON SOURCE LINES 85-157
 
 .. code-block:: Python
 
@@ -291,7 +295,7 @@ annotations, and plot the annotated bounding box and centroid at each frame.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 155-161
+.. GENERATED FROM PYTHON SOURCE LINES 159-165
 
 We used :meth:`xarray.DataArray.sel` to select the data for the
 relevant frames directly.
@@ -300,7 +304,7 @@ The centroid at each frame is marked with a red marker. The past centroid
 positions are shown in blue and the future centroid positions in white.
 Note that in this case the camera is not static relative to the environment.
 
-.. GENERATED FROM PYTHON SOURCE LINES 163-169
+.. GENERATED FROM PYTHON SOURCE LINES 167-173
 
 Fill in empty values with forward filling
 ----------------------------------------------------
@@ -309,7 +313,7 @@ We can fill in the frames with empty values for the  ``position`` and
 box's position and shape stay constant if for a current frame the box
 has no annotation defined.
 
-.. GENERATED FROM PYTHON SOURCE LINES 169-175
+.. GENERATED FROM PYTHON SOURCE LINES 173-179
 
 .. code-block:: Python
 
@@ -326,7 +330,7 @@ has no annotation defined.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 176-182
+.. GENERATED FROM PYTHON SOURCE LINES 180-186
 
 We can verify with a plot that the empty values have been filled in
 using the last valid value in time.
@@ -335,7 +339,7 @@ For this we define a convenience function to plot the x and y coordinates
 of the ``position`` and  ``shape`` arrays, for the input dataset and for
 a filled one.
 
-.. GENERATED FROM PYTHON SOURCE LINES 182-230
+.. GENERATED FROM PYTHON SOURCE LINES 186-234
 
 .. code-block:: Python
 
@@ -394,12 +398,12 @@ a filled one.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 231-233
+.. GENERATED FROM PYTHON SOURCE LINES 235-237
 
 In the plot below, the original ``position`` and ``shape`` data is shown
 in black, while the forward-filled values are shown in green.
 
-.. GENERATED FROM PYTHON SOURCE LINES 233-239
+.. GENERATED FROM PYTHON SOURCE LINES 237-243
 
 .. code-block:: Python
 
@@ -421,14 +425,14 @@ in black, while the forward-filled values are shown in green.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 240-244
+.. GENERATED FROM PYTHON SOURCE LINES 244-248
 
 Fill in empty values with NaN
 ----------------------------------------------------
 Alternatively, we can fill in the empty frames with NaN values.
 This can be useful if we want to interpolate later.
 
-.. GENERATED FROM PYTHON SOURCE LINES 244-249
+.. GENERATED FROM PYTHON SOURCE LINES 248-253
 
 .. code-block:: Python
 
@@ -444,12 +448,12 @@ This can be useful if we want to interpolate later.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 250-252
+.. GENERATED FROM PYTHON SOURCE LINES 254-256
 
 Like before, we can verify with a plot that the empty values have been
 filled with NaN values.
 
-.. GENERATED FROM PYTHON SOURCE LINES 252-256
+.. GENERATED FROM PYTHON SOURCE LINES 256-260
 
 .. code-block:: Python
 
@@ -469,12 +473,12 @@ filled with NaN values.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 257-259
+.. GENERATED FROM PYTHON SOURCE LINES 261-263
 
 We can further confirm we have NaNs where expected by printing the first few
 frames of the data.
 
-.. GENERATED FROM PYTHON SOURCE LINES 259-265
+.. GENERATED FROM PYTHON SOURCE LINES 263-269
 
 .. code-block:: Python
 
@@ -519,7 +523,7 @@ frames of the data.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 266-276
+.. GENERATED FROM PYTHON SOURCE LINES 270-280
 
 Linearly interpolate NaN values
 ----------------------------------------------------------
@@ -532,7 +536,7 @@ as well.
 We use the dataset with NaN values as an input to
 :func:`movement.filtering.interpolate_over_time`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 276-286
+.. GENERATED FROM PYTHON SOURCE LINES 280-290
 
 .. code-block:: Python
 
@@ -553,14 +557,14 @@ We use the dataset with NaN values as an input to
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 287-291
+.. GENERATED FROM PYTHON SOURCE LINES 291-295
 
 Like before, we can visually check that the empty data has been imputed as
 expected by plotting the x and y coordinates of the ``position``
 and ``shape`` arrays
 in time.
 
-.. GENERATED FROM PYTHON SOURCE LINES 291-296
+.. GENERATED FROM PYTHON SOURCE LINES 295-300
 
 .. code-block:: Python
 
@@ -581,12 +585,12 @@ in time.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 297-299
+.. GENERATED FROM PYTHON SOURCE LINES 301-303
 
 The plot above shows that between the original data points (in black),
 the data is assumed to evolve linearly (in orange).
 
-.. GENERATED FROM PYTHON SOURCE LINES 301-310
+.. GENERATED FROM PYTHON SOURCE LINES 305-314
 
 Compare methods
 ----------------
@@ -598,7 +602,7 @@ In the plot below, the NaN-filled data are plotted in blue, the forward
 filled values are plotted in orange, and the linearly interpolated values
 are shown in green.
 
-.. GENERATED FROM PYTHON SOURCE LINES 310-362
+.. GENERATED FROM PYTHON SOURCE LINES 314-366
 
 .. code-block:: Python
 
@@ -666,7 +670,7 @@ are shown in green.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 363-370
+.. GENERATED FROM PYTHON SOURCE LINES 367-374
 
 Export as a VIA tracks .csv file
 ---------------------------------
@@ -676,7 +680,7 @@ file that is loadable in the ``movement`` napari widget
 and in the `VGG Image Annotator (VIA) <https://www.robots.ox.ac.uk/~vgg/software/via/>`_
 software.
 
-.. GENERATED FROM PYTHON SOURCE LINES 370-374
+.. GENERATED FROM PYTHON SOURCE LINES 374-378
 
 .. code-block:: Python
 
@@ -691,13 +695,13 @@ software.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 375-378
+.. GENERATED FROM PYTHON SOURCE LINES 379-382
 
 Alternatively, we can save the bounding boxes’ trajectories to a
 .csv file with a custom header using the standard Python library
 :mod:`csv`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 378-398
+.. GENERATED FROM PYTHON SOURCE LINES 382-402
 
 .. code-block:: Python
 
@@ -728,14 +732,14 @@ Alternatively, we can save the bounding boxes’ trajectories to a
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 399-403
+.. GENERATED FROM PYTHON SOURCE LINES 403-407
 
 Clean-up
 ----------------------
 To remove the output files we have just created, we can run the following
 code.
 
-.. GENERATED FROM PYTHON SOURCE LINES 403-405
+.. GENERATED FROM PYTHON SOURCE LINES 407-409
 
 .. code-block:: Python
 
@@ -751,7 +755,7 @@ code.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 2.462 seconds)
+   **Total running time of the script:** (0 minutes 2.518 seconds)
 
 
 .. _sphx_glr_download_examples_load_and_upsample_bboxes.py:

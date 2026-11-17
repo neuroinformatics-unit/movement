@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=dcd74bed"></script>
+    <script src="../../../_static/documentation_options.js?v=eb2fc187"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -142,7 +142,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.18.1.dev1</p>
+    <p class="title logo__title">movement v0.18.1.dev2</p>
   
 </a></div>
     
@@ -638,23 +638,26 @@
 <span class="sd">    fps</span>
 <span class="sd">        The video sampling rate. If None (default), the ``time`` coordinates</span>
 <span class="sd">        of the resulting ``movement`` dataset will be in frame numbers. If</span>
-<span class="sd">        ``fps`` is provided, the ``time`` coordinates  will be in seconds. If</span>
-<span class="sd">        the ``time`` coordinates are in seconds, they will indicate the</span>
-<span class="sd">        elapsed time from the capture of the first frame (assumed to be frame</span>
-<span class="sd">        0).</span>
+<span class="sd">        ``fps`` is provided, the ``time`` coordinates will be in seconds, i.e.</span>
+<span class="sd">        frame numbers divided by ``fps``. See ``use_frame_numbers_from_file``</span>
+<span class="sd">        for which frame is taken as the time origin.</span>
 <span class="sd">    use_frame_numbers_from_file</span>
-<span class="sd">        If True, the frame numbers in the resulting dataset are</span>
-<span class="sd">        the same as the ones in the VIA tracks .csv file. This may be useful if</span>
-<span class="sd">        the bounding boxes are tracked for a subset of frames in a video,</span>
-<span class="sd">        but you want to maintain the start of the full video as the time</span>
-<span class="sd">        origin. If False (default), the frame numbers in the VIA tracks .csv</span>
-<span class="sd">        file are instead mapped to a 0-based sequence of consecutive integers.</span>
+<span class="sd">        If False (default), frame numbers are offset so that the first</span>
+<span class="sd">        tracked frame in the file becomes frame 0 in the dataset. If True,</span>
+<span class="sd">        frame numbers in the dataset are as specified in the file (in the</span>
+<span class="sd">        ``file_attributes`` column or in the frame filenames, see</span>
+<span class="sd">        ``frame_regexp``). A True value may be useful if only a subset of the</span>
+<span class="sd">        video's frames were tracked, but you want to keep the start of the</span>
+<span class="sd">        video as the time origin of the dataset. In all cases, the spacing</span>
+<span class="sd">        between tracked frames is preserved: frames ``[5, 6, 9]`` in the file</span>
+<span class="sd">        become ``[0, 1, 4]`` in the dataset by default, and stay ``[5, 6, 9]``</span>
+<span class="sd">        if True.</span>
 <span class="sd">    frame_regexp</span>
-<span class="sd">        Regular expression pattern to extract the frame number from the frame</span>
-<span class="sd">        filename. By default, the frame number is expected to be encoded in</span>
-<span class="sd">        the filename as an integer number led by at least one zero, followed</span>
-<span class="sd">        by the file extension. Only used if ``use_frame_numbers_from_file`` is</span>
-<span class="sd">        True.</span>
+<span class="sd">        Regular expression pattern to extract the frame number from the</span>
+<span class="sd">        frame filename, used only if frame numbers are not defined in the</span>
+<span class="sd">        ``file_attributes`` column. By default, the frame number is expected</span>
+<span class="sd">        to be encoded in the filename as an integer number led by at least</span>
+<span class="sd">        one zero, followed by the file extension.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -682,7 +685,9 @@
 <span class="sd">    --------</span>
 <span class="sd">    Create a dataset from the VIA tracks .csv file at "path/to/file.csv", with</span>
 <span class="sd">    the time coordinates in frames, and setting the first tracked frame in the</span>
-<span class="sd">    file as frame 0.</span>
+<span class="sd">    file as frame 0. The spacing between the tracked frames is preserved, so</span>
+<span class="sd">    if the file holds data for frames 100, 105, 110, ..., the time</span>
+<span class="sd">    coordinates will be 0, 5, 10, ...</span>
 
 <span class="sd">    &gt;&gt;&gt; from movement.io import load_bboxes</span>
 <span class="sd">    &gt;&gt;&gt; ds = load_bboxes.from_via_tracks_file(</span>
@@ -701,7 +706,7 @@
 
 <span class="sd">    Create a dataset from the VIA tracks .csv file at "path/to/file.csv", with</span>
 <span class="sd">    the time coordinates in frames, and using the same frame numbers as</span>
-<span class="sd">    in the VIA tracks .csv file.</span>
+<span class="sd">    in the VIA tracks .csv file (e.g. frames 100, 105, 110, ... stay as is).</span>
 
 <span class="sd">    &gt;&gt;&gt; from movement.io import load_bboxes</span>
 <span class="sd">    &gt;&gt;&gt; ds = load_bboxes.from_via_tracks_file(</span>
@@ -711,7 +716,7 @@
 
 <span class="sd">    Create a dataset from the VIA tracks .csv file at "path/to/file.csv", with</span>
 <span class="sd">    the time coordinates in seconds, and assuming t = 0 seconds corresponds to</span>
-<span class="sd">    the 0th frame in the full video.</span>
+<span class="sd">    frame 0 in the full video.</span>
 
 <span class="sd">    &gt;&gt;&gt; from movement.io import load_bboxes</span>
 <span class="sd">    &gt;&gt;&gt; ds = load_bboxes.from_via_tracks_file(</span>
@@ -728,6 +733,14 @@
 
     <span class="c1"># Create an xarray.Dataset from the data</span>
     <span class="n">bboxes_arrays</span> <span class="o">=</span> <span class="n">_numpy_arrays_from_valid_via_object</span><span class="p">(</span><span class="n">valid_file</span><span class="p">)</span>
+
+    <span class="c1"># If not using the frame numbers from the file, offset them so that the</span>
+    <span class="c1"># first tracked frame is frame 0. This keeps the spacing between tracked</span>
+    <span class="c1"># frames intact. Note the frame numbers are sorted in increasing order.</span>
+    <span class="n">frame_array</span> <span class="o">=</span> <span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">"frame_array"</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">use_frame_numbers_from_file</span> <span class="ow">and</span> <span class="n">frame_array</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">frame_array</span> <span class="o">=</span> <span class="n">frame_array</span> <span class="o">-</span> <span class="n">frame_array</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+
     <span class="n">ds</span> <span class="o">=</span> <span class="n">from_numpy</span><span class="p">(</span>
         <span class="n">position_array</span><span class="o">=</span><span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">"position_array"</span><span class="p">],</span>
         <span class="n">shape_array</span><span class="o">=</span><span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">"shape_array"</span><span class="p">],</span>
@@ -735,11 +748,7 @@
         <span class="n">individual_names</span><span class="o">=</span><span class="p">[</span>
             <span class="sa">f</span><span class="s2">"id_</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">"ID_array"</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
         <span class="p">],</span>
-        <span class="n">frame_array</span><span class="o">=</span><span class="p">(</span>
-            <span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">"frame_array"</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">use_frame_numbers_from_file</span>
-            <span class="k">else</span> <span class="kc">None</span>
-        <span class="p">),</span>
+        <span class="n">frame_array</span><span class="o">=</span><span class="n">frame_array</span><span class="p">,</span>
         <span class="n">fps</span><span class="o">=</span><span class="n">fps</span><span class="p">,</span>
         <span class="n">source_software</span><span class="o">=</span><span class="s2">"VIA-tracks"</span><span class="p">,</span>
     <span class="p">)</span>  <span class="c1"># it validates the dataset via ValidBboxesInputs</span>

@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=dcd74bed"></script>
+    <script src="../_static/documentation_options.js?v=eb2fc187"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.18.1.dev1</p>
+    <p class="title logo__title">movement v0.18.1.dev2</p>
   
 </a></div>
     
@@ -559,6 +559,10 @@ Camouflaged Animals Dataset (MoCA) dataset</a>.</p>
 </span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">file_path</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="dict"><span class="n">dataset_dict</span></a><span class="p">[</span><span class="s2">&quot;</span><span class="s2">bboxes</span><span class="s2">&quot;</span><span class="p">]</span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">file_path</span></a><span class="p">)</span><span class="w">
 </span><span class="w">
+</span><span class="c1"># We pass ``use_frame_numbers_from_file=True`` to keep the frame</span><span class="w">
+</span><span class="c1"># numbers as specified in the input file in the ``time`` dimension. Without</span><span class="w">
+</span><span class="c1"># it, the frame numbers are offset so that the first tracked frame is frame</span><span class="w">
+</span><span class="c1"># 0. In both cases the spacing between the tracked frames is preserved.</span><span class="w">
 </span><a class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset"><span class="n">ds</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-movement-io-load_bboxes sphx-glr-backref-type-py-function reference internal" href="../api/movement.io.load_bboxes.from_via_tracks_file.html#movement.io.load_bboxes.from_via_tracks_file" title="movement.io.load_bboxes.from_via_tracks_file"><span class="n">load_bboxes</span><span class="o">.</span><span class="n">from_via_tracks_file</span></a><span class="p">(</span><span class="w">
 </span>    <a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">file_path</span></a><span class="p">,</span> <span class="n">use_frame_numbers_from_file</span><span class="o">=</span><span class="kc">True</span><span class="w">
 </span><span class="p">)</span><span class="w">
@@ -939,7 +943,7 @@ code.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-os sphx-glr-backref-type-py-function reference external" href="https://docs.python.org/3/library/os.html#os.remove" title="os.remove"><span class="n">os</span><span class="o">.</span><span class="n">remove</span></a><span class="p">(</span><a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">via_tracks_filepath</span></a><span class="p">)</span><span class="w">
 </span><a class="sphx-glr-backref-module-os sphx-glr-backref-type-py-function reference external" href="https://docs.python.org/3/library/os.html#os.remove" title="os.remove"><span class="n">os</span><span class="o">.</span><span class="n">remove</span></a><span class="p">(</span><a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">custom_csv_filepath</span></a><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.462 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.518 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-load-and-upsample-bboxes-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/main?filepath=notebooks/examples/load_and_upsample_bboxes.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo1.svg" style="width: 150px;" />
