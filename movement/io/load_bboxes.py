@@ -153,23 +153,26 @@ def from_via_tracks_file(
     fps
         The video sampling rate. If None (default), the ``time`` coordinates
         of the resulting ``movement`` dataset will be in frame numbers. If
-        ``fps`` is provided, the ``time`` coordinates  will be in seconds. If
-        the ``time`` coordinates are in seconds, they will indicate the
-        elapsed time from the capture of the first frame (assumed to be frame
-        0).
+        ``fps`` is provided, the ``time`` coordinates will be in seconds, i.e.
+        frame numbers divided by ``fps``. See ``use_frame_numbers_from_file``
+        for which frame is taken as the time origin.
     use_frame_numbers_from_file
-        If True, the frame numbers in the resulting dataset are
-        the same as the ones in the VIA tracks .csv file. This may be useful if
-        the bounding boxes are tracked for a subset of frames in a video,
-        but you want to maintain the start of the full video as the time
-        origin. If False (default), the frame numbers in the VIA tracks .csv
-        file are instead mapped to a 0-based sequence of consecutive integers.
+        If False (default), frame numbers are offset so that the first
+        tracked frame in the file becomes frame 0 in the dataset. If True,
+        frame numbers in the dataset are as specified in the file (in the
+        ``file_attributes`` column or in the frame filenames, see
+        ``frame_regexp``). A True value may be useful if only a subset of the
+        video's frames were tracked, but you want to keep the start of the
+        video as the time origin of the dataset. In all cases, the spacing
+        between tracked frames is preserved: frames ``[5, 6, 9]`` in the file
+        become ``[0, 1, 4]`` in the dataset by default, and stay ``[5, 6, 9]``
+        if True.
     frame_regexp
-        Regular expression pattern to extract the frame number from the frame
-        filename. By default, the frame number is expected to be encoded in
-        the filename as an integer number led by at least one zero, followed
-        by the file extension. Only used if ``use_frame_numbers_from_file`` is
-        True.
+        Regular expression pattern to extract the frame number from the
+        frame filename, used only if frame numbers are not defined in the
+        ``file_attributes`` column. By default, the frame number is expected
+        to be encoded in the filename as an integer number led by at least
+        one zero, followed by the file extension.
 
     Returns
     -------
@@ -197,7 +200,9 @@ def from_via_tracks_file(
     --------
     Create a dataset from the VIA tracks .csv file at "path/to/file.csv", with
     the time coordinates in frames, and setting the first tracked frame in the
-    file as frame 0.
+    file as frame 0. The spacing between the tracked frames is preserved, so
+    if the file holds data for frames 100, 105, 110, ..., the time
+    coordinates will be 0, 5, 10, ...
 
     >>> from movement.io import load_bboxes
     >>> ds = load_bboxes.from_via_tracks_file(
@@ -216,7 +221,7 @@ def from_via_tracks_file(
 
     Create a dataset from the VIA tracks .csv file at "path/to/file.csv", with
     the time coordinates in frames, and using the same frame numbers as
-    in the VIA tracks .csv file.
+    in the VIA tracks .csv file (e.g. frames 100, 105, 110, ... stay as is).
 
     >>> from movement.io import load_bboxes
     >>> ds = load_bboxes.from_via_tracks_file(
@@ -226,7 +231,7 @@ def from_via_tracks_file(
 
     Create a dataset from the VIA tracks .csv file at "path/to/file.csv", with
     the time coordinates in seconds, and assuming t = 0 seconds corresponds to
-    the 0th frame in the full video.
+    frame 0 in the full video.
 
     >>> from movement.io import load_bboxes
     >>> ds = load_bboxes.from_via_tracks_file(
@@ -243,6 +248,14 @@ def from_via_tracks_file(
 
     # Create an xarray.Dataset from the data
     bboxes_arrays = _numpy_arrays_from_valid_via_object(valid_file)
+
+    # If not using the frame numbers from the file, offset them so that the
+    # first tracked frame is frame 0. This keeps the spacing between tracked
+    # frames intact. Note the frame numbers are sorted in increasing order.
+    frame_array = bboxes_arrays["frame_array"]
+    if not use_frame_numbers_from_file and frame_array.size > 0:
+        frame_array = frame_array - frame_array.min()
+
     ds = from_numpy(
         position_array=bboxes_arrays["position_array"],
         shape_array=bboxes_arrays["shape_array"],
@@ -250,11 +263,7 @@ def from_via_tracks_file(
         individual_names=[
             f"id_{id}" for id in bboxes_arrays["ID_array"].flatten()
         ],
-        frame_array=(
-            bboxes_arrays["frame_array"]
-            if use_frame_numbers_from_file
-            else None
-        ),
+        frame_array=frame_array,
         fps=fps,
         source_software="VIA-tracks",
     )  # it validates the dataset via ValidBboxesInputs
