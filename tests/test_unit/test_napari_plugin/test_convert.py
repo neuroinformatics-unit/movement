@@ -314,7 +314,10 @@ def test_valid_poses_roundtrip_napari_layer_to_dataset(ds_dataset, request):
     # the loader widget converts tracks layers to points layer by
     # dropping the track_id column
     napari_points = napari_tracks[valid_point_mask, 1:]
-    properties = properties_with_nan.iloc[valid_point_mask].to_dict("list")
+    # napari layer features are a DataFrame with one row per live point
+    properties = properties_with_nan.iloc[valid_point_mask].reset_index(
+        drop=True
+    )
 
     reconstructed_ds = napari_layers_to_ds(
         napari_points, properties, properties_with_nan, attrs=ds.attrs
@@ -369,14 +372,20 @@ def test_napari_layers_to_ds(
     loader = loaded_data_loader(filepath, ds_loaded)
 
     # Convert data in napari point layer to a movement dataset
+    features_before = loader.points_layer.features.copy()
     ds = napari_layers_to_ds(
         points_as_napari=loader.points_layer.data,
-        properties=loader.points_layer.properties,  # dict
+        properties=loader.points_layer.features,
         properties_with_nans=loader.properties,
         attrs=ds_loaded.attrs,
     )
 
     xr.testing.assert_equal(ds, _nan_confidence_at_nan_pos(ds_loaded))
+    # The live layer's features are not modified (e.g. no `edited` column
+    # is added to them when no point has been dragged yet)
+    pd.testing.assert_frame_equal(
+        loader.points_layer.features, features_before
+    )
 
 
 def test_napari_layers_to_ds_bboxes_not_implemented():
@@ -387,7 +396,7 @@ def test_napari_layers_to_ds_bboxes_not_implemented():
     ):
         napari_layers_to_ds(
             points_as_napari=np.empty((0, 3)),
-            properties={"individual": np.array([])},
+            properties=pd.DataFrame({"individual": []}),
             properties_with_nans=pd.DataFrame(),
         )
 
@@ -456,7 +465,7 @@ def test_edited_pose_napari_layers(
 
     ds = napari_layers_to_ds(
         points_as_napari=loader.points_layer.data,
-        properties=loader.points_layer.properties,
+        properties=loader.points_layer.features,
         properties_with_nans=loader.properties,
         attrs=ds_loaded.attrs,
     )
@@ -519,7 +528,7 @@ def test_dragged_point_round_trip(
 
     ds = napari_layers_to_ds(
         points_as_napari=loader.points_layer.data,
-        properties=loader.points_layer.properties,
+        properties=loader.points_layer.features,
         properties_with_nans=loader.properties,
         attrs=ds_loaded.attrs,
     )
@@ -534,7 +543,10 @@ def test_dragged_point_round_trip(
     valid_point_mask = ~np.any(np.isnan(napari_tracks[:, 2:4]), axis=1)
     properties_with_nan["position_is_nan"] = ~valid_point_mask
     napari_points = napari_tracks[valid_point_mask, 1:]
-    properties = properties_with_nan.iloc[valid_point_mask].to_dict("list")
+    # napari layer features are a DataFrame with one row per live point
+    properties = properties_with_nan.iloc[valid_point_mask].reset_index(
+        drop=True
+    )
 
     reconstructed_ds = napari_layers_to_ds(
         napari_points, properties, properties_with_nan, attrs=ds.attrs
@@ -584,7 +596,10 @@ def test_removed_point_round_trip(
     valid_point_mask = ~np.any(np.isnan(napari_tracks[:, 2:4]), axis=1)
     properties_with_nan["position_is_nan"] = ~valid_point_mask
     napari_points = napari_tracks[valid_point_mask, 1:]
-    properties = properties_with_nan.iloc[valid_point_mask].to_dict("list")
+    # napari layer features are a DataFrame with one row per live point
+    properties = properties_with_nan.iloc[valid_point_mask].reset_index(
+        drop=True
+    )
 
     reconstructed_ds = napari_layers_to_ds(
         napari_points, properties, properties_with_nan, attrs=ds.attrs
@@ -609,17 +624,18 @@ def _remove_points(loader, target):
     """Simulate napari deleting every point matching ``target`` (as
     produced by :func:`_target_points_to_remove`) from the live Points
     layer, dropping the matching rows from both ``points_layer.data``
-    and ``points_layer.properties`` and returning the shrunk arrays.
+    and ``points_layer.features`` and returning the shrunk data.
     """
-    live_props = loader.points_layer.properties
+    live_features = loader.points_layer.features
     remove_mask = (
-        np.isin(live_props["time"], target["time"])
-        & np.isin(live_props["individual"], target["individual"])
-        & np.isin(live_props["keypoint"], target["keypoint"])
-    )
+        live_features["time"].isin(target["time"])
+        & live_features["individual"].isin(target["individual"])
+        & live_features["keypoint"].isin(target["keypoint"])
+    ).to_numpy()
     keep_mask = ~remove_mask
     points = loader.points_layer.data[keep_mask]
-    properties = {key: value[keep_mask] for key, value in live_props.items()}
+    # napari resets the features index when points are removed
+    properties = live_features[keep_mask].reset_index(drop=True)
     return points, properties
 
 
@@ -887,7 +903,7 @@ def test_never_detected_keypoint_dropped_on_round_trip(
     # No edits: hand the live layers straight back.
     ds_out = napari_layers_to_ds(
         points_as_napari=loader.points_layer.data,
-        properties=loader.points_layer.properties,
+        properties=loader.points_layer.features,
         properties_with_nans=loader.properties,
         attrs=ds_in.attrs,
     )

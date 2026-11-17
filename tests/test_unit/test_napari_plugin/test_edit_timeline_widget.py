@@ -408,7 +408,7 @@ def _saved_removals(layer):
     """
     ds = napari_layers_to_ds(
         points_as_napari=layer.data,
-        properties=layer.properties,
+        properties=layer.features,
         properties_with_nans=layer.metadata[POINTS_PROPERTIES_KEY],
         attrs=layer.metadata[DATASET_ATTRS_KEY],
     )
