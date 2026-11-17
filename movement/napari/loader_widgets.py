@@ -429,10 +429,14 @@ class DataLoader(QWidget):
             properties_df=self.properties,
         )
 
-        # Add bounding boxes data as a shapes layer
+        # Cast color_property_factorized to object dtype, to make napari treat
+        # it as categorical and avoid "looks like categorical data" warning.
+        properties = self.properties.iloc[self.data_not_nan, :].astype(
+            {self.color_property_factorized: object}
+        )
         self.bboxes_layer = self.viewer.add_shapes(
             self.data_bboxes[self.data_not_nan, :, 1:],
-            properties=self.properties.iloc[self.data_not_nan, :],
+            properties=properties,
             metadata={MAX_FRAME_IDX_KEY: max(self.data_bboxes[:, 0, 1])},
             **bboxes_style.as_kwargs(),
         )
