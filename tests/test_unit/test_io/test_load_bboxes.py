@@ -441,7 +441,7 @@ def test_numpy_arrays_from_valid_via_object(input_data, expected):
     "ignore:.*Setting fps to None.:UserWarning",
 )
 @pytest.mark.parametrize(
-    "via_file_path, frames_from_file, frames_offset",
+    "via_file_path, frames_from_file, frames_with_offset",
     [
         (
             pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
@@ -473,7 +473,7 @@ def test_numpy_arrays_from_valid_via_object(input_data, expected):
 def test_fps_and_time_coords(
     via_file_path,
     frames_from_file,
-    frames_offset,
+    frames_with_offset,
     fps,
     expected_fps,
     expected_time_unit,
@@ -498,7 +498,7 @@ def test_fps_and_time_coords(
         assert not hasattr(ds, "fps")
     # check time coordinates
     expected_frames = (
-        frames_from_file if use_frame_numbers_from_file else frames_offset
+        frames_from_file if use_frame_numbers_from_file else frames_with_offset
     )
     assert_time_coordinates(ds, expected_fps, frame_array=expected_frames)
 
