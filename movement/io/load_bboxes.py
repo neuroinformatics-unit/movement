@@ -173,7 +173,6 @@ def from_via_tracks_file(
         ``file_attributes`` column. By default, the frame number is expected
         to be encoded in the filename as an integer number led by at least
         one zero, followed by the file extension.
-        by the file extension.
 
     Returns
     -------
