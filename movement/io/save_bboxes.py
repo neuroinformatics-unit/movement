@@ -136,7 +136,10 @@ def to_via_tracks_file(
     """
     # Validate the output path before doing any work
     validate_file_path(
-        file, permission="w", overwrite=overwrite, suffixes={".csv"},
+        file,
+        permission="w",
+        overwrite=overwrite,
+        suffixes={".csv"},
     )
 
     # Check the number of digits required to represent the frame numbers

@@ -398,7 +398,9 @@ def validate_file_path(
             file: Path = field(
                 converter=Path,
                 validator=_file_validator(
-                    permission=permission, suffixes=suffixes, overwrite=overwrite,
+                    permission=permission,
+                    suffixes=suffixes,
+                    overwrite=overwrite,
                 ),
             )
 

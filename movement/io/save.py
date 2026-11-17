@@ -166,7 +166,7 @@ def register_writer(
             # Split writers validate their generated paths inside the writer;
             # the input path is only a filename template and may not be an
             # output target.
-            validate_overwrite = cast(bool, kwargs.get("overwrite", True))
+            validate_overwrite = cast("bool", kwargs.get("overwrite", True))
             if (
                 target_software == "LightningPose"
                 or kwargs.get("split_individuals") is True

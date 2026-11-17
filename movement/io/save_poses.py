@@ -271,7 +271,10 @@ def to_dlc_file(
         for indiv in individuals:
             derived = file_path.with_name(f"{file_path.stem}_{indiv}{suffix}")
             validate_file_path(
-                derived, permission="w", overwrite=overwrite, suffixes={".csv", ".h5"},
+                derived,
+                permission="w",
+                overwrite=overwrite,
+                suffixes={".csv", ".h5"},
             )
             derived_paths.append((indiv, derived))
 
@@ -281,7 +284,10 @@ def to_dlc_file(
             logger.info(f"Saved poses dataset to {derived}.")
     elif split_individuals:
         validate_file_path(
-            file_path, permission="w", overwrite=overwrite, suffixes={".csv", ".h5"},
+            file_path,
+            permission="w",
+            overwrite=overwrite,
+            suffixes={".csv", ".h5"},
         )
         individual = ds.individual.values[0]
         df_dict = to_dlc_style_df(ds, split_individuals=True)
@@ -289,7 +295,10 @@ def to_dlc_file(
         logger.info(f"Saved poses dataset to {file_path}.")
     else:
         validate_file_path(
-            file_path, permission="w", overwrite=overwrite, suffixes={".csv", ".h5"},
+            file_path,
+            permission="w",
+            overwrite=overwrite,
+            suffixes={".csv", ".h5"},
         )
         df = to_dlc_style_df(ds, split_individuals=False)
         _save_dlc_df(file_path, df, overwrite=overwrite)
@@ -763,7 +772,10 @@ def _write_nwb_file(ds: xr.Dataset, file: str | Path, **kwargs) -> None:
                 f"{valid_path.stem}_{nwb_file.identifier}{valid_path.suffix}"
             )
             individual_path = validate_file_path(
-                individual_path, permission="w", overwrite=True, suffixes={".nwb"},
+                individual_path,
+                permission="w",
+                overwrite=True,
+                suffixes={".nwb"},
             )
             _write_nwb_to_disk(nwb_file, individual_path)
 
