@@ -239,7 +239,7 @@ class RegionsStyle(LayerStyle):
     def set_color_all_shapes(self, layer: Shapes) -> None:
         """Set colors on all existing shapes in a napari Shapes layer."""
         # Configure text appearance
-        text_dict = layer.text.dict()
+        text_dict = layer.text.model_dump()
         text_dict.update(self.text)
         layer.text = text_dict
         layer.text.color = self.edge_and_text_color
