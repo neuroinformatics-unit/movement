@@ -1,14 +1,10 @@
 """The main napari widget for the ``movement`` package."""
 
-from typing import TYPE_CHECKING
-
 from napari.layers.base import ActionType
 from napari.viewer import Viewer
 from qt_niu.collapsible_widget import CollapsibleWidgetContainer
-from qtpy.QtCore import QTimer
-
-if TYPE_CHECKING:
-    from qtpy.QtWidgets import QWidget
+from qtpy.QtCore import Qt, QTimer
+from qtpy.QtWidgets import QScrollArea, QWidget
 
 from movement.napari.edit_timeline_widget import (
     EditControlsWidget,
@@ -53,8 +49,21 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
         self.edit_controls.show_individuals_toggled.connect(
             self._on_show_individuals_toggled
         )
+
+        # Assign the "edit controls" widget to a QScrollArea
+        # to give it a vertical scroll bar; on small monitors
+        # the widget's controls can otherwise be cut off.
+        self.edit_controls_scroll_area = QScrollArea()
+        self.edit_controls_scroll_area.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarAlwaysOff
+        )
+        self.edit_controls_scroll_area.setWidgetResizable(True)
+        self.edit_controls_scroll_area.setWidget(self.edit_controls)
+
+        # Add the Edit widget
+
         self.add_widget(
-            self.edit_controls,
+            self.edit_controls_scroll_area,
             collapsible=True,
             widget_title="Edit tracked data",
         )
