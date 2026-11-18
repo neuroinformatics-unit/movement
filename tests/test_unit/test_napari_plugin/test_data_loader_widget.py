@@ -993,11 +993,12 @@ def test_boxes_layer_edge_colors_are_categorical(
 ):
     """Test that box edges are coloured categorically, without warnings.
 
-    When a Shapes layer is created with ``edge_color`` set to an integer
-    property, napari guesses its colour mode: categorical (with a
-    warning) below 16 unique values, continuous otherwise. Box edges
-    should always use the colour cycle and match each individual's
-    points.
+    Regression test: napari guesses the colour mode of an integer
+    ``edge_color`` property, so box edges were categorical (with a
+    warning) below 16 individuals and continuous otherwise. Casting the
+    property to object dtype makes napari always treat it as
+    categorical, so box edges use the colour cycle and match each
+    individual's points.
     """
     file_path = pytest.DATA_PATHS.get(filename)
     loader = DataLoader(make_napari_viewer_proxy())
