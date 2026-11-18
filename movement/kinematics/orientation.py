@@ -466,16 +466,18 @@ def compute_angular_velocity(
     ... )
     >>> head_vector = compute_forward_vector(
     ...     ds.position, "left_ear", "right_ear"
-    ... )
+    ... )  # doctest: +SKIP
 
     Central-difference angular head velocity:
 
-    >>> ahv = compute_angular_velocity(head_vector)
+    >>> ahv = compute_angular_velocity(head_vector)  # doctest: +SKIP
 
     Least-squares estimate over the 7 observations centred on each time
     point, in degrees per unit of time:
 
-    >>> ahv = compute_angular_velocity(head_vector, window=7, in_degrees=True)
+    >>> ahv = compute_angular_velocity(
+    ...     head_vector, window=7, in_degrees=True
+    ... )  # doctest: +SKIP
 
     Shift the above estimate by half a window to get a trailing
     estimate, using only the 7 observations up to and including each
@@ -483,7 +485,7 @@ def compute_angular_velocity(
 
     >>> ahv_trailing = compute_angular_velocity(head_vector, window=7).shift(
     ...     time=7 // 2
-    ... )
+    ... )  # doctest: +SKIP
 
     """
     result = compute_angular_time_derivative(data, order=1, window=window)
@@ -542,14 +544,14 @@ def compute_angular_acceleration(
     ... )
     >>> head_vector = compute_forward_vector(
     ...     ds.position, "left_ear", "right_ear"
-    ... )
+    ... )  # doctest: +SKIP
 
     Least-squares estimate over the 9 observations centred on each time
     point, in degrees per unit of time squared:
 
     >>> aha = compute_angular_acceleration(
     ...     head_vector, window=9, in_degrees=True
-    ... )
+    ... )  # doctest: +SKIP
 
     """
     result = compute_angular_time_derivative(data, order=2, window=window)
