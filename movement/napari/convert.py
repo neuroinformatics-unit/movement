@@ -207,12 +207,14 @@ class LoadedPointKeys:
                 n_keys *= len(uniques)
         return cls(keys, frames, tuple(id_columns), n_keys)
 
-    def present(self, live_frames: np.ndarray, live_properties) -> np.ndarray:
+    def present(
+        self, live_frames: np.ndarray, live_properties: pd.DataFrame
+    ) -> np.ndarray:
         """Flag the loaded rows that have a matching live point."""
         live_keys = np.asarray(live_frames).astype(np.int64)
         valid = live_keys >= 0
         for col, uniques in self.id_columns:
-            codes = uniques.get_indexer(live_properties[col])
+            codes = uniques.get_indexer(pd.Index(live_properties[col]))
             valid &= codes >= 0
             live_keys = live_keys * len(uniques) + codes
         valid &= live_keys < self.n_keys
@@ -224,7 +226,7 @@ class LoadedPointKeys:
 def removed_points_mask(
     properties_with_nans: pd.DataFrame,
     live_frames: np.ndarray,
-    live_properties,
+    live_properties: pd.DataFrame,
     keys: LoadedPointKeys | None = None,
 ) -> np.ndarray:
     """Flag the loaded points that count as removed.
@@ -241,7 +243,7 @@ def removed_points_mask(
     live_frames
         Frame index of each live point.
     live_properties
-        Live point properties (DataFrame or dict of arrays), with the
+        Live point features (e.g. napari's ``layer.features``), with the
         identity columns of ``properties_with_nans``.
     keys
         Precomputed keys for ``properties_with_nans``, to avoid
@@ -263,7 +265,7 @@ def removed_points_mask(
 
 def napari_layers_to_ds(
     points_as_napari: np.ndarray,
-    properties: dict,
+    properties: pd.DataFrame,
     properties_with_nans: pd.DataFrame,
     attrs: dict | None = None,
 ) -> xr.Dataset:
@@ -277,11 +279,11 @@ def napari_layers_to_ds(
         NaN rows are excluded (napari cannot handle NaN coordinates),
         so this may be shorter than the full timeline.
     properties
-        Live napari Point properties data. It is in-sync with the
-        Points layer data. It is a dictionary with keys
+        Live napari Points layer features (``layer.features``), in sync
+        with the Points layer data: one row per point, with columns
         ``individual``, ``keypoint``, ``time`` and ``confidence``
-        (plus ``edited`` once any point has been dragged), each mapping
-        to a list of values, and each value corresponding to a point.
+        (plus ``edited`` once any point has been dragged).
+        It is not modified.
     properties_with_nans:
         Properties DataFrame derived from the original loaded dataset
         including any NaN position data. Must include a
@@ -342,10 +344,9 @@ def napari_layers_to_ds(
     with NaN values for position and confidence.
 
     """
-    properties_df = pd.DataFrame(properties)  # live data without nans
     fps = attrs.get("fps") if attrs is not None else None
 
-    if "keypoint" in properties_df.columns:
+    if "keypoint" in properties.columns:
         # Get full coordinates from the original properties with nan
         time_coords = np.sort(properties_with_nans["time"].unique())
         space_coords = ["x", "y"]
@@ -361,24 +362,25 @@ def napari_layers_to_ds(
 
         # Use the frame coordinate from the live napari layer as the
         # source of truth for time. This avoids relying on
-        # properties_df["time"], which may become stale when users add
+        # properties["time"], which may become stale when users add
         # points in napari because new points inherit the properties of
         # the last selected point.
         position_df["time"] = (
             position_df["frame"] / fps if fps else position_df["frame"]
         )
 
-        position_df["keypoint"] = properties_df["keypoint"].to_numpy()
-        position_df["individual"] = properties_df["individual"].to_numpy()
+        position_df["keypoint"] = properties["keypoint"].to_numpy()
+        position_df["individual"] = properties["individual"].to_numpy()
         # Points dragged in napari gain an `edited` flag; the column is
         # absent until the first drag.
-        if "edited" not in properties_df.columns:
-            properties_df["edited"] = False
+        # (assign returns a copy, leaving the live layer's features intact)
+        if "edited" not in properties.columns:
+            properties = properties.assign(edited=False)
 
         # Reconstruct the confidence and edited arrays from the live
         # properties DataFrame
         live_das = (
-            properties_df.set_index(["time", "keypoint", "individual"])[
+            properties.set_index(["time", "keypoint", "individual"])[
                 ["confidence", "edited"]
             ]
             .to_xarray()
@@ -413,7 +415,7 @@ def napari_layers_to_ds(
         removed = removed_points_mask(
             properties_with_nans,
             live_frames=points_as_napari[:, 0],
-            live_properties=properties_df,
+            live_properties=properties,
         )
         removed_da = (
             properties_with_nans.assign(removed=removed)
