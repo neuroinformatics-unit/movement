@@ -342,9 +342,7 @@ def napari_layers_to_ds(
     with NaN values for position and confidence.
 
     """
-    properties_df = pd.DataFrame.from_dict(
-        properties
-    )  # live data without nans
+    properties_df = pd.DataFrame(properties)  # live data without nans
     fps = attrs.get("fps") if attrs is not None else None
 
     if "keypoint" in properties_df.columns:

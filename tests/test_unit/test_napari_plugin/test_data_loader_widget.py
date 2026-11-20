@@ -5,6 +5,7 @@ This is because mocking widget methods would not work after the widget is
 instantiated (the methods would have already been connected to signals).
 """
 
+import warnings
 from contextlib import nullcontext as does_not_raise
 from functools import partial
 from pathlib import Path
@@ -977,6 +978,54 @@ def test_add_points_and_tracks_layer_style(
         np.testing.assert_allclose(
             bboxes_layer_colormap_sorted, text_colormap_sorted, atol=1e-7
         )
+
+
+@pytest.mark.parametrize(
+    "filename",
+    [
+        "VIA_single-crab_MOCA-crab-1.csv",
+        "VIA_multiple-crabs_5-frames_labels.csv",
+    ],
+    ids=["fewer than 16 individuals", "16 or more individuals"],
+)
+def test_boxes_layer_edge_colors_are_categorical(
+    filename, make_napari_viewer_proxy
+):
+    """Test that box edges are coloured categorically, without warnings.
+
+    Regression test: napari guesses the colour mode of an integer
+    ``edge_color`` property, so box edges were categorical (with a
+    warning) below 16 individuals and continuous otherwise. Casting the
+    property to object dtype makes napari always treat it as
+    categorical, so box edges use the colour cycle and match each
+    individual's points.
+    """
+    file_path = pytest.DATA_PATHS.get(filename)
+    loader = DataLoader(make_napari_viewer_proxy())
+    loader.file_path_edit.setText(file_path.as_posix())
+    loader.source_software_combo.setCurrentText("VIA-tracks")
+    with warnings.catch_warnings(record=True) as record:
+        warnings.simplefilter("always")
+        loader._on_load_clicked()
+    assert not any("looks like categorical" in str(w.message) for w in record)
+
+    boxes_layer, points_layer = loader.bboxes_layer, loader.points_layer
+    assert boxes_layer.edge_color_mode == "cycle"
+    edge_color_by_id = dict(
+        zip(
+            boxes_layer.features["individual"],
+            map(tuple, boxes_layer.edge_color),
+            strict=True,
+        )
+    )
+    face_color_by_id = dict(
+        zip(
+            points_layer.features["individual"],
+            map(tuple, points_layer.face_color),
+            strict=True,
+        )
+    )
+    assert edge_color_by_id == face_color_by_id
 
 
 def test_set_point_symbol_by_edited_no_edited_property_is_noop(

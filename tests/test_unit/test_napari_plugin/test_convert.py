@@ -314,9 +314,7 @@ def test_valid_poses_roundtrip_napari_layer_to_dataset(ds_dataset, request):
     # the loader widget converts tracks layers to points layer by
     # dropping the track_id column
     napari_points = napari_tracks[valid_point_mask, 1:]
-    properties = properties_with_nan.iloc[valid_point_mask].reset_index(
-        drop=True
-    )
+    properties = properties_with_nan.iloc[valid_point_mask].to_dict("list")
 
     reconstructed_ds = napari_layers_to_ds(
         napari_points, properties, properties_with_nan, attrs=ds.attrs
@@ -536,9 +534,7 @@ def test_dragged_point_round_trip(
     valid_point_mask = ~np.any(np.isnan(napari_tracks[:, 2:4]), axis=1)
     properties_with_nan["position_is_nan"] = ~valid_point_mask
     napari_points = napari_tracks[valid_point_mask, 1:]
-    properties = properties_with_nan.iloc[valid_point_mask].reset_index(
-        drop=True
-    )
+    properties = properties_with_nan.iloc[valid_point_mask].to_dict("list")
 
     reconstructed_ds = napari_layers_to_ds(
         napari_points, properties, properties_with_nan, attrs=ds.attrs
@@ -588,9 +584,7 @@ def test_removed_point_round_trip(
     valid_point_mask = ~np.any(np.isnan(napari_tracks[:, 2:4]), axis=1)
     properties_with_nan["position_is_nan"] = ~valid_point_mask
     napari_points = napari_tracks[valid_point_mask, 1:]
-    properties = properties_with_nan.iloc[valid_point_mask].reset_index(
-        drop=True
-    )
+    properties = properties_with_nan.iloc[valid_point_mask].to_dict("list")
 
     reconstructed_ds = napari_layers_to_ds(
         napari_points, properties, properties_with_nan, attrs=ds.attrs
