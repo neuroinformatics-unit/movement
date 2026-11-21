@@ -1,3 +1,4 @@
+from collections import Counter
 from contextlib import nullcontext as does_not_raise
 from typing import ClassVar
 
@@ -5,6 +6,7 @@ import numpy as np
 import pytest
 import xarray as xr
 from attrs import define, field, validators
+from pynwb import NWBFile
 from requests_cache import Path
 
 from movement.io import load
@@ -18,6 +20,8 @@ AUTO_SOURCE_SOFTWARE_CASES = [
     ("anipose_csv_file", "Anipose"),
     ("via_tracks_csv", "VIA-tracks"),
     ("nwbfile_object", "NWB"),
+    ("nwb_file", "NWB"),
+    ("coco_keypoint_results_file_valid", "COCO"),
 ]
 
 
@@ -83,7 +87,11 @@ def test_load_dataset_delegates_correctly(
         mock_loader = mocker.patch(loader_fn)
         mocker.patch.dict(
             load._LOADER_REGISTRY,
-            {source_software: load._LoaderEntry(mock_loader)},
+            {
+                source_software: load._LoaderEntry(
+                    mock_loader, validated_loader=mock_loader
+                )
+            },
         )
         if source_software == "NWB" and fps is not None:
             with pytest.warns(UserWarning, match="fps argument is ignored"):
@@ -271,6 +279,68 @@ def test_load_dataset_auto_detects(
     )
 
     xr.testing.assert_identical(auto_ds, explicit_ds)
+
+
+@pytest.mark.parametrize(
+    "entrypoint", [load.infer_source_software, load.load_dataset]
+)
+@pytest.mark.parametrize(
+    "file_fixture, diagnostic",
+    [
+        ("nonexistent_file", "does not exist"),
+        ("fake_h5_file", "Could not open file as HDF5"),
+    ],
+)
+def test_auto_detection_reports_validation_errors(
+    entrypoint, file_fixture, diagnostic, request
+):
+    """Keep actionable errors from all matching-format validators."""
+    file_path = request.getfixturevalue(file_fixture)
+    with pytest.raises(
+        ValueError, match="Could not infer source_software"
+    ) as exc:
+        entrypoint(file_path)
+    message = str(exc.value)
+    assert diagnostic in message
+    assert "DeepLabCut:" in message
+    assert "SLEAP:" in message
+
+
+@pytest.mark.parametrize(
+    "file_fixture", [case[0] for case in AUTO_SOURCE_SOFTWARE_CASES]
+)
+def test_load_dataset_validates_each_format_once(
+    file_fixture, request, mocker
+):
+    """Reuse validation across inference, shared formats and loading."""
+    file_path = request.getfixturevalue(file_fixture)
+    if file_fixture.startswith("nwb"):
+        file_path = file_path()
+    validate = mocker.spy(load, "_validate_file")
+
+    ds = load.load_dataset(file_path)
+
+    assert isinstance(ds, xr.Dataset)
+    suffix = ".nwb" if isinstance(file_path, NWBFile) else file_path.suffix
+    validator_counts = Counter(
+        call.args[1][suffix] for call in validate.call_args_list
+    )
+    assert validator_counts
+    assert all(count == 1 for count in validator_counts.values())
+
+
+def test_auto_detection_rejects_unrelated_matches(mocker):
+    """Only the known DLC/LP ambiguity may select a loader."""
+    mocker.patch.dict(load._LOADER_REGISTRY, clear=True)
+    loader = mocker.Mock()
+    for source_software in ("DeepLabCut", "SLEAP"):
+        load.register_loader(source_software, file_validators=StubValidFile)(
+            loader
+        )
+
+    with pytest.raises(ValueError, match="Could not infer source_software"):
+        load.load_dataset("ambiguous.stub")
+    loader.assert_not_called()
 
 
 @pytest.mark.parametrize(

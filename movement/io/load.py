@@ -87,6 +87,11 @@ class _LoaderEntry:
     loader: LoaderProtocol = field(validator=validators.is_callable())
     """Loader function for the source software."""
 
+    validated_loader: Callable[..., xr.Dataset] = field(
+        kw_only=True, validator=validators.is_callable()
+    )
+    """Loader accepting a file that has already passed validation."""
+
     suffix_validator_map: dict[str, type[ValidFile]] = field(
         factory=dict, kw_only=True
     )
@@ -154,55 +159,75 @@ def infer_source_software(
     ValueError
         If no registered validator matches the file or if multiple
         ``source_software`` candidates (beyond the expected
-        DeepLabCut/LightningPose case) match the file.
+        DeepLabCut/LightningPose case) match the file. When no validator
+        matches, the message includes the individual validation errors.
 
     """
+    return _infer_source_software_and_validate(file, **loader_kwargs)[0]
+
+
+def _infer_source_software_and_validate(
+    file: Path | str | pynwb.file.NWBFile,
+    **loader_kwargs,
+) -> tuple[InferredSourceSoftware, ValidFile | None]:
+    """Infer the source software and retain the validated input for loading."""
     # If it's an NWBFile object, we can immediately return "NWB"
     if isinstance(file, pynwb.file.NWBFile):
-        return "NWB"
+        return "NWB", None
     file_path = Path(file)
 
     # Try all registered validators and keep track of matching candidates
-    candidates: list[SourceSoftware] = []
+    candidates: dict[SourceSoftware, ValidFile] = {}
+    validation_results: dict[type[ValidFile], ValidFile | Exception] = {}
+    validation_errors: list[str] = []
     # Temporarily disable the logger to avoid flooding the console
     # with expected validation errors during candidate testing
     logger.disable("movement")
     try:
         for source_sw, entry in _LOADER_REGISTRY.items():
             suffix_map = entry.suffix_validator_map
-            if file_path.suffix not in suffix_map:
+            validator_cls = suffix_map.get(file_path.suffix)
+            if validator_cls is None:
                 continue
-            try:
-                _validate_file(
-                    file_path,
-                    suffix_map,
-                    source_sw,
-                    loader_kwargs=loader_kwargs,
+            if validator_cls not in validation_results:
+                try:
+                    validation_results[validator_cls] = _validate_file(
+                        file_path,
+                        suffix_map,
+                        source_sw,
+                        loader_kwargs=loader_kwargs,
+                    )
+                except (OSError, TypeError, ValueError) as error:
+                    validation_results[validator_cls] = error
+            result = validation_results[validator_cls]
+            if isinstance(result, Exception):
+                validation_errors.append(
+                    f"{source_sw}: {type(result).__name__}: {result}"
                 )
-            except (OSError, TypeError, ValueError):
                 continue
-            candidates.append(source_sw)
+            candidates[source_sw] = result
     finally:
         logger.enable("movement")  # re-store logging
 
     # If exactly one candidate matches, return it.
     if len(candidates) == 1:
-        return candidates[0]
+        return next(iter(candidates.items()))
 
     # DeepLabCut and LightningPose currently share the same CSV validator.
     # If both match, we return a combined label to indicate the ambiguity.
     if set(candidates) == {"DeepLabCut", "LightningPose"}:
-        return AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE
+        return AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE, candidates["DeepLabCut"]
 
     # In every other case (no candidates or multiple unexpected candidates),
     # we cannot infer a valid source software.
-    raise logger.error(
-        ValueError(
-            f"Could not infer source_software from file '{file_path}'. "
-            "Verify that the file format is supported by movement or "
-            "try passing an explicit source_software value to load_dataset."
-        )
+    message = (
+        f"Could not infer source_software from file '{file_path}'. "
+        "Verify that the file format is supported by movement or "
+        "try passing an explicit source_software value to load_dataset."
     )
+    if not candidates and validation_errors:
+        message += "\nValidation errors:\n" + "\n".join(validation_errors)
+    raise logger.error(ValueError(message))
 
 
 def _get_validator_kwargs(
@@ -356,7 +381,9 @@ def register_loader(
 
         # Register the loader in the global registry
         _LOADER_REGISTRY[source_software] = _LoaderEntry(
-            cast("LoaderProtocol", wrapper), suffix_validator_map=suffix_map
+            cast("LoaderProtocol", wrapper),
+            validated_loader=loader_fn,
+            suffix_validator_map=suffix_map,
         )
         return wrapper
 
@@ -417,15 +444,19 @@ def load_dataset(
     ... )
 
     """
+    valid_file = None
     if source_software == "auto":
-        source_software = infer_source_software(file, **kwargs)
+        source_software, valid_file = _infer_source_software_and_validate(
+            file, **kwargs
+        )
 
-    if source_software == AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE:
-        ds = _LOADER_REGISTRY["DeepLabCut"].loader(file, fps, **kwargs)
-        ds.attrs["source_software"] = AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE
-        return ds
+    loader_software = (
+        "DeepLabCut"
+        if source_software == AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE
+        else source_software
+    )
 
-    if source_software not in _LOADER_REGISTRY:
+    if loader_software not in _LOADER_REGISTRY:
         supported = ", ".join(_LOADER_REGISTRY)
         raise logger.error(
             ValueError(
@@ -433,6 +464,12 @@ def load_dataset(
                 f"Supported values are: {supported}."
             )
         )
+
+    entry = _LOADER_REGISTRY[loader_software]
+    loader: Callable[..., xr.Dataset] = (
+        entry.loader if valid_file is None else entry.validated_loader
+    )
+    file_to_load = file if valid_file is None else valid_file
 
     if source_software == "NWB":
         if fps is not None:
@@ -443,9 +480,12 @@ def load_dataset(
                 UserWarning,
                 stacklevel=2,
             )
-        return _LOADER_REGISTRY[source_software].loader(file, **kwargs)
+        return loader(file_to_load, **kwargs)
 
-    return _LOADER_REGISTRY[source_software].loader(file, fps, **kwargs)
+    ds = loader(file_to_load, fps, **kwargs)
+    if source_software == AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE:
+        ds.attrs["source_software"] = AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE
+    return ds
 
 
 def load_multiview_dataset(
