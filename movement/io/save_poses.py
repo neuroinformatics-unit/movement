@@ -292,8 +292,7 @@ def to_lp_file(
     Parameters
     ----------
     ds
-        ``movement`` dataset containing pose tracks, confidence scores
-        and associated metadata.
+        ``movement`` dataset containing pose tracks, confidence scores and .
     file
         Path to the output CSV file. For datasets with multiple individuals,
         each individual's name is appended to the filename stem and a
