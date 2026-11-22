@@ -281,8 +281,11 @@ def test_load_from_nwb_file(input_type, kwargs, request):
 
 
 def test_from_coco_file(coco_keypoint_results_file_valid):
-    """Test loading COCO keypoint results."""
-    ds = load_poses.from_coco_file(coco_keypoint_results_file_valid)
+    """Test loading COCO keypoint results and expect a warning about
+    cross-frame track identities because image 10 has multiple detections.
+    """
+    with pytest.warns(UserWarning, match="cross-frame track identities"):
+        ds = load_poses.from_coco_file(coco_keypoint_results_file_valid)
 
     expected = xr.Dataset(
         {
@@ -324,6 +327,12 @@ def test_from_coco_file(coco_keypoint_results_file_valid):
     xr.testing.assert_allclose(ds, expected)
 
 
+# Decorator to suppress the COCO positional assignment warning
+ignore_coco_positional_warning = pytest.mark.filterwarnings(
+    "ignore:COCO results do not contain cross-frame:UserWarning"
+)
+
+
 @pytest.mark.parametrize(
     "with_annotations, category_as_track, expected_keypoints, "
     "expected_individuals, expected_position",
@@ -338,6 +347,7 @@ def test_from_coco_file(coco_keypoint_results_file_valid):
                 [[60, 20], [80, 40]],
             ],
             id="without-annotations-positional",
+            marks=ignore_coco_positional_warning,
         ),
         pytest.param(
             False,
@@ -360,6 +370,7 @@ def test_from_coco_file(coco_keypoint_results_file_valid):
                 [[60, 20], [80, 40]],
             ],
             id="with-annotations-positional",
+            marks=ignore_coco_positional_warning,
         ),
         pytest.param(
             True,
@@ -424,6 +435,7 @@ def test_from_coco_file_time(
         coco_keypoint_results_file_valid,
         fps=fps,
         use_frame_numbers_from_file=use_frame_numbers_from_file,
+        category_as_track=True,  # Avoid positional assignment warning
     )
     np.testing.assert_allclose(ds.time.values, expected_time)
 

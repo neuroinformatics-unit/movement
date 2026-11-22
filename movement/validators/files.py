@@ -673,11 +673,11 @@ class ValidVIATracksCSV:
         # validation depends on it
         self._frame_regexp_valid(self.frame_regexp)
 
-        # Read csv as a dataframe
+        # Validate the header before parsing the whole file
+        self._file_contains_valid_header(pd.read_csv(value, nrows=0))
         df = pd.read_csv(value)
 
-        # Run all validation steps
-        self._file_contains_valid_header(df)
+        # Run remaining validation steps
         frame_numbers = self._file_contains_valid_frame_numbers(df)
         x, y, w, h, ids, confidence_values = (
             self._file_contains_tracked_bboxes(df)
@@ -729,7 +729,6 @@ class ValidVIATracksCSV:
 
     def _file_contains_valid_header(self, df: pd.DataFrame):
         """Ensure the VIA tracks .csv file contains the expected header."""
-        # Read CSV once and store for later use
         expected_header = [
             "filename",
             "file_size",
