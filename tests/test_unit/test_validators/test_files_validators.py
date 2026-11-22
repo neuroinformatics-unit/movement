@@ -83,7 +83,7 @@ def test_validate_file_path(
 @pytest.mark.parametrize("overwrite", [True, False])
 def test_validate_file_path_nonexistent_write_target(tmp_path, overwrite):
     path = tmp_path / "new.csv"
-    assert validate_file_path(path, "w", overwrite) == path
+    assert validate_file_path(path, "w", overwrite=overwrite) == path
 
 
 def test_validate_file_path_overwrite_existing_file(tmp_path):

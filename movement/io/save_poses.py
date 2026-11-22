@@ -86,7 +86,8 @@ def _save_dlc_df(filepath: Path, df: pd.DataFrame) -> None:
         Path of the file to save the dataframe to. The file extension
         must be either .h5 (recommended) or .csv.
     df
-        Pandas DataFrame to save.
+        Pandas Dataframe to save
+
     """
     if filepath.suffix == ".csv":
         df.to_csv(filepath, sep=",")
@@ -199,7 +200,7 @@ def to_dlc_file(
         Path to the file to save the poses to. The file extension
         must be either .h5 (recommended) or .csv.
     split_individuals
-        Whether to save individuals to separate files or to the same file.
+        Whether to save individuals to separate files or to the same file
         (see Notes). Defaults to "auto".
     overwrite : bool, default True
         Whether to overwrite existing writable target files. If False, a
@@ -238,7 +239,7 @@ def to_dlc_file(
     >>> save_poses.to_dlc_file(ds, "/path/to/file_dlc.h5")
 
     """
-    file_path = Path(file)
+    valid_path = Path(file)
     if split_individuals == "auto":
         split_individuals = ds.individual.size == 1
     elif not isinstance(split_individuals, bool):
@@ -258,10 +259,10 @@ def to_dlc_file(
     filepaths = {}
     for individual in df_all:
         filepath = (
-            file_path
+            valid_path
             if len(df_all) == 1
             else Path(
-                f"{file_path.with_suffix('')}_{individual}{file_path.suffix}"
+                f"{valid_path.with_suffix('')}_{individual}{valid_path.suffix}"
             )
         )
 
@@ -287,12 +288,13 @@ def to_lp_file(
     *,
     overwrite: bool = True,
 ) -> None:
-    """Save a ``movement`` dataset to LightningPose-style CSV file(s).
+    """Save a ``movement`` dataset to a LightningPose file.
 
     Parameters
     ----------
     ds
-        ``movement`` dataset containing pose tracks, confidence scores and .
+        ``movement`` dataset containing pose tracks, confidence scores,
+        and associated metadata.
     file
         Path to the output CSV file. For datasets with multiple individuals,
         each individual's name is appended to the filename stem and a
@@ -310,16 +312,18 @@ def to_lp_file(
 
     See Also
     --------
-    to_dlc_file : Save pose data in DeepLabCut format.
+    to_dlc_file : Save dataset to a DeepLabCut-style .h5 or .csv file.
 
     Notes
     -----
-    LightningPose saves pose estimation outputs as CSV files using the
-    single-animal DeepLabCut format. This function calls
-    :func:`movement.io.save_poses.to_dlc_file` with
-    ``split_individuals=True``. For multiple individuals, each individual's
-    name is appended to the file stem. For a single individual, the requested
-    file path is used as is.
+    LightningPose saves pose estimation outputs as .csv files, using the same
+    format as single-animal DeepLabCut projects. Therefore, under the hood,
+    this function calls :func:`movement.io.save_poses.to_dlc_file`
+    with ``split_individuals=True``. This setting means that each individual
+    is saved to a separate file. If the dataset contains more than one
+    individual, the individual's name is appended to the file path, just
+    before the file extension, i.e. "/path/to/filename_individual1.csv".
+    If it contains only one individual, the given file path is used as is.
 
     """
     to_dlc_file(ds, file, split_individuals=True, overwrite=overwrite)
@@ -332,7 +336,7 @@ def to_sleap_analysis_file(
     *,
     overwrite: bool = True,
 ) -> None:
-    """Save a ``movement`` dataset to a SLEAP analysis .h5 file.
+    """Save a ``movement`` dataset to a SLEAP analysis file.
 
     Parameters
     ----------
@@ -340,7 +344,7 @@ def to_sleap_analysis_file(
         ``movement`` dataset containing pose tracks, confidence scores,
         and associated metadata.
     file
-        Path to the output .h5 file.
+        Path to the file to save the poses to. File extension must be .h5.
     overwrite : bool, default True
         Whether to overwrite an existing writable target file. If False, a
         ``FileExistsError`` is raised if the target file already exists.

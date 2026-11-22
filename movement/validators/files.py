@@ -339,7 +339,7 @@ def _if_instance_of(
 
 
 def validate_file_path(
-    file: str | Path,
+    file: Path | str,
     permission: Literal["r", "w", "rw"] = "r",
     *,
     overwrite: bool = True,
