@@ -77,9 +77,7 @@ def _ds_to_dlc_style_df(
     return df
 
 
-def _save_dlc_df(
-    filepath: Path, df: pd.DataFrame, *, overwrite: bool = True
-) -> None:
+def _save_dlc_df(filepath: Path, df: pd.DataFrame) -> None:
     """Save the dataframe as either a .h5 or .csv depending on the file path.
 
     Parameters
@@ -89,17 +87,7 @@ def _save_dlc_df(
         must be either .h5 (recommended) or .csv.
     df
         Pandas DataFrame to save.
-    overwrite
-        If True (default), overwrite an existing writable file.
-        If False, raise ``FileExistsError`` if the file exists.
-
     """
-    validate_file_path(
-        filepath,
-        permission="w",
-        overwrite=overwrite,
-        suffixes={".csv", ".h5"},
-    )
     if filepath.suffix == ".csv":
         df.to_csv(filepath, sep=",")
     else:  # at this point it can only be .h5 (because of validation)
@@ -200,7 +188,7 @@ def to_dlc_file(
     *,
     overwrite: bool = True,
 ) -> None:
-    """Save a ``movement`` dataset to DeepLabCut style .h5 or .csv file(s).
+    """Save a ``movement`` dataset to DeepLabCut file(s).
 
     Parameters
     ----------
@@ -208,14 +196,11 @@ def to_dlc_file(
         ``movement`` dataset containing pose tracks, confidence scores,
         and associated metadata.
     file
-        Path to the output file. The file extension must be either
-        .h5 (recommended) or .csv. When ``split_individuals=True``, this
-        path is treated as a template: each individual is written to
-        ``{stem}_{individual}{suffix}``.
+        Path to the file to save the poses to. The file extension
+        must be either .h5 (recommended) or .csv.
     split_individuals
         Whether to save individuals to separate files or to the same file.
-        Defaults to ``"auto"``: split only when the dataset has one
-        individual, matching the previous behavior.
+        (see Notes). Defaults to "auto".
     overwrite : bool, default True
         Whether to overwrite existing writable target files. If False, a
         ``FileExistsError`` is raised if any target file already exists.
@@ -232,22 +217,23 @@ def to_dlc_file(
 
     See Also
     --------
-    to_dlc_style_df : Convert a dataset to DeepLabCut-style DataFrame(s).
+    to_dlc_style_df : Convert dataset to DeepLabCut-style DataFrame(s).
 
     Notes
     -----
-    If ``split_individuals`` is True, each individual is saved to a separate
-    single-animal DeepLabCut file without an ``individuals`` column level. For
-    multiple individuals, each name is appended to the filename stem. For a
-    single individual, the requested file path is used as is. If
-    ``split_individuals`` is False, all individuals are saved to one
+    If ``split_individuals`` is True, each individual will be saved to a
+    separate file, formatted as in a single-animal DeepLabCut project
+    (without the "individuals" column level). For multiple individuals,
+    each name is appended to the filename stem. For a
+    single individual, the requested file path is used as is.
+    If ``split_individuals`` is False, all individuals are saved to one
     multi-animal file with an ``individuals`` column level. If set to
     ``"auto"``, splitting is enabled only when the dataset contains one
     individual.
 
     Examples
     --------
-    >>> from movement.io import load_poses, save_poses
+    >>> from movement.io import save_poses, load_poses
     >>> ds = load_poses.from_sleap_file("/path/to/file_sleap.analysis.h5")
     >>> save_poses.to_dlc_file(ds, "/path/to/file_dlc.h5")
 
@@ -263,37 +249,35 @@ def to_dlc_file(
             )
         )
 
-    if split_individuals and ds.individual.size > 1:
-        suffix = file_path.suffix
-        individuals = list(ds.individual.values)
+    assert isinstance(split_individuals, bool)
+    df_all = to_dlc_style_df(ds, split_individuals=split_individuals)
+    if isinstance(df_all, pd.DataFrame):
+        df_all = {"": df_all}
 
-        derived_paths = []
-        for indiv in individuals:
-            derived = file_path.with_name(f"{file_path.stem}_{indiv}{suffix}")
-            validate_file_path(
-                derived, permission="w", overwrite=overwrite, suffixes={".csv", ".h5"},
+    # Validate all output paths before saving any files.
+    filepaths = {}
+    for individual in df_all:
+        filepath = (
+            file_path
+            if len(df_all) == 1
+            else Path(
+                f"{file_path.with_suffix('')}_{individual}{file_path.suffix}"
             )
-            derived_paths.append((indiv, derived))
+        )
 
-        df_dict = to_dlc_style_df(ds, split_individuals=True)
-        for indiv, derived in derived_paths:
-            _save_dlc_df(derived, df_dict[indiv], overwrite=overwrite)
-            logger.info(f"Saved poses dataset to {derived}.")
-    elif split_individuals:
         validate_file_path(
-            file_path, permission="w", overwrite=overwrite, suffixes={".csv", ".h5"},
+            filepath,
+            permission="w",
+            overwrite=overwrite,
+            suffixes={".csv", ".h5"},
         )
-        individual = ds.individual.values[0]
-        df_dict = to_dlc_style_df(ds, split_individuals=True)
-        _save_dlc_df(file_path, df_dict[individual], overwrite=overwrite)
-        logger.info(f"Saved poses dataset to {file_path}.")
-    else:
-        validate_file_path(
-            file_path, permission="w", overwrite=overwrite, suffixes={".csv", ".h5"},
-        )
-        df = to_dlc_style_df(ds, split_individuals=False)
-        _save_dlc_df(file_path, df, overwrite=overwrite)
-        logger.info(f"Saved poses dataset to {file_path}.")
+        filepaths[individual] = filepath
+
+    # Save each individual.
+    for individual, df in df_all.items():
+        filepath = filepaths[individual]
+        _save_dlc_df(filepath, df)
+        logger.info(f"Saved poses dataset to {filepath}.")
 
 
 @register_writer("LightningPose", ds_type="poses", suffixes={".csv"})
@@ -308,7 +292,8 @@ def to_lp_file(
     Parameters
     ----------
     ds
-        ``movement`` dataset containing pose tracks and confidence scores.
+        ``movement`` dataset containing pose tracks, confidence scores
+        and associated metadata.
     file
         Path to the output CSV file. For datasets with multiple individuals,
         each individual's name is appended to the filename stem and a
@@ -763,7 +748,10 @@ def _write_nwb_file(ds: xr.Dataset, file: str | Path, **kwargs) -> None:
                 f"{valid_path.stem}_{nwb_file.identifier}{valid_path.suffix}"
             )
             individual_path = validate_file_path(
-                individual_path, permission="w", overwrite=True, suffixes={".nwb"},
+                individual_path,
+                permission="w",
+                overwrite=True,
+                suffixes={".nwb"},
             )
             _write_nwb_to_disk(nwb_file, individual_path)
 

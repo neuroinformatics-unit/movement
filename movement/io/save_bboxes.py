@@ -12,7 +12,6 @@ import xarray as xr
 
 from movement.io.save import register_writer
 from movement.utils.logging import logger
-from movement.validators.files import validate_file_path
 
 if TYPE_CHECKING:
     import _csv
@@ -22,12 +21,12 @@ if TYPE_CHECKING:
 def to_via_tracks_file(
     ds: xr.Dataset,
     file: str | Path,
-    *,
-    overwrite: bool = True,
     track_ids_from_trailing_numbers: bool = True,
     frame_n_digits: int | None = None,
     image_file_prefix: str | None = None,
     image_file_suffix: str = ".png",
+    *,
+    overwrite: bool = True,
 ) -> None:
     """Save a ``movement`` bounding boxes dataset to a VIA tracks .csv file.
 
@@ -37,7 +36,7 @@ def to_via_tracks_file(
         The ``movement`` bounding boxes dataset to export.
     file
         Path where the VIA tracks .csv file [1]_ will be saved.
-    overwrite : bool, default True
+    overwrite
         Whether to overwrite an existing writable target file. If False, a
         ``FileExistsError`` is raised if the target file already exists.
     track_ids_from_trailing_numbers
@@ -134,11 +133,6 @@ def to_via_tracks_file(
     ... )
 
     """
-    # Validate the output path before doing any work
-    validate_file_path(
-        file, permission="w", overwrite=overwrite, suffixes={".csv"},
-    )
-
     # Check the number of digits required to represent the frame numbers
     frame_n_digits = _check_frame_required_digits(
         ds=ds, frame_n_digits=frame_n_digits
@@ -161,7 +155,7 @@ def to_via_tracks_file(
         map_individual_to_track_id,
         img_filename_template,
     )
-    logger.info(f"Saved bounding box dataset to {file}.")
+    logger.info(f"Saved bounding boxes dataset to {file}.")
 
 
 def _get_image_filename_template(

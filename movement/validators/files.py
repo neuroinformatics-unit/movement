@@ -28,12 +28,7 @@ JSON_SUFFIX = ".json"
 
 
 class ValidFile(Protocol):
-    """Protocol for file validators used to validate input files.
-
-    Output paths are validated by :func:`validate_file_path`, which permits
-    overwriting existing writable files by default. Pass ``overwrite=False``
-    to that function to reject an existing destination.
-    """
+    """Protocol for file validation classes."""
 
     suffixes: ClassVar[set[str]]
     """Expected suffix(es) for the file."""
@@ -146,14 +141,13 @@ def _file_is_writable(value: Path, *, overwrite: bool = True) -> None:
             raise logger.error(
                 FileExistsError(f"File {value} already exists.")
             )
-    else:
-        if not os.access(value.parent, os.W_OK):
-            raise logger.error(
-                PermissionError(
-                    f"Unable to write to file: {value}. "
-                    "Make sure that you have write permissions."
-                )
+    elif not os.access(value.parent, os.W_OK):
+        raise logger.error(
+            PermissionError(
+                f"Unable to write to file: {value}. "
+                "Make sure that you have write permissions."
             )
+        )
 
 
 def _file_is_accessible(
@@ -345,17 +339,17 @@ def _if_instance_of(
 
 
 def validate_file_path(
-    file_path: str | Path,
+    file: str | Path,
     permission: Literal["r", "w", "rw"] = "r",
-    overwrite: bool = True,
     *,
+    overwrite: bool = True,
     suffixes: set[str] | None = None,
 ) -> Path:
     """Validate the file has the expected permission(s) and suffix(es).
 
     Parameters
     ----------
-    file_path
+    file
         Path to the file to validate.
     permission
         Expected access permission(s) for the file. If "r", the file is
@@ -398,11 +392,13 @@ def validate_file_path(
             file: Path = field(
                 converter=Path,
                 validator=_file_validator(
-                    permission=permission, suffixes=suffixes, overwrite=overwrite,
+                    permission=permission,
+                    suffixes=suffixes,
+                    overwrite=overwrite,
                 ),
             )
 
-        return _TempValidator(file=file_path).file
+        return _TempValidator(file=file).file
     except (OSError, ValueError) as error:
         logger.error(error)
         raise
