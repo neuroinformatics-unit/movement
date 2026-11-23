@@ -375,14 +375,10 @@ def load_dataset(
     Parameters
     ----------
     file
-        Path to the file containing predicted poses or tracked bounding boxes.
-        If ``source software`` is "NWB", this can also be a
+        Path to a file containing pose or bounding box tracks, in one of the
+        :ref:`supported formats <target-supported-formats>`.
+        If ``source_software`` is "NWB", this can also be a
         :class:`pynwb.file.NWBFile` object.
-        The file format must be among those supported by the
-        :mod:`movement.io.load_poses` or
-        :mod:`movement.io.load_bboxes` modules. Based on
-        the value of ``source_software``, the appropriate loading function
-        will be called.
     source_software
         The source software of the file. If set to ``"auto"`` (default),
         it is inferred from the file format via :func:`infer_source_software`.
@@ -395,8 +391,9 @@ def load_dataset(
         "movement", as the frame rate will be directly read or estimated
         from metadata in the file.
     **kwargs
-        Additional keyword arguments to pass to the software-specific
-        loading functions in modules listed under "See Also".
+        Additional keyword arguments passed to the format-specific loader
+        in :mod:`movement.io.load_poses` or :mod:`movement.io.load_bboxes`,
+        or to :func:`xarray.load_dataset` for ``movement`` netCDF files.
 
     Returns
     -------
@@ -404,11 +401,10 @@ def load_dataset(
         ``movement`` dataset containing the pose or bounding box tracks,
         confidence scores, and associated metadata.
 
-
     See Also
     --------
-    movement.io.load_poses
-    movement.io.load_bboxes
+    load_multiview_dataset : Load and merge data from multiple views.
+    movement.io.save.save_dataset : Save a ``movement`` dataset to a file.
 
     Examples
     --------
@@ -473,8 +469,9 @@ def load_multiview_dataset(
         "movement", as the frame rate will be directly read or estimated from
         metadata in the file.
     **kwargs
-        Additional keyword arguments to pass to the software-specific
-        loading functions in modules listed under "See Also".
+        Additional keyword arguments passed to the format-specific loader
+        in :mod:`movement.io.load_poses` or :mod:`movement.io.load_bboxes`,
+        or to :func:`xarray.load_dataset` for ``movement`` netCDF files.
 
     Returns
     -------
@@ -484,8 +481,7 @@ def load_multiview_dataset(
 
     See Also
     --------
-    movement.io.load_poses
-    movement.io.load_bboxes
+    load_dataset : Load data from a single file.
 
     Notes
     -----
