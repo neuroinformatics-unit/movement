@@ -441,7 +441,7 @@ def test_timeline_removals_match_saved_edits(
     nc_path = tmp_path / "edited.nc"
     save_dataset(ds, nc_path)
     loader = loaded_data_loader(
-        nc_path, ds.assign_attrs(source_software="movement (netCDF)")
+        nc_path, ds.assign_attrs(source_software="movement")
     )
     remove_point(loader, frame=7, keypoint="right", individual="id_0")
 
