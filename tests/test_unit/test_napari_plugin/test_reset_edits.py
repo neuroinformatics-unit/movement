@@ -270,7 +270,7 @@ def test_loaded_state_roundtrip(
     def to_ds():
         return napari_layers_to_ds(
             points.data,
-            points.properties,
+            points.features,
             points.metadata[wiring.POINTS_PROPERTIES_KEY],
             points.metadata[wiring.DATASET_ATTRS_KEY],
         )
