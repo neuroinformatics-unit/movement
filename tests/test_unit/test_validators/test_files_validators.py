@@ -919,30 +919,39 @@ def test_coco_annotations_validator_invalid_categories(
 
 
 @pytest.mark.parametrize(
-    "input, expected_context",
+    "input, engine, expected_context",
     [
-        ("valid_netcdf_file", does_not_raise()),
+        ("valid_netcdf_file", None, does_not_raise()),
+        ("valid_netcdf_file", "h5netcdf", does_not_raise()),
+        # scipy does not read the HDF5-based netCDF4 test file
+        ("valid_netcdf_file", "scipy", pytest.raises(TypeError)),
         (
             "invalid_netcdf_file_missing_confidence",
+            None,
             pytest.raises(ValueError, match="Missing required data variables"),
         ),
         (
             "invalid_dstype_netcdf_file",
+            None,
             pytest.raises(ValueError, match="unknown 'ds_type' attribute"),
         ),
         (
             "legacy_dims_netcdf_file",
+            None,
             pytest.raises(ValueError, match="legacy dimension names"),
         ),
         (
             "anipose_csv_file",
+            None,
             pytest.raises(ValueError, match="Expected file with suffix"),
         ),
     ],
 )
-def test_movement_netcdf_validator(input, expected_context, request):
-    """Test ValidMovementNetCDF with a valid movement netCDF file."""
+def test_movement_netcdf_validator(input, engine, expected_context, request):
+    """Test ValidMovementNetCDF with valid and invalid files, opened
+    with the given xarray engine.
+    """
     file = request.getfixturevalue(input)
     with expected_context:
-        validated = ValidMovementNetCDF(file=file)
+        validated = ValidMovementNetCDF(file=file, engine=engine)
         assert validated.file == Path(file)

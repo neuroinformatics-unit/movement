@@ -1248,9 +1248,13 @@ class ValidMovementNetCDF:
     )
     """Path to the movement netCDF (.nc) file to validate."""
 
+    engine: str | None = field(default=None, kw_only=True)
+    """The xarray backend engine used to open the file. If None (default),
+    xarray selects an appropriate engine automatically."""
+
     def __attrs_post_init__(self) -> None:
         """Validate the dimensions and variables of the dataset."""
-        with xr.open_dataset(self.file) as ds:
+        with xr.open_dataset(self.file, engine=self.engine) as ds:
             # Datasets saved with movement < 0.17.0 used plural dim names
             legacy_dims = {"keypoints", "individuals"} & set(ds.dims)
             if legacy_dims:

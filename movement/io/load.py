@@ -569,13 +569,15 @@ def rename_legacy_dimensions(ds: xr.Dataset) -> xr.Dataset:
 
 
 @register_loader("movement", file_validators=[ValidMovementNetCDF])
-def _from_netcdf_file(file: str | Path) -> xr.Dataset:
+def _from_netcdf_file(file: str | Path, **kwargs) -> xr.Dataset:
     """Load a ``movement`` dataset from a movement netCDF (.nc) file.
 
     Parameters
     ----------
     file
         Path to the netCDF file containing the ``movement`` dataset.
+    **kwargs
+        Additional keyword arguments passed to :func:`xarray.load_dataset`.
 
     Returns
     -------
@@ -585,6 +587,6 @@ def _from_netcdf_file(file: str | Path) -> xr.Dataset:
     """
     valid_file = cast("ValidMovementNetCDF", file)
     file_path = valid_file.file
-    ds = xr.load_dataset(file_path)
+    ds = xr.load_dataset(file_path, **kwargs)
     logger.info(f"Loaded dataset from {file_path}:\n{ds}")
     return ds

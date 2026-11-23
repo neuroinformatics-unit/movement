@@ -74,7 +74,7 @@ def test_load_dataset_delegates_correctly(
     source_software, loader_fn, fps, mocker
 ):
     """Test load_dataset delegates to the correct loader function
-    according to the source_software.
+    according to the source_software, forwarding any additional kwargs.
     """
     if source_software == "Unknown":
         with pytest.raises(ValueError, match="Unsupported source") as e:
@@ -86,36 +86,50 @@ def test_load_dataset_delegates_correctly(
             load._LOADER_REGISTRY,
             {source_software: load._LoaderEntry(mock_loader)},
         )
+        kwargs = {"extra_kwarg": "value"}
         if source_software in ["NWB", "movement"] and fps is not None:
             with pytest.warns(UserWarning, match="fps argument is ignored"):
-                load.load_dataset("some_file", source_software, fps)
+                load.load_dataset("some_file", source_software, fps, **kwargs)
         else:
-            load.load_dataset("some_file", source_software, fps)
+            load.load_dataset("some_file", source_software, fps, **kwargs)
         expected_call_args = (
             ("some_file", fps)
             if source_software not in ["NWB", "movement"]
             else ("some_file",)
         )
-        mock_loader.assert_called_with(*expected_call_args)
+        mock_loader.assert_called_with(*expected_call_args, **kwargs)
 
 
 @pytest.mark.parametrize(
     "file_fixture, source_software, params, expected_context",
     [
+        ("via_tracks_csv", "VIA-tracks", {"fps": 30}, does_not_raise()),
+        ("sleap_slp_file", "SLEAP", {"fps": 30}, does_not_raise()),
+        ("dlc_h5_file", "DeepLabCut", {"fps": 30}, does_not_raise()),
+        ("lp_csv_file", "LightningPose", {"fps": 30}, does_not_raise()),
         (
-            "via_tracks_csv",
-            "VIA-tracks",
+            "anipose_csv_file",
+            "Anipose",
+            {"fps": 30, "individual_name": "mouse"},
+            does_not_raise(),
+        ),
+        (
+            "coco_keypoint_results_file_valid",
+            "COCO",
             {
                 "fps": 30,
+                "category_as_track": True,
                 "use_frame_numbers_from_file": True,
-                "frame_regexp": r"(0\d*)\.\w+$",
             },
             does_not_raise(),
         ),
-        ("sleap_slp_file", "SLEAP", None, does_not_raise()),
-        ("dlc_h5_file", "DeepLabCut", None, does_not_raise()),
-        ("anipose_csv_file", "Anipose", None, does_not_raise()),
         ("valid_netcdf_file", "movement", None, does_not_raise()),
+        (
+            "valid_netcdf_file",
+            "movement",
+            {"drop_variables": ["confidence"]},
+            does_not_raise(),
+        ),
         ("nwbfile_object", "NWB", None, does_not_raise()),
         (
             "dlc_csv_file",
@@ -130,17 +144,21 @@ def test_load_dataset(
 ):
     """Test load_dataset with real files (from various source software)
     and parameters.
+
+    The result are expected to be identical to calling the format-specific
+    loader directly with the same parameters. This checks that the parameters
+    are forwarded to it.
     """
     file_path = request.getfixturevalue(file_fixture)
     if file_fixture.startswith("nwb"):
         file_path = file_path()  # NWB fixture is a callable
+    params = params or {}
     with expected_context:
-        ds = load.load_dataset(
-            file_path,
-            source_software,
-            **(params or {}),
+        ds = load.load_dataset(file_path, source_software, **params)
+        expected_ds = load._LOADER_REGISTRY[source_software].loader(
+            file_path, **params
         )
-        assert isinstance(ds, xr.Dataset)
+        xr.testing.assert_identical(ds, expected_ds)
 
 
 @pytest.mark.parametrize(
