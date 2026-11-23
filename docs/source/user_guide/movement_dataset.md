@@ -143,7 +143,7 @@ file containing pose or bounding box tracks.
 In some cases, you may encounter or create datasets with extra
 **dimensions**. For example, the
 {func}`movement.io.load_multiview_dataset<movement.io.load.load_multiview_dataset>` function
-creates an additional `views` **dimension**,
+creates an additional `view` **dimension**,
 with the **coordinates** being the names given to each camera view.
 :::
 
