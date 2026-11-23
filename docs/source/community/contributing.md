@@ -556,7 +556,7 @@ GUI_UNSUPPORTED_SOURCE_SOFTWARE = {
 
 #### Update the Input/Output guide
 
-Finally, update the [](target-io) guide by adding the new format to the [](target-supported-formats) table and documenting it in the [](target-loading-pose-tracks) and/or [](target-loading-bbox-tracks) section(s) with usage examples.
+Finally, update the [](target-io) guide by adding the new format to the [](target-supported-formats) table and adding a tab with usage examples under [](target-loading-formats).
 
 ### Implementing new writers
 
@@ -642,7 +642,7 @@ type TargetSoftware = Literal[
 
 #### Update the Input/Output guide
 
-Finally, update the [](target-io) guide by adding the new format to the [](target-supported-formats) table and documenting it in the [](target-saving-pose-tracks) and/or [](target-saving-bboxes-tracks) section(s) with usage examples.
+Finally, update the [](target-io) guide by adding the new format to the [](target-supported-formats) table and adding a tab with usage examples under [](target-saving-formats).
 
 ### Developing the CLI
 
