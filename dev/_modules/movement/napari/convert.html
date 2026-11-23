@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=4f57459e"></script>
+    <script src="../../../_static/documentation_options.js?v=175edb20"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -142,7 +142,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.18.1.dev3</p>
+    <p class="title logo__title">movement v0.18.1.dev6</p>
   
 </a></div>
     
@@ -839,9 +839,7 @@
 <span class="sd">    with NaN values for position and confidence.</span>
 
 <span class="sd">    """</span>
-    <span class="n">properties_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span>
-        <span class="n">properties</span>
-    <span class="p">)</span>  <span class="c1"># live data without nans</span>
+    <span class="n">properties_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">properties</span><span class="p">)</span>  <span class="c1"># live data without nans</span>
     <span class="n">fps</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"fps"</span><span class="p">)</span> <span class="k">if</span> <span class="n">attrs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="k">if</span> <span class="s2">"keypoint"</span> <span class="ow">in</span> <span class="n">properties_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>

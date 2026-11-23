@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=4f57459e"></script>
+    <script src="../../../_static/documentation_options.js?v=175edb20"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -142,7 +142,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.18.1.dev3</p>
+    <p class="title logo__title">movement v0.18.1.dev6</p>
   
 </a></div>
     
@@ -756,7 +756,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">set_color_all_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="n">Shapes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Set colors on all existing shapes in a napari Shapes layer."""</span>
         <span class="c1"># Configure text appearance</span>
-        <span class="n">text_dict</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span>
+        <span class="n">text_dict</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
         <span class="n">text_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
         <span class="n">layer</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text_dict</span>
         <span class="n">layer</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_and_text_color</span>

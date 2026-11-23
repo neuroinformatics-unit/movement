@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=4f57459e"></script>
+    <script src="../../../_static/documentation_options.js?v=175edb20"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -142,7 +142,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.18.1.dev3</p>
+    <p class="title logo__title">movement v0.18.1.dev6</p>
   
 </a></div>
     
@@ -1124,11 +1124,11 @@
         <span class="c1"># validation depends on it</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_frame_regexp_valid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frame_regexp</span><span class="p">)</span>
 
-        <span class="c1"># Read csv as a dataframe</span>
+        <span class="c1"># Validate the header before parsing the whole file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file_contains_valid_header</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">nrows</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
-        <span class="c1"># Run all validation steps</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_file_contains_valid_header</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+        <span class="c1"># Run remaining validation steps</span>
         <span class="n">frame_numbers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_contains_valid_frame_numbers</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
         <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">confidence_values</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_file_contains_tracked_bboxes</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
@@ -1180,7 +1180,6 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_file_contains_valid_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Ensure the VIA tracks .csv file contains the expected header."""</span>
-        <span class="c1"># Read CSV once and store for later use</span>
         <span class="n">expected_header</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">"filename"</span><span class="p">,</span>
             <span class="s2">"file_size"</span><span class="p">,</span>
