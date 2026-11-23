@@ -938,7 +938,14 @@ def test_coco_annotations_validator_invalid_categories(
         (
             "legacy_dims_netcdf_file",
             None,
-            pytest.raises(ValueError, match="legacy dimension names"),
+            pytest.raises(
+                ValueError,
+                match=(
+                    r"legacy dimension names.*ds\.rename\(\{"
+                    r"'individuals': 'individual', 'keypoints': 'keypoint'"
+                    r"\}\)"
+                ),
+            ),
         ),
         (
             "anipose_csv_file",

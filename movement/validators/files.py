@@ -1258,14 +1258,15 @@ class ValidMovementNetCDF:
             # Datasets saved with movement < 0.17.0 used plural dim names
             legacy_dims = {"keypoints", "individuals"} & set(ds.dims)
             if legacy_dims:
+                rename_map = {dim: dim[:-1] for dim in sorted(legacy_dims)}
                 raise logger.error(
                     ValueError(
                         "The netCDF file uses legacy dimension names "
                         f"{sorted(legacy_dims)} from movement < 0.17.0. "
-                        "Open it with xarray.load_dataset, rename the "
-                        "dimensions with ds.rename({'keypoints': 'keypoint', "
-                        "'individuals': 'individual'}), and save it again "
-                        "with movement.io.save.save_dataset."
+                        "To convert it, open it with xarray.load_dataset, "
+                        f"rename the dimensions with ds.rename({rename_map}), "
+                        "and save it again with "
+                        "movement.io.save.save_dataset."
                     )
                 )
             ds_type = ds.attrs.get("ds_type", None)
