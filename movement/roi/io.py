@@ -55,7 +55,9 @@ def save_rois(
     ...     [(0, 0), (1, 0), (1, 1), (0, 1)], name="square"
     ... )
     >>> diagonal = LineOfInterest([(0, 0), (1, 1)], name="diagonal")
-    >>> save_rois([square, diagonal], "/path/to/rois.geojson")
+    >>> save_rois(
+    ...     [square, diagonal], "/path/to/rois.geojson"
+    ... )  # doctest: +SKIP
 
     """
     valid_path = validate_file_path(
@@ -105,10 +107,10 @@ def load_rois(file: str | Path) -> list[LineOfInterest | PolygonOfInterest]:
     Load a collection of RoIs from a GeoJSON file and inspect their names:
 
     >>> from movement.roi import load_rois
-    >>> rois = load_rois("/path/to/rois.geojson")
+    >>> rois = load_rois("/path/to/rois.geojson")  # doctest: +SKIP
     >>> # rois is a list of RoI objects
-    >>> [roi.name for roi in rois]
-    ["square", "diagonal"]
+    >>> [roi.name for roi in rois]  # doctest: +SKIP
+    ['square', 'diagonal']
 
     """
     validated_file = ValidROICollectionGeoJSON(file)

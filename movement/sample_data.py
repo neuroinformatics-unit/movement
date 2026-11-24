@@ -272,18 +272,20 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
     predicted poses, as well as the associated frame and video files:
 
     >>> from movement.sample_data import fetch_dataset_paths
-    >>> paths = fetch_dataset_paths(
+    >>> paths = fetch_dataset_paths(  # doctest: +SKIP
     ...     "DLC_single-mouse_EPM.predictions.h5", with_video=True
     ... )
-    >>> poses_path = paths["poses"]
-    >>> frame_path = paths["frame"]
-    >>> video_path = paths["video"]
+    >>> poses_path = paths["poses"]  # doctest: +SKIP
+    >>> frame_path = paths["frame"]  # doctest: +SKIP
+    >>> video_path = paths["video"]  # doctest: +SKIP
 
     If the sample dataset contains bounding boxes instead of
     poses, use ``paths["bboxes"]`` instead of ``paths["poses"]``:
 
-    >>> paths = fetch_dataset_paths("VIA_multiple-crabs_5-frames_labels.csv")
-    >>> bboxes_path = paths["bboxes"]
+    >>> paths = fetch_dataset_paths(  # doctest: +SKIP
+    ...     "VIA_multiple-crabs_5-frames_labels.csv"
+    ... )
+    >>> bboxes_path = paths["bboxes"]  # doctest: +SKIP
 
     """
     available_data_files = list_datasets()
@@ -366,11 +368,11 @@ def fetch_dataset(
     files:
 
     >>> from movement.sample_data import fetch_dataset
-    >>> ds = fetch_dataset(
+    >>> ds = fetch_dataset(  # doctest: +SKIP
     ...     "DLC_single-mouse_EPM.predictions.h5", with_video=True
     ... )
-    >>> frame_path = ds.frame_path
-    >>> video_path = ds.video_path
+    >>> frame_path = ds.frame_path  # doctest: +SKIP
+    >>> video_path = ds.video_path  # doctest: +SKIP
 
     """
     # If the filename start with "TRex", raise an NotImplementedError

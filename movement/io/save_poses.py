@@ -223,8 +223,10 @@ def to_dlc_file(
     Examples
     --------
     >>> from movement.io import save_poses, load_poses
-    >>> ds = load_poses.from_sleap_file("/path/to/file_sleap.analysis.h5")
-    >>> save_poses.to_dlc_file(ds, "/path/to/file_dlc.h5")
+    >>> ds = load_poses.from_sleap_file(  # doctest: +SKIP
+    ...     "/path/to/file_sleap.analysis.h5"
+    ... )
+    >>> save_poses.to_dlc_file(ds, "/path/to/file_dlc.h5")  # doctest: +SKIP
 
     """
     valid_path = Path(file)
@@ -332,8 +334,8 @@ def to_sleap_analysis_file(ds: xr.Dataset, file: str | Path) -> None:
     Examples
     --------
     >>> from movement.io import save_poses, load_poses
-    >>> ds = load_poses.from_dlc_file("path/to/file.h5")
-    >>> save_poses.to_sleap_analysis_file(
+    >>> ds = load_poses.from_dlc_file("path/to/file.h5")  # doctest: +SKIP
+    >>> save_poses.to_sleap_analysis_file(  # doctest: +SKIP
     ...     ds, "/path/to/file_sleap.analysis.h5"
     ... )
 
@@ -451,9 +453,9 @@ def to_nwb_file_object(
     >>> from movement.sample_data import fetch_dataset
     >>> from movement.io import save_poses
     >>> from pynwb import NWBHDF5IO
-    >>> ds = fetch_dataset("DLC_two-mice.predictions.csv")
-    >>> nwb_files = save_poses.to_nwb_file_object(ds)
-    >>> for file in nwb_files:
+    >>> ds = fetch_dataset("DLC_two-mice.predictions.csv")  # doctest: +SKIP
+    >>> nwb_files = save_poses.to_nwb_file_object(ds)  # doctest: +SKIP
+    >>> for file in nwb_files:  # doctest: +SKIP
     ...     with NWBHDF5IO(f"{file.identifier}.nwb", "w") as io:
     ...         io.write(file)
 
@@ -601,9 +603,9 @@ def to_nwb_file(
     >>> from movement.sample_data import fetch_dataset
     >>> from movement.io import save_poses
     >>> from pynwb import NWBHDF5IO
-    >>> ds = fetch_dataset("DLC_two-mice.predictions.csv")
-    >>> nwb_files = save_poses.to_nwb_file_object(ds)
-    >>> for file in nwb_files:
+    >>> ds = fetch_dataset("DLC_two-mice.predictions.csv")  # doctest: +SKIP
+    >>> nwb_files = save_poses.to_nwb_file_object(ds)  # doctest: +SKIP
+    >>> for file in nwb_files:  # doctest: +SKIP
     ...     with NWBHDF5IO(f"{file.identifier}.nwb", "w") as io:
     ...         io.write(file)
 

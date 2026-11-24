@@ -412,7 +412,7 @@ def load_dataset(
     Examples
     --------
     >>> from movement.io import load_dataset
-    >>> ds = load_dataset(
+    >>> ds = load_dataset(  # doctest: +SKIP
     ...     "path/to/file.h5", source_software="DeepLabCut", fps=30
     ... )
 
@@ -538,9 +538,9 @@ def rename_legacy_dimensions(ds: xr.Dataset) -> xr.Dataset:
 
     >>> import xarray as xr
     >>> from movement.io.load import rename_legacy_dimensions
-    >>> ds = xr.open_dataset("old_dataset.nc")
-    >>> ds = rename_legacy_dimensions(ds)
-    >>> ds.to_netcdf("new_dataset.nc")
+    >>> ds = xr.open_dataset("old_dataset.nc")  # doctest: +SKIP
+    >>> ds = rename_legacy_dimensions(ds)  # doctest: +SKIP
+    >>> ds.to_netcdf("new_dataset.nc")  # doctest: +SKIP
 
     """
     warnings.warn(
