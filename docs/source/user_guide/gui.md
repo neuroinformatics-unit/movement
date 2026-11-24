@@ -137,7 +137,7 @@ or from a [netCDF file](target-netcdf) saved with `movement`
 
 (target-gui-compatible-netcdf)=
 
-Only netCDF files that store a valid
+Only netCDF files that store a valid, 2D, single-view
 [movement dataset](target-poses-and-bboxes-dataset) can be opened in the GUI.
 Practically, this means:
 
@@ -145,6 +145,10 @@ Practically, this means:
 - The data variables, dimensions, and coordinates must satisfy the
   [dataset structure requirements](target-dataset-structure) for that `ds_type`.
   For example, a `poses` dataset must provide both `position` and `confidence`.
+- The data must be 2D, i.e. the `space` coordinates must be `x` and `y`.
+- The required data variables (`position`, `confidence`, and `shape`
+  for `bboxes`) must only have the dimensions `time`, `space`, `individual`,
+  and `keypoint` for `poses`.
 
 
 Below is a small example showing how to save a GUI-compatible
