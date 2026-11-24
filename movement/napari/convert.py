@@ -7,6 +7,7 @@ import pandas as pd
 import xarray as xr
 
 from movement.utils.logging import logger
+from movement.validators.datasets import DS_TYPE_VALIDATORS
 
 
 def _construct_properties_dataframe(ds: xr.Dataset) -> pd.DataFrame:
@@ -43,6 +44,47 @@ def _construct_track_and_time_cols(
     time_col = np.tile(np.arange(n_frames), (n_tracks)).reshape(-1, 1)
 
     return track_id_col, time_col
+
+
+def _validate_ds_for_napari(ds: xr.Dataset) -> None:
+    """Check that a ``movement`` dataset can be shown as napari layers.
+
+    The dataset must be 2D, with ``space`` coordinates ``x`` and ``y``.
+    The variables used for the napari layers (``position``, ``shape``,
+    ``confidence`` and ``edited``) must not have dimensions beyond
+    ``time``, ``space``, ``individual`` and (for poses) ``keypoint``.
+    Other data variables and dimensions used by them are ignored.
+
+    Raises
+    ------
+    ValueError
+        If the dataset is not 2D or the variables used for the napari
+        layers have extra dimensions (e.g. ``view`` in multi-view data).
+
+    """
+    space_coords = ds.space.values.tolist()
+    if set(space_coords) != {"x", "y"}:
+        raise logger.error(
+            ValueError(
+                "Only 2D data with 'space' coordinates ['x', 'y'] is "
+                f"supported, but got {space_coords}."
+            )
+        )
+    validator = DS_TYPE_VALIDATORS[ds.ds_type]
+    for var_name in (*validator.VAR_NAMES, "edited"):
+        if var_name not in ds:
+            continue
+        extra_dims = [
+            dim for dim in ds[var_name].dims if dim not in validator.DIM_NAMES
+        ]
+        if extra_dims:
+            raise logger.error(
+                ValueError(
+                    f"Unsupported dimension(s) {extra_dims} in "
+                    f"'{var_name}'. Select a single value along each "
+                    f"first, e.g. ds.sel({extra_dims[0]}=...)."
+                )
+            )
 
 
 def ds_to_napari_layers(
@@ -91,6 +133,7 @@ def ds_to_napari_layers(
     .. [2] https://napari.org/stable/howtos/layers/points.html
 
     """
+    _validate_ds_for_napari(ds)
     # Construct the track_ID and time columns for the napari Tracks array
     track_id_col, time_col = _construct_track_and_time_cols(ds)
 

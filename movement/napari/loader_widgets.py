@@ -205,24 +205,22 @@ class DataLoader(QWidget):
             show_warning("No file path specified.")
             return
 
-        # Load the dataset
+        # Load the dataset and convert to napari layers
         try:
             ds = load_dataset(self.file_path, self.source_software, self.fps)
+            self._format_data_for_layers(ds)
         except Exception as e:
             show_error(f"Failed to load dataset from '{self.file_path}': {e}")
             return
+        logger.info("Converted dataset to a napari Tracks array.")
+        logger.debug(f"Tracks array shape: {self.data.shape}")
+        if self.data_bboxes is not None:
+            logger.debug(f"Shapes array shape: {self.data_bboxes.shape}")
 
         # Show the dataset's fps in the spinbox
         self.fps = ds.attrs.get("fps")
         if self.fps is not None:
             self.fps_spinbox.setValue(self.fps)
-
-        # Format the data for the napari layers
-        self._format_data_for_layers(ds)
-        logger.info("Converted dataset to a napari Tracks array.")
-        logger.debug(f"Tracks array shape: {self.data.shape}")
-        if self.data_bboxes is not None:
-            logger.debug(f"Shapes array shape: {self.data_bboxes.shape}")
 
         # Set property to color points, tracks and boxes by
         self._set_common_color_property()
