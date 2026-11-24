@@ -166,6 +166,14 @@ def valid_bboxes_dataset_transposed(valid_bboxes_dataset):
     return valid_bboxes_dataset.transpose("individual", "time", "space")
 
 
+@pytest.fixture
+def valid_bboxes_dataset_yx_swapped(valid_bboxes_dataset):
+    """Return a valid bboxes dataset with ``space`` coordinates reordered
+    to ``["y", "x"]``.
+    """
+    return valid_bboxes_dataset.sel(space=["y", "x"])
+
+
 # -------------------- Valid poses datasets and arrays --------------------
 @pytest.fixture
 def valid_poses_arrays():
@@ -355,6 +363,14 @@ def valid_poses_dataset_transposed(valid_poses_dataset):
     return valid_poses_dataset.transpose(
         "individual", "time", "space", "keypoint"
     )
+
+
+@pytest.fixture
+def valid_poses_dataset_yx_swapped(valid_poses_dataset):
+    """Return a valid poses dataset with ``space`` coordinates reordered
+    to ``["y", "x"]``.
+    """
+    return valid_poses_dataset.sel(space=["y", "x"])
 
 
 @pytest.fixture
