@@ -87,6 +87,15 @@ def _validate_ds_for_napari(ds: xr.Dataset) -> None:
             )
 
 
+def _flatten_to_yx(da: xr.DataArray, row_dims: tuple[str, ...]) -> np.ndarray:
+    """Flatten a spatial DataArray into an (N, 2) array of (y, x) coords."""
+    return (
+        da.sel(space=["y", "x"])
+        .transpose(*row_dims, "space")
+        .values.reshape(-1, 2)
+    )
+
+
 def ds_to_napari_layers(
     ds: xr.Dataset,
 ) -> tuple[np.ndarray, np.ndarray | None, pd.DataFrame]:
@@ -137,14 +146,12 @@ def ds_to_napari_layers(
     # Construct the track_ID and time columns for the napari Tracks array
     track_id_col, time_col = _construct_track_and_time_cols(ds)
 
-    # Reorder axes to (individual, keypoint, frames, xy)
-    axes_reordering: tuple[int, ...] = (2, 0, 1)
+    # Order rows by (individual, keypoint, time) to match the track_id and
+    # time columns
+    row_dims: tuple[str, ...] = ("individual", "time")
     if "keypoint" in ds.coords:
-        axes_reordering = (3,) + axes_reordering
-    yx_cols = np.transpose(
-        ds.position.values,  # from: frames, xy, keypoint, individual
-        axes_reordering,  # to: individual, keypoint, frames, xy
-    ).reshape(-1, 2)[:, [1, 0]]  # swap x and y columns
+        row_dims = ("individual", "keypoint", "time")
+    yx_cols = _flatten_to_yx(ds.position, row_dims)
 
     points_as_napari = np.hstack((track_id_col, time_col, yx_cols))
     bboxes_as_napari = None
@@ -171,7 +178,7 @@ def ds_to_napari_layers(
             np.c_[
                 track_id_col,
                 time_col,
-                np.transpose(corner.values, axes_reordering).reshape(-1, 2),
+                _flatten_to_yx(corner, row_dims),
             ]
             for corner in [xmin_ymin, xmin_ymax, xmax_ymax, xmax_ymin]
         ]
@@ -184,12 +191,8 @@ def ds_to_napari_layers(
         # Reshape to napari expected format
         # goes through corners counterclockwise from xmin_ymin
         # in image coordinates
-        corners_array = corners_array.reshape(
-            -1, 4, 4
-        )  # last dimension: track_id, time, x, y
-        bboxes_as_napari = corners_array[
-            :, :, [0, 1, 3, 2]
-        ]  # swap x and y columns
+        # last dimension: track_id, time, y, x
+        bboxes_as_napari = corners_array.reshape(-1, 4, 4)
 
     # Construct the properties DataFrame
     # Stack individual, time and keypoint (if present) dimensions
