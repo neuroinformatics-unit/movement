@@ -112,6 +112,7 @@ def valid_bboxes_confidence_with_all_nan(valid_bboxes_dataset):
     [
         "dataset",
         "dataset_with_nan",
+        "dataset_transposed",
         "confidence_with_some_nan",
         "confidence_with_all_nan",
     ],
@@ -184,6 +185,7 @@ def test_valid_poses_dataset_to_napari_arrays(ds_dataset, request):
     [
         "dataset",
         "dataset_with_nan",
+        "dataset_transposed",
         "confidence_with_some_nan",
         "confidence_with_all_nan",
     ],
@@ -249,20 +251,25 @@ def test_valid_bboxes_dataset_to_napari_arrays(ds_dataset, request):
 
 
 @pytest.mark.parametrize(
-    "ds_name, expected_exception",
+    "ds_name, expected_exception, expected_match",
     [
-        ("not_a_dataset", AttributeError),
-        ("empty_dataset", KeyError),
-        ("missing_var_poses_dataset", AttributeError),
-        ("missing_dim_poses_dataset", KeyError),
+        ("not_a_dataset", AttributeError, None),
+        ("empty_dataset", AttributeError, None),
+        ("missing_var_poses_dataset", AttributeError, None),
+        ("missing_dim_poses_dataset", ValueError, "tame"),
+        ("valid_poses_dataset_3d", ValueError, "2D"),
+        ("valid_poses_dataset_multiview", ValueError, "view"),
     ],
 )
-def test_invalid_poses_to_napari_layers(ds_name, expected_exception, request):
+def test_invalid_poses_to_napari_layers(
+    ds_name, expected_exception, expected_match, request
+):
     """Test that the conversion from movement poses dataset to napari
-    arrays raises the expected error for invalid datasets.
+    arrays raises the expected error for invalid or unsupported
+    (e.g. 3D or multi-view) datasets.
     """
     ds = request.getfixturevalue(ds_name)
-    with pytest.raises(expected_exception):
+    with pytest.raises(expected_exception, match=expected_match):
         ds_to_napari_layers(ds)
 
 

@@ -607,3 +607,19 @@ def legacy_dims_netcdf_file(tmp_path_factory, valid_netcdf_file):
     legacy_path = temp_dir / "legacy_dims_file.nc"
     ds.to_netcdf(legacy_path)
     return str(legacy_path)
+
+
+@pytest.fixture
+def valid_netcdf_file_3d(tmp_path, valid_poses_dataset_3d):
+    """Create a valid netCDF file containing a 3D poses dataset."""
+    file_path = tmp_path / "poses_3d.nc"
+    valid_poses_dataset_3d.to_netcdf(file_path)
+    return str(file_path)
+
+
+@pytest.fixture
+def valid_netcdf_file_multiview(tmp_path, valid_poses_dataset_multiview):
+    """Create a valid netCDF file containing a multi-view poses dataset."""
+    file_path = tmp_path / "poses_multiview.nc"
+    valid_poses_dataset_multiview.to_netcdf(file_path)
+    return str(file_path)

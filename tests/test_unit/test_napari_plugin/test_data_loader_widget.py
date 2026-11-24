@@ -480,13 +480,19 @@ def test_fps_handling_on_load(
     "fixture_name, source_software",
     [
         ("invalid_dstype_netcdf_file", "movement"),
+        ("legacy_dims_netcdf_file", "movement"),
+        ("valid_netcdf_file_3d", "movement"),
+        ("valid_netcdf_file_multiview", "movement"),
         ("wrong_extension_file", "DeepLabCut"),
     ],
 )
 def test_on_load_clicked_with_invalid_file(
     make_napari_viewer_proxy, mocker, fixture_name, source_software, request
 ):
-    """Test that loader errors are shown to the user and no layers added."""
+    """Test that errors from loading invalid files, or files that cannot be
+    shown as napari layers (e.g. 3D or multi-view), are shown to the user
+    and no layers are added.
+    """
     viewer = make_napari_viewer_proxy()
     data_loader_widget = DataLoader(viewer)
     mock_show_error = mocker.patch("movement.napari.loader_widgets.show_error")
