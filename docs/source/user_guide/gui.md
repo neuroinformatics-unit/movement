@@ -497,6 +497,12 @@ To resume editing later, [load](target-load-tracked-data) the saved
 `.nc` file in the GUI: all previous edits are restored, so you can pick
 up exactly where you left off.
 
+:::{warning}
+Only the data variables listed above are saved. Any other data variables in
+the loaded file (e.g. derived quantities such as speed) are not carried over.
+To avoid losing them, save to a new file rather than overwriting the original.
+:::
+
 :::{tip}
 Because the edits are saved in the `edited` variable, you can use them in
 your analysis, for example to report how many keypoints were corrected by
