@@ -157,6 +157,9 @@ def ds_to_napari_layers(
     ds_ = ds.stack(tracks=sorted(dimensions_to_stack))
 
     properties = _construct_properties_dataframe(ds_)
+    if ds.ds_type == "poses" and "keypoint" not in ds.confidence.dims:
+        # The loader keeps this full table in the Points layer metadata.
+        properties.attrs["individual_wise_confidence"] = True
 
     return points_as_napari, bboxes_as_napari, properties
 
@@ -458,6 +461,23 @@ def napari_layers_to_ds(
                     "This happens when all points have been removed."
                 )
             )
+        if properties_with_nans.attrs.get("individual_wise_confidence"):
+            # The loaded table contains the original score even for points
+            # with missing positions. Each keypoint has the same copy.
+            original = (
+                properties_with_nans.drop_duplicates(["time", "individual"])
+                .set_index(["time", "individual"])["confidence"]
+                .to_xarray()
+            )
+            # Dragging clears live confidence. A deleted point has no
+            # live row. Previously missing points can already carry an
+            # edited flag, so only consider positions visible at load.
+            visible_at_load = ~properties_with_nans.set_index(
+                ["time", "keypoint", "individual"]
+            )["position_is_nan"].to_xarray()
+            changed = visible_at_load & edited_da & confidence_da.isnull()
+            ds["confidence"] = original.where(~changed.any("keypoint"))
+
         # Drop `edited` entirely if nothing survived the trim above:
         # e.g. the only edits were on a keypoint/individual just dropped.
         if not ds["edited"].any():
