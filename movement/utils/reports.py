@@ -47,7 +47,7 @@ def report_nan_values(da: xr.DataArray, label: str | None = None) -> str:
     )
     # Drop coord labels without NaNs
     nan_count = nan_count.where(nan_count > 0, other=0, drop=True)
-    if nan_count.size == 0 or nan_count.isnull().all():
+    if nan_count.size == 0 or (nan_count == 0).all():
         return f"No missing points (marked as NaN) in {resolved_label}."
     total_count = da.time.size
     nan_count_str = (
