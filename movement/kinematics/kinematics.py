@@ -52,6 +52,7 @@ def compute_time_derivative(data: xr.DataArray, order: int) -> xr.DataArray:
     result = data
     for _ in range(order):
         result = result.differentiate("time")
+    result = result.assign_attrs(data.attrs)
     return result
 
 
@@ -192,6 +193,8 @@ def compute_velocity(data: xr.DataArray) -> xr.DataArray:
     # (presence of time dimension will be checked in compute_time_derivative)
     validate_dims_coords(data, {"space": []})
     result = compute_time_derivative(data, order=1)
+    if "units" in result.attrs:
+        result.attrs["units"] = f"{result.attrs['units']} per unit time"
     result.name = "velocity"
     return result
 
@@ -234,6 +237,9 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
     # (presence of time dimension will be checked in compute_time_derivative)
     validate_dims_coords(data, {"space": []})
     result = compute_time_derivative(data, order=2)
+    if "units" in result.attrs:
+        current_unit = result.attrs["units"]
+        result.attrs["units"] = f"{current_unit} per unit time squared"
     result.name = "acceleration"
     return result
 
@@ -259,6 +265,8 @@ def compute_speed(data: xr.DataArray) -> xr.DataArray:
         except ``space`` is removed.
 
     """
-    result = compute_norm(compute_velocity(data))
+    vel = compute_velocity(data)
+    result = compute_norm(vel)
+    result = result.assign_attrs(vel.attrs)
     result.name = "speed"
     return result
