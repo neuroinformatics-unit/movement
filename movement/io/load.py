@@ -34,6 +34,11 @@ type SourceSoftware = Literal[
     "movement",
 ]
 AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE: Final = "DeepLabCut/LightningPose"
+# Source software whose frame rate is read or estimated from the file
+# itself, so a user-provided ``fps`` is ignored
+FPS_FROM_FILE_SOURCE_SOFTWARE: Final[frozenset[SourceSoftware]] = frozenset(
+    {"NWB", "movement"}
+)
 
 type InferredSourceSoftware = (
     SourceSoftware | Literal["DeepLabCut/LightningPose"]
@@ -431,7 +436,7 @@ def load_dataset(
             )
         )
 
-    if source_software in ["NWB", "movement"]:
+    if source_software in FPS_FROM_FILE_SOURCE_SOFTWARE:
         if fps is not None:
             warnings.warn(
                 "The fps argument is ignored when loading from an NWB or "

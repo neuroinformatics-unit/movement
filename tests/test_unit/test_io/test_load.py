@@ -87,14 +87,17 @@ def test_load_dataset_delegates_correctly(
             {source_software: load._LoaderEntry(mock_loader)},
         )
         kwargs = {"extra_kwarg": "value"}
-        if source_software in ["NWB", "movement"] and fps is not None:
+        if (
+            source_software in load.FPS_FROM_FILE_SOURCE_SOFTWARE
+            and fps is not None
+        ):
             with pytest.warns(UserWarning, match="fps argument is ignored"):
                 load.load_dataset("some_file", source_software, fps, **kwargs)
         else:
             load.load_dataset("some_file", source_software, fps, **kwargs)
         expected_call_args = (
             ("some_file", fps)
-            if source_software not in ["NWB", "movement"]
+            if source_software not in load.FPS_FROM_FILE_SOURCE_SOFTWARE
             else ("some_file",)
         )
         mock_loader.assert_called_with(*expected_call_args, **kwargs)

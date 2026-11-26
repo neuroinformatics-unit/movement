@@ -22,6 +22,7 @@ from qtpy.QtWidgets import (
 )
 
 from movement.io.load import (
+    FPS_FROM_FILE_SOURCE_SOFTWARE,
     SourceSoftware,
     get_supported_source_software,
     load_dataset,
@@ -60,12 +61,6 @@ SUPPORTED_FILES: dict[str, list[str]] = {
         key=lambda item: item[0].lower(),
     )
     if sw not in GUI_UNSUPPORTED_SOURCE_SOFTWARE
-}
-
-# Source software for which to disable the fps spinbox (fps is read from file)
-FPS_DISABLED_SOURCE_SOFTWARE: set[SourceSoftware] = {
-    "movement",
-    "NWB",
 }
 
 # Source software preselected in the dropdown
@@ -147,7 +142,7 @@ class DataLoader(QWidget):
 
     def _on_source_software_changed(self, current_text: str):
         """Enable/disable the fps spinbox based on source software."""
-        fps_in_file_attr = current_text in FPS_DISABLED_SOURCE_SOFTWARE
+        fps_in_file_attr = current_text in FPS_FROM_FILE_SOURCE_SOFTWARE
         # Disable fps box if fps is read from file (e.g. movement, NWB)
         self.fps_spinbox.setEnabled(not fps_in_file_attr)
 
@@ -194,7 +189,7 @@ class DataLoader(QWidget):
         # Pass fps only if not read from file (avoids load_dataset warning)
         self.fps = (
             None
-            if self.source_software in FPS_DISABLED_SOURCE_SOFTWARE
+            if self.source_software in FPS_FROM_FILE_SOURCE_SOFTWARE
             else self.fps_spinbox.value()
         )
         self.file_path = self.file_path_edit.text()
