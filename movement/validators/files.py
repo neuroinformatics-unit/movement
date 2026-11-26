@@ -1225,11 +1225,15 @@ class ValidROICollectionGeoJSON:
 class ValidMovementNetCDF:
     """Class for validating movement netCDF (.nc) files.
 
-    The validator ensures that the file:
+    The validator ensures that:
 
-    - is a valid netCDF (.nc) file, and
-    - contains the expected dimensions and variables for a ``movement``
-      dataset.
+    - the file is a valid netCDF (.nc) file, and
+    - the dataset contains the expected dimensions and variables for a
+      ``movement`` dataset.
+
+    Because validation is performed on the dataset opened with
+    ``extra_kwargs``, any kwargs that change what is read (e.g.
+    ``drop_variables`` or ``group``) are taken into account.
 
     Raises
     ------
@@ -1248,13 +1252,13 @@ class ValidMovementNetCDF:
     )
     """Path to the movement netCDF (.nc) file to validate."""
 
-    engine: str | None = field(default=None, kw_only=True)
-    """The xarray backend engine used to open the file. If None (default),
-    xarray selects an appropriate engine automatically."""
+    extra_kwargs: dict[str, Any] = field(factory=dict, kw_only=True)
+    """Extra keyword arguments forwarded from the loader and passed to
+    :func:`xarray.open_dataset`."""
 
     def __attrs_post_init__(self) -> None:
         """Validate the dimensions and variables of the dataset."""
-        with xr.open_dataset(self.file, engine=self.engine) as ds:
+        with xr.open_dataset(self.file, **self.extra_kwargs) as ds:
             # Datasets saved with movement < 0.17.0 used plural dim names
             legacy_dims = {"keypoints", "individuals"} & set(ds.dims)
             if legacy_dims:

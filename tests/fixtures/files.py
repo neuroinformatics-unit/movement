@@ -576,6 +576,14 @@ def invalid_dstype_netcdf_file(tmp_path, valid_poses_dataset):
 
 
 @pytest.fixture
+def grouped_netcdf_file(tmp_path, valid_poses_dataset):
+    """Create a netCDF file with 'poses' group containing a valid dataset."""
+    file_path = tmp_path / "grouped_file.nc"
+    valid_poses_dataset.to_netcdf(file_path, group="poses")
+    return str(file_path)
+
+
+@pytest.fixture
 def legacy_dims_netcdf_file(tmp_path, valid_poses_dataset):
     """Create a netCDF file with the plural dimension names used by
     movement < 0.17.0 ("keypoints", "individuals").

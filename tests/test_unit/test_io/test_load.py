@@ -138,6 +138,12 @@ def test_load_dataset_delegates_correctly(
             "valid_netcdf_file",
             "movement",
             {"drop_variables": ["confidence"]},
+            pytest.raises(ValueError, match="Missing required data variables"),
+        ),
+        (
+            "grouped_netcdf_file",
+            "movement",
+            {"group": "poses"},
             does_not_raise(),
         ),
         ("nwbfile_object", "NWB", None, does_not_raise()),

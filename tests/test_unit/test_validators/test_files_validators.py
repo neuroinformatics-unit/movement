@@ -919,39 +919,53 @@ def test_coco_annotations_validator_invalid_categories(
 
 
 @pytest.mark.parametrize(
-    "input, engine, expected_context",
+    "input, extra_kwargs, expected_context",
     [
-        ("valid_netcdf_file", None, does_not_raise()),
-        ("valid_netcdf_file", "h5netcdf", does_not_raise()),
+        ("valid_netcdf_file", {}, does_not_raise()),
+        ("valid_netcdf_file", {"engine": "h5netcdf"}, does_not_raise()),
         # scipy does not read the HDF5-based netCDF4 test file
-        ("valid_netcdf_file", "scipy", pytest.raises(TypeError)),
+        ("valid_netcdf_file", {"engine": "scipy"}, pytest.raises(TypeError)),
         (
             "invalid_netcdf_file_missing_confidence",
-            None,
+            {},
+            pytest.raises(ValueError, match="Missing required data variables"),
+        ),
+        # kwargs that change what is loaded
+        (
+            "valid_netcdf_file",
+            {"drop_variables": ["confidence"]},
             pytest.raises(ValueError, match="Missing required data variables"),
         ),
         (
+            "grouped_netcdf_file",
+            {},
+            pytest.raises(ValueError, match="unknown 'ds_type' attribute"),
+        ),
+        ("grouped_netcdf_file", {"group": "poses"}, does_not_raise()),
+        (
             "invalid_dstype_netcdf_file",
-            None,
+            {},
             pytest.raises(ValueError, match="unknown 'ds_type' attribute"),
         ),
         (
             "legacy_dims_netcdf_file",
-            None,
+            {},
             pytest.raises(ValueError, match="legacy dimension names"),
         ),
         (
             "anipose_csv_file",
-            None,
+            {},
             pytest.raises(ValueError, match="Expected file with suffix"),
         ),
     ],
 )
-def test_movement_netcdf_validator(input, engine, expected_context, request):
+def test_movement_netcdf_validator(
+    input, extra_kwargs, expected_context, request
+):
     """Test ValidMovementNetCDF with valid and invalid files, opened
-    with the given xarray engine.
+    with the given ``extra_kwargs``.
     """
     file = request.getfixturevalue(input)
     with expected_context:
-        validated = ValidMovementNetCDF(file=file, engine=engine)
+        validated = ValidMovementNetCDF(file=file, extra_kwargs=extra_kwargs)
         assert validated.file == Path(file)
