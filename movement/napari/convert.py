@@ -30,20 +30,22 @@ def _construct_properties_dataframe(ds: xr.Dataset) -> pd.DataFrame:
     return pd.DataFrame(data).reindex(columns=desired_order)
 
 
-def _construct_track_and_time_cols(
-    ds: xr.Dataset,
-) -> tuple[np.ndarray, np.ndarray]:
-    """Compute napari track_id and time columns from a ``movement`` dataset."""
+def _construct_track_and_time_cols(ds: xr.Dataset) -> np.ndarray:
+    """Compute napari track_id and time columns from a ``movement`` dataset.
+
+    Returns an (N, 2) array with columns (track_id, time), where
+    N is n_individuals * n_keypoints * n_frames.
+    """
     n_frames = ds.sizes["time"]
     n_individuals = ds.sizes["individual"]
     n_keypoints = ds.sizes.get("keypoint", 1)
     n_tracks = n_individuals * n_keypoints
 
     # Each keypoint of each individual is a separate track
-    track_id_col = np.repeat(np.arange(n_tracks), n_frames).reshape(-1, 1)
-    time_col = np.tile(np.arange(n_frames), (n_tracks)).reshape(-1, 1)
+    track_id_col = np.repeat(np.arange(n_tracks), n_frames)
+    time_col = np.tile(np.arange(n_frames), n_tracks)
 
-    return track_id_col, time_col
+    return np.column_stack((track_id_col, time_col))
 
 
 def _validate_ds_for_napari(ds: xr.Dataset) -> None:
@@ -144,7 +146,7 @@ def ds_to_napari_layers(
     """
     _validate_ds_for_napari(ds)
     # Construct the track_ID and time columns for the napari Tracks array
-    track_id_and_time = np.hstack(_construct_track_and_time_cols(ds))
+    track_id_and_time = _construct_track_and_time_cols(ds)
 
     # Order rows by (individual, keypoint, time) to match the track_id and
     # time columns
