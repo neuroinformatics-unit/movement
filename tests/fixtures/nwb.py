@@ -32,7 +32,7 @@ def nwb_file(nwbfile_object, tmp_path):
 def nwbfile_object(rng):
     """Return an NWBFile object containing poses for
     a single individual with three keypoints and the associated
-    skeleton object, as well as a camera device.
+    skeleton object.
     """
 
     def _nwbfile_object(**kwargs):
@@ -55,11 +55,6 @@ def nwbfile_object(rng):
             subject=subject,
         )
         skeletons = Skeletons(skeletons=[skeleton])
-        camera1 = nwb_file_obj.create_device(
-            name="camera1",
-            description="camera for recording behavior",
-            manufacturer="my manufacturer",
-        )
         pose_estimation_series = []
         for keypoint in keypoints:
             pose_estimation_series.append(
@@ -71,12 +66,6 @@ def nwbfile_object(rng):
             description=(
                 "Estimated positions of front paws of subj1 using DeepLabCut."
             ),
-            original_videos=["path/to/camera1.mp4"],
-            labeled_videos=["path/to/camera1_labeled.mp4"],
-            dimensions=np.array(
-                [[640, 480]], dtype="uint16"
-            ),  # pixel dimensions of the video
-            devices=[camera1],
             scorer="DLC_resnet50_openfieldOct30shuffle1_1600",
             source_software="DeepLabCut",
             source_software_version="2.3.8",

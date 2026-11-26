@@ -12,35 +12,41 @@ Use the project name `movement` in lowercase, even at the beginning of a sentenc
 The official graphic assets for `movement` can be found below and on [Zenodo](https://doi.org/10.5281/zenodo.17902182),
 shared under the [CC BY 4.0 license](https://creativecommons.org/licenses/by/4.0/).
 
-::::{grid} 1 1 3 3
+:::::{grid} 1 1 3 3
 :gutter: 1 1 2 2
 
-:::{grid-item-card}
+::::{grid-item-card}
 :columns: 3
 :img-top: ../_static/movement_logo.svg
 Primary logo
-+++
+
+:::{card-footer}
 [SVG](../_static/movement_logo.svg)
 [PNG](../_static/movement_logo.png)
 :::
-:::{grid-item-card}
+::::
+::::{grid-item-card}
 :columns: 3
 :img-top: ../_static/movement_favicon.svg
 Compact logo
-+++
+
+:::{card-footer}
 [SVG](../_static/movement_favicon.svg)
 [PNG](../_static/movement_favicon.png)
 :::
+::::
 
-:::{grid-item-card}
+::::{grid-item-card}
 :columns: 6
 :img-top: ../_static/movement_overview.png
 Overview figure
-+++
+
+:::{card-footer}
 [PNG](../_static/movement_overview.png)
 :::
-
 ::::
+
+:::::
 
 ## Typeface & colours
 

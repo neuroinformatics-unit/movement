@@ -3,7 +3,9 @@
 import numpy as np
 import pytest
 from napari.layers.base import ActionType
+from qtpy.QtWidgets import QApplication
 
+from movement.napari.loader_widgets import DataLoader
 from movement.napari.meta_widget import MovementMetaWidget
 
 
@@ -282,3 +284,60 @@ def test_editing_points_expands_edit_section(
 
     edit()  # A repeat edit should not re-expand the collapsible
     assert expand.call_count == (1 if expect_expanded else 0)
+
+
+@pytest.fixture
+def meta_widget_with_loaded_poses(
+    make_napari_viewer_proxy, valid_poses_path_and_ds, loaded_data_loader
+):
+    """Return a meta widget with a poses dataset loaded, and its layer."""
+    viewer = make_napari_viewer_proxy()
+    meta_widget = MovementMetaWidget(viewer)
+    loader = meta_widget.findChild(DataLoader)
+    filepath, ds = valid_poses_path_and_ds
+    loaded_data_loader(filepath, ds, loader=loader)
+    return meta_widget, loader.points_layer
+
+
+def _remove_point_at_frame(layer, frame):
+    """Remove the first point at ``frame``, as the Delete key would."""
+    layer.selected_data = {int(np.flatnonzero(layer.data[:, 0] == frame)[0])}
+    layer.remove_selected()
+    QApplication.processEvents()  # run the deferred expand, if any
+
+
+def test_first_edit_removal_shown_on_timeline(meta_widget_with_loaded_poses):
+    """A removal is shown even if it is the first edit (issue #1195).
+
+    The timeline widget is only created once the first edit expands the
+    "Edit tracked data" section, after that edit's events have fired.
+    """
+    meta_widget, layer = meta_widget_with_loaded_poses
+    assert meta_widget.edit_timeline_widget is None
+
+    _remove_point_at_frame(layer, 2)  # first edit, creates the timeline
+    _remove_point_at_frame(layer, 4)
+
+    edited_frames = meta_widget.edit_timeline_widget._edited_frames
+    np.testing.assert_array_equal(edited_frames, [2, 4])
+
+
+def test_removal_shown_after_reopening_timeline(
+    meta_widget_with_loaded_poses,
+):
+    """A removal is still shown after the timeline dock is closed and
+    reopened, which creates a new timeline widget.
+    """
+    meta_widget, layer = meta_widget_with_loaded_poses
+    meta_widget._edit_timeline_collapsible.expand()
+    _remove_point_at_frame(layer, 2)
+    np.testing.assert_array_equal(
+        meta_widget.edit_timeline_widget._edited_frames, [2]
+    )
+
+    meta_widget._on_edit_timeline_dock_gone()  # as when closed with its X
+    meta_widget._edit_timeline_collapsible.expand()
+
+    np.testing.assert_array_equal(
+        meta_widget.edit_timeline_widget._edited_frames, [2]
+    )

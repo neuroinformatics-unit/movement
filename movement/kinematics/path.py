@@ -114,12 +114,33 @@ def compute_path_length(
 
     """
     data = _validate_time_points(data, "path length")
-    return _path_length(data, nan_policy, nan_warn_threshold)
+    _warn_about_nan_proportion(data, nan_warn_threshold)
+    if nan_policy == "interpolate":
+        # Forward-fill, which gives the same segment-length sum as linear
+        # interpolation over the gaps.
+        result = _segment_lengths(data.ffill(dim="time")).sum(
+            dim="time", min_count=1
+        )
+    elif nan_policy == "omit":
+        # Sum the lengths of the segments between consecutive valid
+        # positions. Segments touching a NaN are skipped; a track is only
+        # NaN if all its segments are (hence min_count=1).
+        result = _segment_lengths(data).sum(dim="time", min_count=1)
+    else:
+        raise logger.error(
+            ValueError(
+                f"Invalid value for nan_policy: {nan_policy!r}. "
+                "Must be 'interpolate' or 'omit'. Note: 'ffill' was "
+                "renamed to 'interpolate' (identical behaviour)."
+            )
+        )
+    result.name = "path_length"
+    result.attrs["long_name"] = "Path Length"
+    return result
 
 
 def compute_path_straightness(
     data: xr.DataArray,
-    nan_policy: Literal["interpolate", "omit"] = "interpolate",
     nan_warn_threshold: float = 0.2,
 ) -> xr.DataArray:
     r"""Compute the straightness index of a path :math:`(D/L)`.
@@ -127,24 +148,20 @@ def compute_path_straightness(
     The straightness index is the ratio of the Euclidean distance :math:`D`
     between the first and last valid positions of a trajectory to the
     total path length :math:`L`. Values range from 0 to 1, where 1
-    indicates a perfectly straight path and 0 indicates the animal
-    returned to its starting point. Returns NaN if the path length is zero.
+    indicates a perfectly straight path and 0 indicates the individual
+    returned to its starting point. Returns NaN if the path length is zero
+    (e.g. the individual never moves, or there is only one valid position) or
+    if there are no valid positions (e.g. all positions are NaN).
 
     Parameters
     ----------
     data
         The input data containing position information, with ``time``
         and ``space`` (in Cartesian coordinates) as required dimensions.
-    nan_policy
-        Policy for handling NaN (missing) values when computing :math:`L`. By
-        default (``"interpolate"``), a missing segment is assumed to be
-        travelled in a straight line between the two valid positions flanking
-        it. If ``"omit"``, missing segments are instead skipped entirely.
-        See :func:`compute_path_length` for more details on the two policies.
     nan_warn_threshold
         If any point track in the data has at least (:math:`\ge`)
         this proportion of values missing, a warning will be emitted.
-        Defaults to 0.2 (20%). Directly passed to :func:`compute_path_length`.
+        Defaults to 0.2 (20%).
 
     Returns
     -------
@@ -172,8 +189,15 @@ def compute_path_straightness(
     first or last time points do not nullify the result, provided there are
     valid observed positions in between.
 
-    Note that the total path length (L), and therefore the straightness index,
-    is sensitive to the temporal sampling  rate (i.e. frames per second),
+    The total path length :math:`L` is computed as in
+    :func:`compute_path_length` with ``nan_policy="interpolate"``, i.e. each
+    missing segment is assumed to be travelled in a straight line between
+    the two valid positions flanking it. For other ways of filling gaps, use
+    :func:`~movement.filtering.interpolate_over_time` before calling this
+    function.
+
+    Note that the total path length :math:`L`, and therefore the straightness
+    index, is sensitive to the temporal sampling rate (i.e. frames per second),
     as described in the Notes of :func:`compute_path_length`.
 
     Examples
@@ -191,8 +215,10 @@ def compute_path_straightness(
     >>> si = compute_path_straightness(centroid.sel(time=slice(0, 100)))
 
     """
-    data = _validate_time_points(data, "path straightness")
-    path_length = _path_length(data, nan_policy, nan_warn_threshold)
+    # compute_path_length validates the input data
+    path_length = compute_path_length(
+        data, nan_warn_threshold=nan_warn_threshold
+    )
     # Compute D/L ratio, avoiding division by zero
     result = _path_distance(data) / path_length.where(path_length > 0)
     result.name = "straightness_index"
@@ -837,40 +863,6 @@ def _path_distance(data: xr.DataArray) -> xr.DataArray:
         anchored_data.isel(time=-1) - anchored_data.isel(time=0)
     )
     return distance
-
-
-def _path_length(
-    data: xr.DataArray,
-    nan_policy: Literal["interpolate", "omit"],
-    nan_warn_threshold: float,
-) -> xr.DataArray:
-    """Compute path length on already-validated data.
-
-    See :func:`compute_path_length` for parameter details.
-    """
-    _warn_about_nan_proportion(data, nan_warn_threshold)
-    if nan_policy == "interpolate":
-        # Forward-fill, which gives the same segment-length sum as linear
-        # interpolation over the gaps.
-        result = _segment_lengths(data.ffill(dim="time")).sum(
-            dim="time", min_count=1
-        )
-    elif nan_policy == "omit":
-        # Sum the lengths of the segments between consecutive valid
-        # positions. Segments touching a NaN are skipped; a track is only
-        # NaN if all its segments are (hence min_count=1).
-        result = _segment_lengths(data).sum(dim="time", min_count=1)
-    else:
-        raise logger.error(
-            ValueError(
-                f"Invalid value for nan_policy: {nan_policy!r}. "
-                "Must be 'interpolate' or 'omit'. Note: 'ffill' was "
-                "renamed to 'interpolate' (identical behaviour)."
-            )
-        )
-    result.name = "path_length"
-    result.attrs["long_name"] = "Path Length"
-    return result
 
 
 def _warn_about_nan_proportion(

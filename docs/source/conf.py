@@ -271,7 +271,7 @@ myst_url_schemes = {
     "movement-community-calls": "https://neuroinformatics.zulipchat.com/#narrow/channel/406001-Movement/topic/Community.20Calls",
     "movement-releases": "https://neuroinformatics.zulipchat.com/#narrow/channel/406001-Movement/topic/Releases/with/601196586",
     "conda": "https://docs.conda.io/projects/conda/en/latest/{{path}}#{{fragment}}",
-    "dlc": "https://mlabofai.org/deeplabcut/",
+    "dlc": "https://mlabofai.org/deeplabcut.html",
     "gin": "https://gin.g-node.org/{{path}}#{{fragment}}",
     "swc-gin": "https://gin.swc.ucl.ac.uk/{{path}}#{{fragment}}",
     "github-docs": "https://docs.github.com/en/{{path}}#{{fragment}}",
