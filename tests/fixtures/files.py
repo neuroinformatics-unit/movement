@@ -573,18 +573,6 @@ def invalid_netcdf_file_missing_confidence(
 
 
 @pytest.fixture(scope="session")
-def unopenable_netcdf_file(tmp_path_factory):
-    """Create a fake .nc file that is just text, causing
-    xr.open_dataset to fail.
-    """
-    temp_dir = tmp_path_factory.mktemp("invalid_netcdf")
-    invalid_path = temp_dir / "unopenable_file.nc"
-    with open(invalid_path, "w") as f:
-        f.write("This is not a real netCDF file")
-    return str(invalid_path)
-
-
-@pytest.fixture(scope="session")
 def invalid_dstype_netcdf_file(tmp_path_factory, valid_netcdf_file):
     """Create a valid netCDF file but with an invalid 'ds_type' attribute."""
     ds = xr.load_dataset(valid_netcdf_file)
