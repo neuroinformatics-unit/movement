@@ -216,16 +216,31 @@ def _get_validator_kwargs(
     *,
     loader_kwargs: dict,
 ) -> dict:
-    """Extract the relevant kwargs for a given validator class."""
-    # Only extract fields that are used in the validator's __init__
+    """Extract the relevant kwargs for a given validator class.
+
+    Loader kwargs matching the validator's ``__init__`` fields are
+    forwarded to those fields. If the validator also has an
+    ``extra_kwargs`` field, all remaining loader kwargs are collected
+    into it as a dict. This allows loaders to pass ``**kwargs`` through
+    to validators that need them to call an underlying function (e.g.
+    :func:`xarray.open_dataset`).
+    """
     validator_fields = {
         field.name for field in fields(validator_cls) if field.init
     }
-    return {
-        field_name: loader_kwargs[field_name]
-        for field_name in validator_fields
-        if field_name in loader_kwargs
+    named_fields = validator_fields - {"extra_kwargs"}
+    validator_kwargs = {
+        name: value
+        for name, value in loader_kwargs.items()
+        if name in named_fields
     }
+    if "extra_kwargs" in validator_fields:
+        validator_kwargs["extra_kwargs"] = {
+            name: value
+            for name, value in loader_kwargs.items()
+            if name not in named_fields
+        }
+    return validator_kwargs
 
 
 def _build_suffix_map(

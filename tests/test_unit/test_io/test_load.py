@@ -30,6 +30,13 @@ class StubValidFile:
     loader_arg_to_validate: int = field(default=0, validator=validators.ge(0))
 
 
+@define
+class StubValidFileWithExtraKwargs(StubValidFile):
+    """A stub file validator that also collects extra loader kwargs."""
+
+    extra_kwargs: dict = field(factory=dict, kw_only=True)
+
+
 @pytest.mark.parametrize(
     "file_validators, expected_file_type",
     [(None, str), (StubValidFile, StubValidFile)],
@@ -214,15 +221,34 @@ def test_load_multiview_dataset_strict_alignment(
         load.load_multiview_dataset(file_dict, source_software="DeepLabCut")
 
 
-def test_get_validator_kwargs():
+@pytest.mark.parametrize(
+    "validator_cls, expected_validator_kwargs",
+    [
+        (StubValidFile, {"loader_arg_to_validate": 10}),
+        (
+            StubValidFileWithExtraKwargs,
+            {
+                "loader_arg_to_validate": 10,
+                "extra_kwargs": {"extra_arg": "value"},
+            },
+        ),
+    ],
+    ids=["named_fields_only", "with_extra_kwargs"],
+)
+def test_get_validator_kwargs(validator_cls, expected_validator_kwargs):
     """Test _get_validator_kwargs correctly extracts kwargs
     for file validators.
+
+    Kwargs matching named validator fields (``loader_arg_to_validate``)
+    are always forwarded. Remaining kwargs (``extra_arg``) are ignored
+    by ``StubValidFile``, but collected into ``extra_kwargs`` by
+    ``StubValidFileWithExtraKwargs``.
     """
-    loader_kwargs = {"loader_arg_to_validate": 10, "unused_arg": "ignored"}
+    loader_kwargs = {"loader_arg_to_validate": 10, "extra_arg": "value"}
     validator_kwargs = load._get_validator_kwargs(
-        StubValidFile, loader_kwargs=loader_kwargs
+        validator_cls, loader_kwargs=loader_kwargs
     )
-    assert validator_kwargs == {"loader_arg_to_validate": 10}
+    assert validator_kwargs == expected_validator_kwargs
 
 
 def test_build_suffix_map():
