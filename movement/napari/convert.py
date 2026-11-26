@@ -84,7 +84,7 @@ def _validate_ds_for_napari(ds: xr.Dataset) -> None:
                 ValueError(
                     f"Unsupported dimension(s) {extra_dims} in "
                     f"'{var_name}'. Select a single value along each "
-                    f"first, e.g. ds.sel({extra_dims[0]}=...)."
+                    f"dimension first, e.g. ds.sel({extra_dims[0]}=...)."
                 )
             )
 
