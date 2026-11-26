@@ -556,7 +556,7 @@ GUI_UNSUPPORTED_SOURCE_SOFTWARE = {
 
 #### Update the Input/Output guide
 
-Finally, update the [](target-io) guide by adding the new format to the [](target-supported-formats) table and adding a tab with usage examples under [](target-loading-formats).
+Finally, update the [](target-io) guide by adding the new format to the [](target-supported-formats) table and adding a dropdown with usage examples under [](target-format-specific).
 
 ### Implementing new writers
 
@@ -642,7 +642,7 @@ type TargetSoftware = Literal[
 
 #### Update the Input/Output guide
 
-Finally, update the [](target-io) guide by adding the new format to the [](target-supported-formats) table and adding a tab with usage examples under [](target-saving-formats).
+Finally, update the [](target-io) guide by adding the new format to the [](target-supported-formats) table and adding usage examples to the corresponding dropdown under [](target-format-specific).
 
 ### Developing the CLI
 

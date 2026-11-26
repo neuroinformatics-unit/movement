@@ -11,8 +11,8 @@ between various [supported formats](target-supported-formats) and `movement`'s o
 
 Two functions cover most use cases:
 
-- {func}`~movement.io.load.load_dataset` [loads data](target-loading) from any supported format into a `movement` dataset.
-- {func}`~movement.io.save.save_dataset` [saves a `movement` dataset](target-saving) to any supported format.
+- {func}`~movement.io.load.load_dataset` [loads data](target-load-data) from any supported format into a `movement` dataset.
+- {func}`~movement.io.save.save_dataset` [saves a `movement` dataset](target-save-data) to any supported format.
 
 Among the supported formats, `movement`'s native [netCDF](target-netcdf) format preserves all variables and metadata. **This is the recommended way to save your analysis state**, allowing your `movement`-powered workflows to resume exactly where they left off.
 
@@ -23,7 +23,7 @@ You are also welcome to try `movement` by loading some [sample data](target-samp
 
 `movement` supports the analysis of trajectories of keypoints (_pose tracks_) and of bounding box centroids (_bounding box tracks_),
 which are represented as [movement datasets](target-poses-and-bboxes-dataset)
-and can be [loaded from](target-loading) and [saved to](target-saving) the following formats.
+and can be [loaded from](target-load-data) and [saved to](target-save-data) the following formats.
 
 | Software                                                                    | Abbreviation | Format                                                                                                                    | Dataset Type         | Supported Operations |
 | --------------------------------------------------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------- | -------------------- | -------------------- |
@@ -49,8 +49,8 @@ Use {func}`~movement.io.load.get_supported_source_software` and {func}`~movement
 Currently, `movement` focuses on tracked data, i.e. keypoints or bounding boxes whose identities are known from one frame to the next. Loading manually labelled (training) data is not yet supported.
 :::
 
-(target-loading)=
-## Loading data
+(target-load-data)=
+## Load data
 
 The {func}`~movement.io.load.load_dataset` function provides a unified, format-agnostic way to load poses or bounding boxes from any of the [supported formats](target-supported-formats).
 Internally, it dispatches to the appropriate format-specific loading function
@@ -90,30 +90,104 @@ ds = load_dataset(
 ```
 
 Some formats support additional options, which can be passed as keyword arguments to {func}`~movement.io.load.load_dataset` and are forwarded to the format-specific loader
-(see [](target-loading-formats)).
+(see [](target-format-specific)).
 
 :::{note}
 Before reading, the loading functions validate the input file to ensure it has the appropriate suffix and structure for the chosen format. For `movement` netCDF files, this means checking that the file contains a {mod}`valid movement dataset<movement.validators.datasets>` with the required dimensions and data variables. See [Working with netCDF](target-netcdf) if you need to bypass this validation.
 :::
 
-(target-loading-formats)=
-### Format-specific loading
+For more information on the resulting data structure, see the [movement datasets](target-poses-and-bboxes-dataset) page.
 
-The tabs below show the options available for each format, along with the equivalent format-specific loader.
-Some formats also have loaders for in-memory data, such as pandas DataFrames or NumPy arrays.
+(target-load-multiview)=
+### Load multiple views
 
-:::::{tab-set}
-::::{tab-item} movement
+If the same scene was recorded from multiple camera views,
+you can load one file per view and combine them into a single dataset
+with {func}`~movement.io.load.load_multiview_dataset`.
+The resulting dataset has an additional `view` dimension, whose coordinates are the
+view names given as keys of the input dictionary:
+
+```python
+from movement.io import load_multiview_dataset
+
+ds = load_multiview_dataset(
+    {
+        "left": "/path/to/left.h5",
+        "right": "/path/to/right.h5",
+    },
+    source_software="DeepLabCut",
+    fps=30,
+)
+```
+
+All views must share identical `time` coordinates.
+
+(target-save-data)=
+## Save data
+
+The {func}`~movement.io.save.save_dataset` function provides a unified, format-agnostic way to save poses or bounding boxes to any of the [supported formats](target-supported-formats).
+Internally, it dispatches to the appropriate format-specific saving function
+(e.g. those in the {mod}`movement.io.save_poses` and {mod}`movement.io.save_bboxes` modules) based on the `target_software` parameter.
+
+By default, the dataset is saved in `movement`'s native [netCDF](target-netcdf) (`.nc`) format (equivalent to explicitly passing `target_software="movement"`):
+
+```python
+from movement.io import save_dataset
+
+save_dataset(ds, "/path/to/file.nc")
+```
+
+To save to a third-party format instead, set `target_software` explicitly:
+
+```python
+# poses
+save_dataset(ds, "/path/to/file.h5", target_software="DeepLabCut")
+
+# bounding boxes
+save_dataset(ds, "/path/to/file.csv", target_software="VIA-tracks")
+```
+
+Some formats support additional options, which can be passed as keyword arguments to {func}`~movement.io.save.save_dataset` and are forwarded to the format-specific writer
+(see [](target-format-specific)).
+
+:::{note}
+Before writing, the saving functions validate the dataset to ensure it is a {mod}`valid movement dataset<movement.validators.datasets>` with the required dimensions and data variables, and that the file path is writable with the appropriate suffix for the chosen format. See [Working with netCDF](target-netcdf) if you need to bypass this validation.
+:::
+
+(target-format-specific)=
+## Format-specific options
+
+The dropdowns below show the options available for loading from and saving to each format,
+along with the equivalent format-specific loaders and writers.
+Some formats also have functions for in-memory data, such as pandas DataFrames or NumPy arrays.
+
+::::{dropdown} movement
+:name: target-format-movement
+
+**Load** (.nc)
+
 To load a `movement` dataset saved as a [netCDF](target-netcdf) file:
 ```python
 ds = load_dataset("/path/to/file.nc")
 ```
 The `fps` argument is ignored for netCDF files, as the time coordinates are stored in the file.
 Any additional keyword arguments are forwarded to {func}`xarray.load_dataset`.
+
+**Save** (.nc)
+
+To save a `movement` dataset as a [netCDF](target-netcdf) file:
+```python
+save_dataset(ds, "/path/to/file.nc")
+```
+Any additional keyword arguments are forwarded to {meth}`xarray.Dataset.to_netcdf`.
 ::::
 
-::::{tab-item} DeepLabCut
-To load DeepLabCut files in .h5 or .csv format:
+::::{dropdown} DeepLabCut
+:name: target-format-dlc
+
+**Load** (.h5 or .csv)
+
+To load a DeepLabCut .h5 or .csv file:
 ```python
 ds = load_dataset("/path/to/file.h5", source_software="DeepLabCut", fps=30)
 ```
@@ -134,15 +208,45 @@ ds = load_poses.from_dlc_style_df(df, fps=30)
 :::{note}
 In `movement`, pose data can only be loaded if all individuals have the same set of keypoints (i.e., the same labeled body parts). While DeepLabCut supports assigning keypoints that are not shared across individuals (see the [DeepLabCut documentation for multi-animal projects](https://deeplabcut.github.io/DeepLabCut/docs/quick-start/tutorial_maDLC.html)), this feature is not currently supported in `movement`.
 :::
+
+**Save** (.h5 or .csv)
+
+To save as a DeepLabCut .h5 (preferred) or .csv file:
+```python
+save_dataset(ds, "/path/to/file.h5", target_software="DeepLabCut")
+```
+
+By default, multi-animal datasets are saved as a single multi-animal file. To save them as separate single-animal DeepLabCut-style files instead, set `split_individuals=True`:
+```python
+save_dataset(
+    ds,
+    "/path/to/file.h5",
+    target_software="DeepLabCut",
+    split_individuals=True,
+)
+```
+
+This is equivalent to calling {func}`~movement.io.save_poses.to_dlc_file`:
+```python
+from movement.io import save_poses
+
+save_poses.to_dlc_file(ds, "/path/to/file.h5", split_individuals=True)
+```
+
+To convert the dataset to a DeepLabCut-style pandas DataFrame without saving it, use {func}`~movement.io.save_poses.to_dlc_style_df`.
 ::::
 
-::::{tab-item} SLEAP
-To load [SLEAP analysis files](sleap-docs:tutorial/exporting-the-results/#analysis-hdf5) in .h5 format (recommended):
+::::{dropdown} SLEAP
+:name: target-format-sleap
+
+**Load** (.h5 or .slp)
+
+To load a [SLEAP analysis file](sleap-docs:tutorial/exporting-the-results/#analysis-hdf5) in .h5 format (recommended):
 ```python
 ds = load_dataset("/path/to/file.analysis.h5", source_software="SLEAP", fps=30)
 ```
 
-To load SLEAP files in .slp format (experimental, see notes in {func}`~movement.io.load_poses.from_sleap_file`):
+To load a SLEAP file in .slp format (experimental, see notes in {func}`~movement.io.load_poses.from_sleap_file`):
 ```python
 ds = load_dataset(
     "/path/to/file.predictions.slp", source_software="SLEAP", fps=30
@@ -155,10 +259,39 @@ from movement.io import load_poses
 
 ds = load_poses.from_sleap_file("/path/to/file.analysis.h5", fps=30)
 ```
+
+**Save** (analysis .h5)
+
+To save as a SLEAP analysis .h5 file:
+```python
+save_dataset(ds, "/path/to/file.h5", target_software="SLEAP")
+```
+
+This is equivalent to calling {func}`~movement.io.save_poses.to_sleap_analysis_file`:
+```python
+from movement.io import save_poses
+
+save_poses.to_sleap_analysis_file(ds, "/path/to/file.h5")
+```
+When saving to SLEAP-style files, only `track_names`, `node_names`, `tracks`,
+`track_occupancy`, and either `point_scores` or `instance_scores` are saved.
+Point-wise `confidence` is saved as `point_scores`, while individual-wise
+`confidence` is saved as `instance_scores`; the other is filled with NaNs.
+`labels_path` will only be saved if the source
+file of the dataset is a SLEAP .slp file. Otherwise, it will be an empty string.
+Other attributes and data variables
+(e.g. `tracking_scores`, `edge_names`, `video_path`) are not currently supported.
+
+To learn more about what each attribute and data variable represents, see the
+[SLEAP documentation](sleap-docs:api/info/write_tracking_h5/#sleap.info.write_tracking_h5).
 ::::
 
-::::{tab-item} LightningPose
-To load LightningPose files in .csv format:
+::::{dropdown} LightningPose
+:name: target-format-lp
+
+**Load** (.csv)
+
+To load a LightningPose .csv file:
 ```python
 ds = load_dataset("/path/to/file.csv", source_software="LightningPose", fps=30)
 ```
@@ -174,10 +307,34 @@ Because LightningPose follows the DeepLabCut dataframe format, you can also load
 ```python
 ds = load_poses.from_dlc_style_df(df, fps=30, source_software="LightningPose")
 ```
+
+**Save** (.csv)
+
+To save as a LightningPose .csv file:
+```python
+save_dataset(ds, "/path/to/file.csv", target_software="LightningPose")
+```
+
+This is equivalent to calling {func}`~movement.io.save_poses.to_lp_file`:
+```python
+from movement.io import save_poses
+
+save_poses.to_lp_file(ds, "/path/to/file.csv")
+```
+
+Because LightningPose follows the single-animal
+DeepLabCut .csv format, the above is equivalent to:
+```python
+save_poses.to_dlc_file(ds, "/path/to/file.csv", split_individuals=True)
+```
 ::::
 
-::::{tab-item} Anipose
-To load Anipose triangulation files in .csv format, optionally specifying the name of the tracked individual (defaults to `"id_0"`):
+::::{dropdown} Anipose
+:name: target-format-anipose
+
+**Load** (triangulation .csv)
+
+To load an Anipose triangulation file, optionally specifying the name of the tracked individual (defaults to `"id_0"`):
 ```python
 ds = load_dataset(
     "/path/to/file.csv",
@@ -200,10 +357,18 @@ You can also load any pandas DataFrame `df` that's formatted in the Anipose tria
 ```python
 ds = load_poses.from_anipose_style_df(df, fps=30, individual_name="id_0")
 ```
+
+**Save**
+
+Not supported.
 ::::
 
-::::{tab-item} COCO
-To load [COCO keypoint detection results files](coco:format-results) in .json format:
+::::{dropdown} COCO
+:name: target-format-coco
+
+**Load** (.json)
+
+To load a [COCO keypoint detection results file](coco:format-results):
 ```python
 ds = load_dataset("/path/to/results.json", source_software="COCO", fps=30)
 ```
@@ -234,9 +399,17 @@ ds = load_poses.from_coco_file(
 COCO keypoint results do not contain track identities, so when there are multiple animals per frame, individuals may not correspond to the same animal across frames.
 See {func}`~movement.io.load_poses.from_coco_file` for ways to handle this, and for further options such as using image IDs as frame numbers.
 :::
+
+**Save**
+
+Not supported.
 ::::
 
-::::{tab-item} VIA-tracks
+::::{dropdown} VIA-tracks
+:name: target-format-via
+
+**Load** (.csv)
+
 To load bounding box tracks from a [VGG Image Annotator (VIA)](via:) tracks .csv file:
 ```python
 ds = load_dataset("/path/to/file.csv", source_software="VIA-tracks", fps=30)
@@ -263,10 +436,40 @@ ds = load_bboxes.from_via_tracks_file("/path/to/file.csv", fps=30)
 :class: note
 Note that the x,y coordinates in the input VIA tracks .csv file represent the top-left corner of each bounding box. Instead the corresponding `movement` dataset `ds` will hold in its `position` array the centroid of each bounding box.
 :::
+
+**Save** (.csv)
+
+To save bounding box tracks as a [VIA tracks .csv file](via:docs/face_track_annotation.html), so that you can visualise and correct them with the [VGG Image Annotator (VIA-2) software](via:via.html):
+```python
+save_dataset(ds, "/path/to/file.csv", target_software="VIA-tracks")
+```
+
+To set a custom image file extension for the associated video frames:
+```python
+save_dataset(
+    ds,
+    "/path/to/file.csv",
+    target_software="VIA-tracks",
+    image_file_suffix=".jpg",
+)
+```
+
+This is equivalent to calling {func}`~movement.io.save_bboxes.to_via_tracks_file`:
+```python
+from movement.io import save_bboxes
+
+save_bboxes.to_via_tracks_file(ds, "/path/to/file.csv")
+```
+
+By default, the track IDs are derived from the trailing numbers in the individuals' names, but you can also set `track_ids_from_trailing_numbers=False` to assign the track IDs sequentially (0, 1, 2, ...) based on the alphabetically sorted list of individuals.
 ::::
 
-::::{tab-item} NWB
-To load NWB files in .nwb format, optionally specifying which `ProcessingModule` and `PoseEstimation` object to load:
+::::{dropdown} NWB
+:name: target-format-nwb
+
+**Load** (.nwb)
+
+To load an NWB file, optionally specifying which `ProcessingModule` and `PoseEstimation` object to load:
 ```python
 ds = load_dataset(
     "/path/to/file.nwb",
@@ -297,9 +500,37 @@ with pynwb.NWBHDF5IO("/path/to/file.nwb", mode="r") as io:
     nwb_file = io.read()
     ds = load_dataset(nwb_file, source_software="NWB")
 ```
+
+**Save** (.nwb)
+
+To save a poses dataset as NWB file(s):
+```python
+save_dataset(ds, "/path/to/file.nwb", target_software="NWB")
+```
+Since NWB files are designed to represent data from a single individual, multi-individual datasets are saved as one file per individual, with the individual's name appended to the file name (e.g. `file_Alice.nwb`, `file_Bob.nwb`).
+
+Metadata such as session or subject information can be customised by passing a {class}`~movement.io.nwb.NWBFileSaveConfig` object as the `config` argument
+(see the {func}`API reference<movement.io.save_poses.to_nwb_file_object>` for examples).
+
+To add additional data to the NWB files before saving, use {func}`~movement.io.save_poses.to_nwb_file_object` instead.
+This does not write to disk, but returns an {class}`~pynwb.file.NWBFile` object (or a list of them, one per individual) that you can then save with {class}`pynwb.NWBHDF5IO`:
+```python
+from pynwb import NWBHDF5IO
+from movement.io import save_poses
+
+nwb_files = save_poses.to_nwb_file_object(ds)
+
+for file in nwb_files:
+    with NWBHDF5IO(f"{file.identifier}.nwb", "w") as io:
+        io.write(file)
+```
 ::::
 
-::::{tab-item} NumPy
+::::{dropdown} NumPy
+:name: target-format-numpy
+
+**Load**
+
 To build a dataset from NumPy arrays, use the `from_numpy` function of the {mod}`~movement.io.load_poses` or {mod}`~movement.io.load_bboxes` module.
 
 In the example below, we create random position data for two individuals, `Alice` and `Bob`, with three keypoints each: `snout`, `centre`, and `tail_base`. These keypoints are tracked in 2D space for 100 frames, at 30 fps. The confidence scores are set to 1 for all points.
@@ -331,203 +562,20 @@ ds = load_bboxes.from_numpy(
     individual_names=["id_0", "id_1"],
 )
 ```
-::::
-:::::
 
-For more information on the resulting data structure, see the [movement datasets](target-poses-and-bboxes-dataset) page.
+**Save**
 
-(target-loading-multiview)=
-### Loading multiple views
-
-If the same scene was recorded from multiple camera views,
-you can load one file per view and combine them into a single dataset
-with {func}`~movement.io.load.load_multiview_dataset`.
-The resulting dataset has an additional `view` dimension, whose coordinates are the
-view names given as keys of the input dictionary:
-
+Any `movement` DataArray can be exported to a NumPy array with {meth}`xarray.DataArray.to_numpy`:
 ```python
-from movement.io import load_multiview_dataset
-
-ds = load_multiview_dataset(
-    {
-        "left": "/path/to/left.h5",
-        "right": "/path/to/right.h5",
-    },
-    source_software="DeepLabCut",
-    fps=30,
-)
-```
-
-All views must share identical `time` coordinates.
-
-(target-saving)=
-## Saving data
-
-The {func}`~movement.io.save.save_dataset` function provides a unified, format-agnostic way to save poses or bounding boxes to any of the [supported formats](target-supported-formats).
-Internally, it dispatches to the appropriate format-specific saving function
-(e.g. those in the {mod}`movement.io.save_poses` and {mod}`movement.io.save_bboxes` modules) based on the `target_software` parameter.
-
-By default, the dataset is saved in `movement`'s native [netCDF](target-netcdf) (`.nc`) format (equivalent to explicitly passing `target_software="movement"`):
-
-```python
-from movement.io import save_dataset
-
-save_dataset(ds, "/path/to/file.nc")
-```
-
-To save to a third-party format instead, set `target_software` explicitly:
-
-```python
-# poses
-save_dataset(ds, "/path/to/file.h5", target_software="DeepLabCut")
-
-# bounding boxes
-save_dataset(ds, "/path/to/file.csv", target_software="VIA-tracks")
-```
-
-Some formats support additional options, which can be passed as keyword arguments to {func}`~movement.io.save.save_dataset` and are forwarded to the format-specific writer
-(see [](target-saving-formats)).
-
-:::{note}
-Before writing, the saving functions validate the dataset to ensure it is a {mod}`valid movement dataset<movement.validators.datasets>` with the required dimensions and data variables, and that the file path is writable with the appropriate suffix for the chosen format. See [Working with netCDF](target-netcdf) if you need to bypass this validation.
-:::
-
-(target-saving-formats)=
-### Format-specific saving
-
-The tabs below show the options available for each format, along with the equivalent format-specific writer.
-
-:::::{tab-set}
-::::{tab-item} movement
-To save a `movement` dataset as a [netCDF](target-netcdf) file:
-```python
-save_dataset(ds, "/path/to/file.nc")
-```
-Any additional keyword arguments are forwarded to {meth}`xarray.Dataset.to_netcdf`.
-::::
-
-::::{tab-item} DeepLabCut
-To save as a DeepLabCut file, in .h5 (preferred) or .csv format:
-```python
-save_dataset(ds, "/path/to/file.h5", target_software="DeepLabCut")
-```
-
-By default, multi-animal datasets are saved as a single multi-animal file. To save them as separate single-animal DeepLabCut-style files instead, set `split_individuals=True`:
-```python
-save_dataset(
-    ds,
-    "/path/to/file.h5",
-    target_software="DeepLabCut",
-    split_individuals=True,
-)
-```
-
-This is equivalent to calling {func}`~movement.io.save_poses.to_dlc_file`:
-```python
-from movement.io import save_poses
-
-save_poses.to_dlc_file(ds, "/path/to/file.h5", split_individuals=True)
-```
-
-To convert the dataset to a DeepLabCut-style pandas DataFrame without saving it, use {func}`~movement.io.save_poses.to_dlc_style_df`.
-::::
-
-::::{tab-item} SLEAP
-To save as a SLEAP analysis file in .h5 format:
-```python
-save_dataset(ds, "/path/to/file.h5", target_software="SLEAP")
-```
-
-This is equivalent to calling {func}`~movement.io.save_poses.to_sleap_analysis_file`:
-```python
-from movement.io import save_poses
-
-save_poses.to_sleap_analysis_file(ds, "/path/to/file.h5")
-```
-When saving to SLEAP-style files, only `track_names`, `node_names`, `tracks`,
-`track_occupancy`, and either `point_scores` or `instance_scores` are saved.
-Point-wise `confidence` is saved as `point_scores`, while individual-wise
-`confidence` is saved as `instance_scores`; the other is filled with NaNs.
-`labels_path` will only be saved if the source
-file of the dataset is a SLEAP .slp file. Otherwise, it will be an empty string.
-Other attributes and data variables
-(e.g. `tracking_scores`, `edge_names`, `video_path`) are not currently supported.
-
-To learn more about what each attribute and data variable represents, see the
-[SLEAP documentation](sleap-docs:api/info/write_tracking_h5/#sleap.info.write_tracking_h5).
-::::
-
-::::{tab-item} LightningPose
-To save as a LightningPose file in .csv format:
-```python
-save_dataset(ds, "/path/to/file.csv", target_software="LightningPose")
-```
-
-This is equivalent to calling {func}`~movement.io.save_poses.to_lp_file`:
-```python
-from movement.io import save_poses
-
-save_poses.to_lp_file(ds, "/path/to/file.csv")
-```
-
-Because LightningPose follows the single-animal
-DeepLabCut .csv format, the above is equivalent to:
-```python
-save_poses.to_dlc_file(ds, "/path/to/file.csv", split_individuals=True)
+position_array = ds.position.to_numpy()
 ```
 ::::
 
-::::{tab-item} VIA-tracks
-To save bounding box tracks as a [VIA tracks .csv file](via:docs/face_track_annotation.html), so that you can visualise and correct them with the [VGG Image Annotator (VIA-2) software](via:via.html):
-```python
-save_dataset(ds, "/path/to/file.csv", target_software="VIA-tracks")
-```
+::::{dropdown} Custom .csv
+:name: target-format-csv
 
-To set a custom image file extension for the associated video frames:
-```python
-save_dataset(
-    ds,
-    "/path/to/file.csv",
-    target_software="VIA-tracks",
-    image_file_suffix=".jpg",
-)
-```
+**Save** (.csv)
 
-This is equivalent to calling {func}`~movement.io.save_bboxes.to_via_tracks_file`:
-```python
-from movement.io import save_bboxes
-
-save_bboxes.to_via_tracks_file(ds, "/path/to/file.csv")
-```
-
-By default, the track IDs are derived from the trailing numbers in the individuals' names, but you can also set `track_ids_from_trailing_numbers=False` to assign the track IDs sequentially (0, 1, 2, ...) based on the alphabetically sorted list of individuals.
-::::
-
-::::{tab-item} NWB
-To save a poses dataset as NWB file(s) in .nwb format:
-```python
-save_dataset(ds, "/path/to/file.nwb", target_software="NWB")
-```
-Since NWB files are designed to represent data from a single individual, multi-individual datasets are saved as one file per individual, with the individual's name appended to the file name (e.g. `file_Alice.nwb`, `file_Bob.nwb`).
-
-Metadata such as session or subject information can be customised by passing a {class}`~movement.io.nwb.NWBFileSaveConfig` object as the `config` argument
-(see the {func}`API reference<movement.io.save_poses.to_nwb_file_object>` for examples).
-
-To add additional data to the NWB files before saving, use {func}`~movement.io.save_poses.to_nwb_file_object` instead.
-This does not write to disk, but returns an {class}`~pynwb.file.NWBFile` object (or a list of them, one per individual) that you can then save with {class}`pynwb.NWBHDF5IO`:
-```python
-from pynwb import NWBHDF5IO
-from movement.io import save_poses
-
-nwb_files = save_poses.to_nwb_file_object(ds)
-
-for file in nwb_files:
-    with NWBHDF5IO(f"{file.identifier}.nwb", "w") as io:
-        io.write(file)
-```
-::::
-
-::::{tab-item} Custom .csv
 You can also save the tracks to a .csv file with a custom header using the standard Python library `csv`.
 Below is an example of how you can export a `movement` bounding boxes dataset this way:
 ```python
@@ -564,7 +612,6 @@ with open(filepath, mode="w", newline="") as file:
 If you prefer to work with `pandas`, you can alternatively convert the `movement` dataset to a `pandas` DataFrame with the {meth}`xarray.Dataset.to_dataframe` method, wrangle the dataframe as required, and then apply the {meth}`pandas.DataFrame.to_csv` method to save the data as a .csv file.
 :::
 ::::
-:::::
 
 (target-netcdf)=
 ## Working with netCDF
@@ -580,7 +627,7 @@ including all variables, coordinates, and attributes.
 Below is an example of how you may integrate netCDF into your
 `movement`-powered workflows, using {func}`~movement.io.load.load_dataset`
 and {func}`~movement.io.save.save_dataset`
-(see the `movement` tabs under [](target-loading-formats) and [](target-saving-formats)):
+(see [](target-format-movement)):
 
 ```python
 from movement.io import load_dataset, save_dataset
@@ -610,7 +657,7 @@ If so, make sure to save them to a netCDF file that satisfies the
 [GUI compatibility requirements](target-gui-compatible-netcdf).
 :::
 
-### Skipping validation
+### Skip validation
 
 If you prefer to skip `movement`-specific validation (e.g. for an arbitrary, non-`movement`-specific dataset),
 you can use xarray's native [I/O methods](xarray:user-guide/io.html),
