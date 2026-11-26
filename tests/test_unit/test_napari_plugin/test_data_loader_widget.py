@@ -477,17 +477,32 @@ def test_fps_handling_on_load(
 
 
 @pytest.mark.parametrize(
-    "fixture_name, source_software",
+    "fixture_name, source_software, expected_message",
     [
-        ("invalid_dstype_netcdf_file", "movement"),
-        ("legacy_dims_netcdf_file", "movement"),
-        ("valid_netcdf_file_3d", "movement"),
-        ("valid_netcdf_file_multiview", "movement"),
-        ("wrong_extension_file", "DeepLabCut"),
+        # load_dataset rejects the file (validator-specific failures are
+        # covered in the validator tests)
+        (
+            "wrong_extension_file",
+            "DeepLabCut",
+            "Unsupported format for 'DeepLabCut'",
+        ),
+        # File loads, but the dataset cannot be shown as napari layers
+        ("valid_netcdf_file_3d", "movement", "Only 2D data"),
+        (
+            "valid_netcdf_file_multiview",
+            "movement",
+            "Unsupported dimension(s) ['view']",
+        ),
     ],
+    ids=["load-fails", "3d-data", "multiview-data"],
 )
 def test_on_load_clicked_with_invalid_file(
-    make_napari_viewer_proxy, mocker, fixture_name, source_software, request
+    make_napari_viewer_proxy,
+    mocker,
+    fixture_name,
+    source_software,
+    expected_message,
+    request,
 ):
     """Test that errors from loading invalid files, or files that cannot be
     shown as napari layers (e.g. 3D or multi-view), are shown to the user
@@ -502,9 +517,9 @@ def test_on_load_clicked_with_invalid_file(
     data_loader_widget._on_load_clicked()
 
     mock_show_error.assert_called_once()
-    assert mock_show_error.call_args.args[0].startswith(
-        "Failed to load dataset"
-    )
+    error_message = mock_show_error.call_args.args[0]
+    assert error_message.startswith("Failed to load dataset")
+    assert expected_message in error_message
     assert len(viewer.layers) == 0
 
 
