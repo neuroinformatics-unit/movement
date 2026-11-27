@@ -306,6 +306,7 @@ intersphinx_mapping = {
     "attrs": ("https://www.attrs.org/en/stable/", None),
     "shapely": ("https://shapely.readthedocs.io/en/stable/", None),
     "napari": ("https://napari.org/stable/", None),
+    "pynapple": ("https://pynapple.org/", None),
 }
 
 # What to show on the 404 page

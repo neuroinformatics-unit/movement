@@ -115,7 +115,7 @@ def to_pynapple_tsdframe(da: xr.DataArray) -> nap.TsdFrame:
     **Column names and metadata.**
     If the ``keypoint`` and/or ``space`` dimensions are present, column
     names are derived from their labels (e.g. ``snout_x``, ``snout`` or
-    ``x``; see the first example). If ``time`` is the only dimension, the
+    ``x``). If ``time`` is the only dimension, the
     DataArray's name is used instead (e.g. ``speed``), falling back to
     ``Unnamed`` if it has no name. To choose the name yourself, rename the
     DataArray before converting it:
@@ -137,19 +137,18 @@ def to_pynapple_tsdframe(da: xr.DataArray) -> nap.TsdFrame:
     ...        ...       ...    ...
     =========  ========  =====  ==========
 
-    Printing a TsdFrame shows only the first two metadata fields, but the
-    others (here ``individual``) are still there. Access the whole table
-    via ``tsdframe.metadata``, or a single field as an attribute
-    (e.g. ``tsdframe.keypoint``). Columns can be selected by metadata as
-    well as by name (see Examples).
+    You can access the whole metadata table via ``tsdframe.metadata``,
+    or a single field as an attribute (e.g. ``tsdframe.keypoint``).
+    Columns can be selected by metadata as  well as by name (see Examples).
 
     **Missing values.** NaNs are kept as they are, even though they are
     not supported by all ``pynapple`` functions. Most notably,
-    ``pynapple.compute_tuning_curves`` raises an error if the features
-    contain NaNs and no ``range`` is given. To avoid this, either fill
-    gaps with :func:`movement.filtering.interpolate_over_time` before
-    converting, or use ``dropna()`` on the desired TsdFrame columns
-    afterwards:
+    :func:`~pynapple.process.tuning_curves.compute_tuning_curves` raises
+    an error if the features contain NaNs and no ``range`` is given. To
+    avoid this, either fill gaps with
+    :func:`~movement.filtering.interpolate_over_time` before converting,
+    or use :meth:`~pynapple.TsdFrame.dropna` on the desired TsdFrame
+    columns afterwards:
 
     >>> nose = tsdframe[["snout_x", "snout_y"]].dropna()
 
