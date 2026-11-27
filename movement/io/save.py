@@ -190,16 +190,18 @@ def save_dataset(
         The ``movement`` dataset to save.
     file
         Path to the file to save the dataset to. The required file extension
-        depends on the target format.
+        depends on ``target_software``.
     target_software
-        The format to save the dataset in. Defaults to ``"movement"``,
-        which saves the dataset in ``movement``'s native netCDF format
-        (``.nc``). Otherwise, one of the
-        :ref:`supported third-party formats <target-supported-formats>`.
+        The format to save the dataset in, one of the
+        :ref:`supported formats <target-supported-formats>`.
+        Defaults to ``"movement"``, which saves the dataset in
+        ``movement``'s native netCDF format (``.nc``).
+        Use :func:`get_supported_target_software` to list all registered
+        target software names and their supported file suffixes.
     **kwargs
         Additional keyword arguments passed to the format-specific writer
-        (e.g. ``split_individuals`` for DeepLabCut, ``config`` for NWB, or any
-        :meth:`xarray.Dataset.to_netcdf` argument for movement-netCDF).
+        in :mod:`movement.io.save_poses` or :mod:`movement.io.save_bboxes`,
+        or to :meth:`xarray.Dataset.to_netcdf` for ``movement`` netCDF files.
 
     Returns
     -------
@@ -216,8 +218,7 @@ def save_dataset(
 
     See Also
     --------
-    movement.io.save_poses
-    movement.io.save_bboxes
+    movement.io.load.load_dataset : Load a ``movement`` dataset from a file.
 
     Notes
     -----

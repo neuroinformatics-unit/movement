@@ -113,7 +113,7 @@ def test_source_software_combo_items(make_napari_viewer_proxy):
     items = {combo.itemText(i) for i in range(combo.count())}
     expected = (
         set(get_supported_source_software()) - GUI_UNSUPPORTED_SOURCE_SOFTWARE
-    ) | {"movement (netCDF)"}
+    )
     assert items == expected
 
 
@@ -130,7 +130,7 @@ def test_source_software_combo_connected_to_handler(
     # Resetting the mock
     mock_method.reset_mock()
 
-    netcdf_text = "movement (netCDF)"
+    netcdf_text = "movement"
     data_loader_widget.source_software_combo.setCurrentText(netcdf_text)
     mock_method.assert_called_once_with(netcdf_text)
 
@@ -178,7 +178,7 @@ def test_on_layer_added_and_deleted(
 @pytest.mark.parametrize(
     "choice, fps_enabled, tooltip_contains",
     [
-        ("movement (netCDF)", False, "netCDF file attributes"),
+        ("movement", False, "read directly \nfrom the file"),
         ("SLEAP", True, "Set the frames per second"),
         ("DeepLabCut", True, "Set the frames per second"),
     ],
@@ -248,7 +248,7 @@ def test_on_browse_clicked(file_path, make_napari_viewer_proxy, mocker):
         ("LightningPose", "*.csv"),
         ("VIA-tracks", "*.csv"),
         ("COCO", "*.json"),
-        ("movement (netCDF)", "*.nc"),
+        ("movement", "*.nc"),
     ],
 )
 def test_on_browse_clicked_file_filters(
@@ -321,13 +321,13 @@ def test_on_load_clicked_without_file_path(make_napari_viewer_proxy, capsys):
         ),  # three individuals, one keypoint
         (
             "MOVE_two-mice_octagon.analysis.nc",
-            "movement (netCDF)",
+            "movement",
             (126000, 4),
             False,
         ),
         (
             "MOVE_single-crab_MOCA-crab-1_linear-interp.nc",
-            "movement (netCDF)",
+            "movement",
             (168, 4),
             True,
         ),
@@ -428,7 +428,7 @@ def test_on_load_clicked_with_valid_file_path(
         # For netCDF files, fps should be read from file metadata
         (
             "MOVE_two-mice_octagon.analysis.nc",
-            "movement (netCDF)",
+            "movement",
             1.0,
             50.0,  # fps from file overwrites set_fps
         ),
@@ -477,47 +477,50 @@ def test_fps_handling_on_load(
 
 
 @pytest.mark.parametrize(
-    "fixture_name, expected_error_message",
+    "fixture_name, source_software, expected_message",
     [
+        # load_dataset rejects the file (validator-specific failures are
+        # covered in the validator tests)
         (
-            "invalid_netcdf_file_missing_confidence",
-            "does not appear to be a valid movement poses dataset",
+            "wrong_extension_file",
+            "DeepLabCut",
+            "Unsupported format for 'DeepLabCut'",
         ),
+        # File loads, but the dataset cannot be shown as napari layers
+        ("valid_netcdf_file_3d", "movement", "Only 2D data"),
         (
-            "unopenable_netcdf_file",
-            "Error opening netCDF file",
-        ),
-        (
-            "invalid_dstype_netcdf_file",
-            "unknown 'ds_type' attribute",
+            "valid_netcdf_file_multiview",
+            "movement",
+            "Unsupported dimension(s) ['view']",
         ),
     ],
-    ids=["missing_confidence", "unopenable", "invalid_ds_type"],
+    ids=["load-fails", "3d-data", "multiview-data"],
 )
-def test_on_load_clicked_with_invalid_netcdf(
+def test_on_load_clicked_with_invalid_file(
     make_napari_viewer_proxy,
     mocker,
     fixture_name,
-    expected_error_message,
+    source_software,
+    expected_message,
     request,
 ):
-    """Test that show_error is called when loading invalid netCDF files."""
-    data_loader_widget = DataLoader(make_napari_viewer_proxy())
-
+    """Test that errors from loading invalid files, or files that cannot be
+    shown as napari layers (e.g. 3D or multi-view), are shown to the user
+    and no layers are added.
+    """
+    viewer = make_napari_viewer_proxy()
+    data_loader_widget = DataLoader(viewer)
     mock_show_error = mocker.patch("movement.napari.loader_widgets.show_error")
-
-    # Get the fixture value dynamically
     file_path = request.getfixturevalue(fixture_name)
-
-    data_loader_widget.file_path_edit.setText(file_path)
-    data_loader_widget.source_software_combo.setCurrentText(
-        "movement (netCDF)"
-    )
+    data_loader_widget.file_path_edit.setText(str(file_path))
+    data_loader_widget.source_software_combo.setCurrentText(source_software)
     data_loader_widget._on_load_clicked()
 
     mock_show_error.assert_called_once()
-    call_args = mock_show_error.call_args[0][0]
-    assert expected_error_message in call_args
+    error_message = mock_show_error.call_args.args[0]
+    assert error_message.startswith("Failed to load dataset")
+    assert expected_message in error_message
+    assert len(viewer.layers) == 0
 
 
 # ------------------- tests for dimension slider ----------------------------#
@@ -1362,7 +1365,7 @@ def test_add_points_layer_shows_edited_symbol_for_previously_edited_points(
     requiring a fresh drag in this session.
     """
     ds = valid_poses_dataset.copy(deep=True)
-    ds.attrs["source_software"] = "movement (netCDF)"
+    ds.attrs["source_software"] = "movement"
     ds["edited"] = xr.full_like(ds["confidence"], False, dtype=bool)
     ds["edited"].loc[
         {"individual": "id_0", "keypoint": "centroid", "time": 0}
@@ -1373,7 +1376,7 @@ def test_add_points_layer_shows_edited_symbol_for_previously_edited_points(
 
     loader = DataLoader(make_napari_viewer_proxy())
     loader.file_path_edit.setText(str(file_path))
-    loader.source_software_combo.setCurrentText("movement (netCDF)")
+    loader.source_software_combo.setCurrentText("movement")
     loader._on_load_clicked()
 
     edited = loader.points_layer.properties["edited"]

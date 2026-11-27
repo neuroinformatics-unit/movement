@@ -7,6 +7,7 @@ import pandas as pd
 import xarray as xr
 
 from movement.utils.logging import logger
+from movement.validators.datasets import DS_TYPE_VALIDATORS
 
 
 def _construct_properties_dataframe(ds: xr.Dataset) -> pd.DataFrame:
@@ -29,20 +30,72 @@ def _construct_properties_dataframe(ds: xr.Dataset) -> pd.DataFrame:
     return pd.DataFrame(data).reindex(columns=desired_order)
 
 
-def _construct_track_and_time_cols(
-    ds: xr.Dataset,
-) -> tuple[np.ndarray, np.ndarray]:
-    """Compute napari track_id and time columns from a ``movement`` dataset."""
+def _construct_track_and_time_cols(ds: xr.Dataset) -> np.ndarray:
+    """Compute napari track_id and time columns from a ``movement`` dataset.
+
+    Returns an (N, 2) array with columns (track_id, time), where
+    N is n_individuals * n_keypoints * n_frames.
+    """
     n_frames = ds.sizes["time"]
     n_individuals = ds.sizes["individual"]
     n_keypoints = ds.sizes.get("keypoint", 1)
     n_tracks = n_individuals * n_keypoints
 
     # Each keypoint of each individual is a separate track
-    track_id_col = np.repeat(np.arange(n_tracks), n_frames).reshape(-1, 1)
-    time_col = np.tile(np.arange(n_frames), (n_tracks)).reshape(-1, 1)
+    track_id_col = np.repeat(np.arange(n_tracks), n_frames)
+    time_col = np.tile(np.arange(n_frames), n_tracks)
 
-    return track_id_col, time_col
+    return np.column_stack((track_id_col, time_col))
+
+
+def _validate_ds_for_napari(ds: xr.Dataset) -> None:
+    """Check that a ``movement`` dataset can be shown as napari layers.
+
+    The dataset must be 2D, with ``space`` coordinates ``x`` and ``y``.
+    The variables used for the napari layers (``position``, ``shape``,
+    ``confidence`` and ``edited``) must not have dimensions beyond
+    ``time``, ``space``, ``individual`` and (for poses) ``keypoint``.
+    Other data variables and dimensions used by them are ignored.
+
+    Raises
+    ------
+    ValueError
+        If the dataset is not 2D or the variables used for the napari
+        layers have extra dimensions (e.g. ``view`` in multi-view data).
+
+    """
+    space_coords = ds.space.values.tolist()
+    if set(space_coords) != {"x", "y"}:
+        raise logger.error(
+            ValueError(
+                "Only 2D data with 'space' coordinates ['x', 'y'] is "
+                f"supported, but got {space_coords}."
+            )
+        )
+    validator = DS_TYPE_VALIDATORS[ds.ds_type]
+    for var_name in (*validator.VAR_NAMES, "edited"):
+        if var_name not in ds:
+            continue
+        extra_dims = [
+            dim for dim in ds[var_name].dims if dim not in validator.DIM_NAMES
+        ]
+        if extra_dims:
+            raise logger.error(
+                ValueError(
+                    f"Unsupported dimension(s) {extra_dims} in "
+                    f"'{var_name}'. Select a single value along each "
+                    f"dimension first, e.g. ds.sel({extra_dims[0]}=...)."
+                )
+            )
+
+
+def _flatten_to_yx(da: xr.DataArray, row_dims: tuple[str, ...]) -> np.ndarray:
+    """Flatten a spatial DataArray into an (N, 2) array of (y, x) coords."""
+    return (
+        da.sel(space=["y", "x"])
+        .transpose(*row_dims, "space")
+        .values.reshape(-1, 2)
+    )
 
 
 def ds_to_napari_layers(
@@ -91,72 +144,44 @@ def ds_to_napari_layers(
     .. [2] https://napari.org/stable/howtos/layers/points.html
 
     """
+    _validate_ds_for_napari(ds)
     # Construct the track_ID and time columns for the napari Tracks array
-    track_id_col, time_col = _construct_track_and_time_cols(ds)
+    track_id_and_time = _construct_track_and_time_cols(ds)
 
-    # Reorder axes to (individual, keypoint, frames, xy)
-    axes_reordering: tuple[int, ...] = (2, 0, 1)
+    # Order rows by (individual, keypoint, time) to match the track_id and
+    # time columns
+    row_dims: tuple[str, ...] = ("individual", "time")
     if "keypoint" in ds.coords:
-        axes_reordering = (3,) + axes_reordering
-    yx_cols = np.transpose(
-        ds.position.values,  # from: frames, xy, keypoint, individual
-        axes_reordering,  # to: individual, keypoint, frames, xy
-    ).reshape(-1, 2)[:, [1, 0]]  # swap x and y columns
+        row_dims = ("individual", "keypoint", "time")
+    yx_cols = _flatten_to_yx(ds.position, row_dims)
 
-    points_as_napari = np.hstack((track_id_col, time_col, yx_cols))
+    points_as_napari = np.hstack((track_id_and_time, yx_cols))
     bboxes_as_napari = None
 
     # Construct the napari Shapes array if the input dataset is a
     # bounding boxes one
     if ds.ds_type == "bboxes":
-        # Compute bbox corners
-        xmin_ymin = ds.position - (ds.shape / 2)
-        xmax_ymax = ds.position + (ds.shape / 2)
-
-        # initialise xmax, ymin corner as xmin, ymin
-        xmax_ymin = xmin_ymin.copy()
-        # overwrite its x coordinate to xmax
-        xmax_ymin.loc[{"space": "x"}] = xmax_ymax.loc[{"space": "x"}]
-
-        # initialise xmin, ymin corner as xmin, ymin
-        xmin_ymax = xmin_ymin.copy()
-        # overwrite its y coordinate to ymax
-        xmin_ymax.loc[{"space": "y"}] = xmax_ymax.loc[{"space": "y"}]
-
-        # Add track_id and time columns to each corner array
-        corner_arrays_with_track_id_and_time = [
-            np.c_[
-                track_id_col,
-                time_col,
-                np.transpose(corner.values, axes_reordering).reshape(-1, 2),
-            ]
-            for corner in [xmin_ymin, xmin_ymax, xmax_ymax, xmax_ymin]
-        ]
-
-        # Concatenate corner arrays along columns
-        corners_array = np.concatenate(
-            corner_arrays_with_track_id_and_time, axis=1
+        # Corners as centre +/- half the bbox size, in (y, x) order
+        # and counterclockwise from xmin_ymin in image coordinates:
+        # xmin_ymin, xmin_ymax, xmax_ymax, xmax_ymin
+        half_size = _flatten_to_yx(ds.shape, row_dims) / 2
+        corner_signs = np.array(
+            [[-1, -1], [1, -1], [1, 1], [-1, 1]], dtype=half_size.dtype
+        )
+        corners = (
+            yx_cols[:, np.newaxis] + corner_signs * half_size[:, np.newaxis]
+        )  # (N, 4, 2)
+        # Repeat the track_id and time columns for each corner
+        corner_track_id_and_time = np.broadcast_to(
+            track_id_and_time[:, np.newaxis], (len(corners), 4, 2)
+        )
+        # last dimension: track_id, time, y, x
+        bboxes_as_napari = np.concatenate(
+            (corner_track_id_and_time, corners), axis=-1
         )
 
-        # Reshape to napari expected format
-        # goes through corners counterclockwise from xmin_ymin
-        # in image coordinates
-        corners_array = corners_array.reshape(
-            -1, 4, 4
-        )  # last dimension: track_id, time, x, y
-        bboxes_as_napari = corners_array[
-            :, :, [0, 1, 3, 2]
-        ]  # swap x and y columns
-
     # Construct the properties DataFrame
-    # Stack individual, time and keypoint (if present) dimensions
-    # into a new single dimension named "tracks"
-    dimensions_to_stack: tuple[str, ...] = ("individual", "time")
-    if "keypoint" in ds.coords:
-        dimensions_to_stack += ("keypoint",)  # add last
-    ds_ = ds.stack(tracks=sorted(dimensions_to_stack))
-
-    properties = _construct_properties_dataframe(ds_)
+    properties = _construct_properties_dataframe(ds.stack(tracks=row_dims))
 
     return points_as_napari, bboxes_as_napari, properties
 

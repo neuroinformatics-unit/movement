@@ -13,7 +13,6 @@ from unittest.mock import mock_open, patch
 
 import h5py
 import pytest
-import xarray as xr
 from sleap_io.io.slp import read_labels, write_labels
 from sleap_io.model.labels import LabeledFrame, Labels
 
@@ -551,49 +550,63 @@ def anipose_csv_file():
 
 
 # ---------------- netCDF file fixtures ----------------------------
-@pytest.fixture(scope="session")
+@pytest.fixture
 def valid_netcdf_file():
     """Return the path to a valid netCDF file."""
     return pytest.DATA_PATHS.get("MOVE_two-mice_octagon.analysis.nc")
 
 
-@pytest.fixture(scope="session")
-def invalid_netcdf_file_missing_confidence(
-    tmp_path_factory, valid_netcdf_file
-):
+@pytest.fixture
+def invalid_netcdf_file_missing_confidence(tmp_path, valid_poses_dataset):
     """Create an invalid 'poses' netCDF file missing the
     'confidence' variable.
     """
-    ds = xr.open_dataset(valid_netcdf_file)
-    del ds["confidence"]
-
-    temp_dir = tmp_path_factory.mktemp("invalid_netcdf")
-    invalid_path = temp_dir / "invalid_file_missing_confidence.nc"
-    ds.to_netcdf(invalid_path)
-    yield str(invalid_path)
+    file_path = tmp_path / "invalid_file_missing_confidence.nc"
+    valid_poses_dataset.drop_vars("confidence").to_netcdf(file_path)
+    return str(file_path)
 
 
-@pytest.fixture(scope="session")
-def unopenable_netcdf_file(tmp_path_factory):
-    """Create a fake .nc file that is just text, causing
-    xr.open_dataset to fail.
-    """
-    temp_dir = tmp_path_factory.mktemp("invalid_netcdf")
-    invalid_path = temp_dir / "unopenable_file.nc"
-    with open(invalid_path, "w") as f:
-        f.write("This is not a real netCDF file")
-    yield str(invalid_path)
-
-
-@pytest.fixture(scope="session")
-def invalid_dstype_netcdf_file(tmp_path_factory, valid_netcdf_file):
+@pytest.fixture
+def invalid_dstype_netcdf_file(tmp_path, valid_poses_dataset):
     """Create a valid netCDF file but with an invalid 'ds_type' attribute."""
-    ds = xr.open_dataset(valid_netcdf_file)
+    ds = valid_poses_dataset.assign_attrs(ds_type="not_a_valid_type")
+    file_path = tmp_path / "invalid_dstype_file.nc"
+    ds.to_netcdf(file_path)
+    return str(file_path)
 
-    ds.attrs["ds_type"] = "not_a_valid_type"
 
-    temp_dir = tmp_path_factory.mktemp("invalid_netcdf")
-    invalid_path = temp_dir / "invalid_dstype_file.nc"
-    ds.to_netcdf(invalid_path)
+@pytest.fixture
+def grouped_netcdf_file(tmp_path, valid_poses_dataset):
+    """Create a netCDF file with 'poses' group containing a valid dataset."""
+    file_path = tmp_path / "grouped_file.nc"
+    valid_poses_dataset.to_netcdf(file_path, group="poses")
+    return str(file_path)
 
-    yield str(invalid_path)
+
+@pytest.fixture
+def legacy_dims_netcdf_file(tmp_path, valid_poses_dataset):
+    """Create a netCDF file with the plural dimension names used by
+    movement < 0.17.0 ("keypoints", "individuals").
+    """
+    ds = valid_poses_dataset.rename(
+        {"keypoint": "keypoints", "individual": "individuals"}
+    )
+    file_path = tmp_path / "legacy_dims_file.nc"
+    ds.to_netcdf(file_path)
+    return str(file_path)
+
+
+@pytest.fixture
+def valid_netcdf_file_3d(tmp_path, valid_poses_dataset_3d):
+    """Create a valid netCDF file containing a 3D poses dataset."""
+    file_path = tmp_path / "poses_3d.nc"
+    valid_poses_dataset_3d.to_netcdf(file_path)
+    return str(file_path)
+
+
+@pytest.fixture
+def valid_netcdf_file_multiview(tmp_path, valid_poses_dataset_multiview):
+    """Create a valid netCDF file containing a multi-view poses dataset."""
+    file_path = tmp_path / "poses_multiview.nc"
+    valid_poses_dataset_multiview.to_netcdf(file_path)
+    return str(file_path)

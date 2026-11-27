@@ -30,6 +30,13 @@ class StubValidFile:
     loader_arg_to_validate: int = field(default=0, validator=validators.ge(0))
 
 
+@define
+class StubValidFileWithExtraKwargs(StubValidFile):
+    """A stub file validator that also collects extra loader kwargs."""
+
+    extra_kwargs: dict = field(factory=dict, kw_only=True)
+
+
 @pytest.mark.parametrize(
     "file_validators, expected_file_type",
     [(None, str), (StubValidFile, StubValidFile)],
@@ -65,6 +72,7 @@ def test_register_loader_decorator(
         ("Anipose", "movement.io.load_poses.from_anipose_file"),
         ("NWB", "movement.io.load_poses.from_nwb_file"),
         ("VIA-tracks", "movement.io.load_bboxes.from_via_tracks_file"),
+        ("movement", "movement.io.load._from_netcdf_file"),
         ("Unknown", None),
     ],
 )
@@ -73,7 +81,7 @@ def test_load_dataset_delegates_correctly(
     source_software, loader_fn, fps, mocker
 ):
     """Test load_dataset delegates to the correct loader function
-    according to the source_software.
+    according to the source_software, forwarding any additional kwargs.
     """
     if source_software == "Unknown":
         with pytest.raises(ValueError, match="Unsupported source") as e:
@@ -85,33 +93,59 @@ def test_load_dataset_delegates_correctly(
             load._LOADER_REGISTRY,
             {source_software: load._LoaderEntry(mock_loader)},
         )
-        if source_software == "NWB" and fps is not None:
+        kwargs = {"extra_kwarg": "value"}
+        if (
+            source_software in load.FPS_FROM_FILE_SOURCE_SOFTWARE
+            and fps is not None
+        ):
             with pytest.warns(UserWarning, match="fps argument is ignored"):
-                load.load_dataset("some_file", source_software, fps)
+                load.load_dataset("some_file", source_software, fps, **kwargs)
         else:
-            load.load_dataset("some_file", source_software, fps)
+            load.load_dataset("some_file", source_software, fps, **kwargs)
         expected_call_args = (
-            ("some_file", fps) if source_software != "NWB" else ("some_file",)
+            ("some_file", fps)
+            if source_software not in load.FPS_FROM_FILE_SOURCE_SOFTWARE
+            else ("some_file",)
         )
-        mock_loader.assert_called_with(*expected_call_args)
+        mock_loader.assert_called_with(*expected_call_args, **kwargs)
 
 
 @pytest.mark.parametrize(
     "file_fixture, source_software, params, expected_context",
     [
+        ("via_tracks_csv", "VIA-tracks", {"fps": 30}, does_not_raise()),
+        ("sleap_slp_file", "SLEAP", {"fps": 30}, does_not_raise()),
+        ("dlc_h5_file", "DeepLabCut", {"fps": 30}, does_not_raise()),
+        ("lp_csv_file", "LightningPose", {"fps": 30}, does_not_raise()),
         (
-            "via_tracks_csv",
-            "VIA-tracks",
+            "anipose_csv_file",
+            "Anipose",
+            {"fps": 30, "individual_name": "mouse"},
+            does_not_raise(),
+        ),
+        (
+            "coco_keypoint_results_file_valid",
+            "COCO",
             {
                 "fps": 30,
+                "category_as_track": True,
                 "use_frame_numbers_from_file": True,
-                "frame_regexp": r"(0\d*)\.\w+$",
             },
             does_not_raise(),
         ),
-        ("sleap_slp_file", "SLEAP", None, does_not_raise()),
-        ("dlc_h5_file", "DeepLabCut", None, does_not_raise()),
-        ("anipose_csv_file", "Anipose", None, does_not_raise()),
+        ("valid_netcdf_file", "movement", None, does_not_raise()),
+        (
+            "valid_netcdf_file",
+            "movement",
+            {"drop_variables": ["confidence"]},
+            pytest.raises(ValueError, match="Missing required data variables"),
+        ),
+        (
+            "grouped_netcdf_file",
+            "movement",
+            {"group": "poses"},
+            does_not_raise(),
+        ),
         ("nwbfile_object", "NWB", None, does_not_raise()),
         (
             "dlc_csv_file",
@@ -126,17 +160,21 @@ def test_load_dataset(
 ):
     """Test load_dataset with real files (from various source software)
     and parameters.
+
+    The result are expected to be identical to calling the format-specific
+    loader directly with the same parameters. This checks that the parameters
+    are forwarded to it.
     """
     file_path = request.getfixturevalue(file_fixture)
     if file_fixture.startswith("nwb"):
         file_path = file_path()  # NWB fixture is a callable
+    params = params or {}
     with expected_context:
-        ds = load.load_dataset(
-            file_path,
-            source_software,
-            **(params or {}),
+        ds = load.load_dataset(file_path, source_software, **params)
+        expected_ds = load._LOADER_REGISTRY[source_software].loader(
+            file_path, **params
         )
-        assert isinstance(ds, xr.Dataset)
+        xr.testing.assert_identical(ds, expected_ds)
 
 
 @pytest.mark.parametrize(
@@ -189,15 +227,34 @@ def test_load_multiview_dataset_strict_alignment(
         load.load_multiview_dataset(file_dict, source_software="DeepLabCut")
 
 
-def test_get_validator_kwargs():
+@pytest.mark.parametrize(
+    "validator_cls, expected_validator_kwargs",
+    [
+        (StubValidFile, {"loader_arg_to_validate": 10}),
+        (
+            StubValidFileWithExtraKwargs,
+            {
+                "loader_arg_to_validate": 10,
+                "extra_kwargs": {"extra_arg": "value"},
+            },
+        ),
+    ],
+    ids=["named_fields_only", "with_extra_kwargs"],
+)
+def test_get_validator_kwargs(validator_cls, expected_validator_kwargs):
     """Test _get_validator_kwargs correctly extracts kwargs
     for file validators.
+
+    Kwargs matching named validator fields (``loader_arg_to_validate``)
+    are always forwarded. Remaining kwargs (``extra_arg``) are ignored
+    by ``StubValidFile``, but collected into ``extra_kwargs`` by
+    ``StubValidFileWithExtraKwargs``.
     """
-    loader_kwargs = {"loader_arg_to_validate": 10, "unused_arg": "ignored"}
+    loader_kwargs = {"loader_arg_to_validate": 10, "extra_arg": "value"}
     validator_kwargs = load._get_validator_kwargs(
-        StubValidFile, loader_kwargs=loader_kwargs
+        validator_cls, loader_kwargs=loader_kwargs
     )
-    assert validator_kwargs == {"loader_arg_to_validate": 10}
+    assert validator_kwargs == expected_validator_kwargs
 
 
 def test_build_suffix_map():
@@ -239,15 +296,15 @@ def test_infer_source_software(
 
 
 def test_infer_source_software_raises_for_unsupported_format(
-    valid_netcdf_file,
+    wrong_extension_file,
 ):
     """Test inference fails for a file format not supported by load_dataset.
 
-    Here we use a valid netCDF file, which is not one of our supported
+    Here we use a txt file, which is not one of our supported
     third-party formats, and hence doesn't have a corresponding file validator.
     """
     with pytest.raises(ValueError, match="Could not infer source_software"):
-        load.infer_source_software(valid_netcdf_file)
+        load.infer_source_software(wrong_extension_file)
 
 
 @pytest.mark.parametrize(

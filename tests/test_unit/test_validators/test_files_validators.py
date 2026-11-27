@@ -16,6 +16,7 @@ from movement.validators.files import (
     ValidCOCOKeypointResults,
     ValidDeepLabCutCSV,
     ValidDeepLabCutH5,
+    ValidMovementNetCDF,
     ValidNWBFile,
     ValidROICollectionGeoJSON,
     ValidSleapAnalysis,
@@ -915,3 +916,56 @@ def test_coco_annotations_validator_invalid_categories(
     file = coco_keypoint_annotations_file(categories)
     with pytest.raises(ValueError, match=match):
         ValidCOCOKeypointAnnotations(file=file)
+
+
+@pytest.mark.parametrize(
+    "input, extra_kwargs, expected_context",
+    [
+        ("valid_netcdf_file", {}, does_not_raise()),
+        ("valid_netcdf_file", {"engine": "h5netcdf"}, does_not_raise()),
+        # scipy does not read the HDF5-based netCDF4 test file
+        ("valid_netcdf_file", {"engine": "scipy"}, pytest.raises(TypeError)),
+        (
+            "invalid_netcdf_file_missing_confidence",
+            {},
+            pytest.raises(ValueError, match="Missing required data variables"),
+        ),
+        # kwargs that change what is loaded
+        (
+            "valid_netcdf_file",
+            {"drop_variables": ["confidence"]},
+            pytest.raises(ValueError, match="Missing required data variables"),
+        ),
+        (
+            "grouped_netcdf_file",
+            {},
+            pytest.raises(ValueError, match="unknown 'ds_type' attribute"),
+        ),
+        ("grouped_netcdf_file", {"group": "poses"}, does_not_raise()),
+        (
+            "invalid_dstype_netcdf_file",
+            {},
+            pytest.raises(ValueError, match="unknown 'ds_type' attribute"),
+        ),
+        (
+            "legacy_dims_netcdf_file",
+            {},
+            pytest.raises(ValueError, match="legacy dimension names"),
+        ),
+        (
+            "anipose_csv_file",
+            {},
+            pytest.raises(ValueError, match="Expected file with suffix"),
+        ),
+    ],
+)
+def test_movement_netcdf_validator(
+    input, extra_kwargs, expected_context, request
+):
+    """Test ValidMovementNetCDF with valid and invalid files, opened
+    with the given ``extra_kwargs``.
+    """
+    file = request.getfixturevalue(input)
+    with expected_context:
+        validated = ValidMovementNetCDF(file=file, extra_kwargs=extra_kwargs)
+        assert validated.file == Path(file)

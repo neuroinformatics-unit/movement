@@ -5,6 +5,7 @@ import pandas as pd
 import pytest
 import xarray as xr
 
+from movement.io import load_poses
 from movement.validators.datasets import ValidBboxesInputs, ValidPosesInputs
 
 
@@ -155,6 +156,22 @@ def valid_bboxes_dataset_with_nan(valid_bboxes_dataset):
     for var in valid_bboxes_dataset.data_vars:
         valid_bboxes_dataset[var].loc[nan_selection] = np.nan
     return valid_bboxes_dataset
+
+
+@pytest.fixture
+def valid_bboxes_dataset_transposed(valid_bboxes_dataset):
+    """Return a valid bboxes dataset with dimensions reordered to
+    ``(individual, time, space)``.
+    """
+    return valid_bboxes_dataset.transpose("individual", "time", "space")
+
+
+@pytest.fixture
+def valid_bboxes_dataset_yx_swapped(valid_bboxes_dataset):
+    """Return a valid bboxes dataset with ``space`` coordinates reordered
+    to ``["y", "x"]``.
+    """
+    return valid_bboxes_dataset.sel(space=["y", "x"])
 
 
 # -------------------- Valid poses datasets and arrays --------------------
@@ -328,6 +345,35 @@ def valid_poses_dataset_with_individual_wise_confidence(valid_poses_dataset):
 
 
 @pytest.fixture
+def valid_poses_dataset_multiview(valid_poses_dataset):
+    """Return a valid multi-view poses dataset by stacking two
+    copies of ``valid_poses_dataset``.
+    """
+    return xr.concat(
+        [valid_poses_dataset, valid_poses_dataset],
+        dim=pd.Index(["cam0", "cam1"], name="view"),
+    )
+
+
+@pytest.fixture
+def valid_poses_dataset_transposed(valid_poses_dataset):
+    """Return a valid poses dataset with dimensions reordered to
+    ``(individual, time, space, keypoint)``.
+    """
+    return valid_poses_dataset.transpose(
+        "individual", "time", "space", "keypoint"
+    )
+
+
+@pytest.fixture
+def valid_poses_dataset_yx_swapped(valid_poses_dataset):
+    """Return a valid poses dataset with ``space`` coordinates reordered
+    to ``["y", "x"]``.
+    """
+    return valid_poses_dataset.sel(space=["y", "x"])
+
+
+@pytest.fixture
 def valid_dlc_poses_df():
     """Return a valid DLC-style poses DataFrame."""
     return pd.read_hdf(pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5"))
@@ -349,6 +395,12 @@ def valid_dlc_3d_poses_df(valid_dlc_poses_df):
         cols, names=valid_dlc_poses_df.columns.names
     )
     return valid_dlc_poses_df
+
+
+@pytest.fixture
+def valid_poses_dataset_3d(valid_dlc_3d_poses_df):
+    """Return a 3D poses dataset built from a mock DLC-style DataFrame."""
+    return load_poses.from_dlc_style_df(valid_dlc_3d_poses_df)
 
 
 # -------------------- Invalid bboxes datasets --------------------
