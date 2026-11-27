@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=175edb20"></script>
+    <script src="../_static/documentation_options.js?v=b3265f39"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.18.1.dev6</p>
+    <p class="title logo__title">movement v0.18.1.dev7</p>
   
 </a></div>
     
@@ -630,6 +630,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidDeepLabCutCSV.html">ValidDeepLabCutCSV</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidDeepLabCutH5.html">ValidDeepLabCutH5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidFile.html">ValidFile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidMovementNetCDF.html">ValidMovementNetCDF</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidNWBFile.html">ValidNWBFile</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidROICollectionGeoJSON.html">ValidROICollectionGeoJSON</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidSleapAnalysis.html">ValidSleapAnalysis</a></li>
@@ -711,14 +712,16 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ds</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.9.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a></span>) – The <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset to save.</p></li>
 <li><p><strong>file</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span>) – Path to the file to save the dataset to. The required file extension
-depends on the target format.</p></li>
-<li><p><strong>target_software</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<span class="highlight sphinx_autodoc_typehints-value"><code class="docutils literal notranslate"><span class="s1"><span class="pre">'movement'</span></span></code></span>, <span class="highlight sphinx_autodoc_typehints-value"><code class="docutils literal notranslate"><span class="s1"><span class="pre">'DeepLabCut'</span></span></code></span>, <span class="highlight sphinx_autodoc_typehints-value"><code class="docutils literal notranslate"><span class="s1"><span class="pre">'SLEAP'</span></span></code></span>, <span class="highlight sphinx_autodoc_typehints-value"><code class="docutils literal notranslate"><span class="s1"><span class="pre">'LightningPose'</span></span></code></span>, <span class="highlight sphinx_autodoc_typehints-value"><code class="docutils literal notranslate"><span class="s1"><span class="pre">'NWB'</span></span></code></span>, <span class="highlight sphinx_autodoc_typehints-value"><code class="docutils literal notranslate"><span class="s1"><span class="pre">'VIA-tracks'</span></span></code></span>]</span>) – The format to save the dataset in. Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;movement&quot;</span></code>,
-which saves the dataset in <code class="docutils literal notranslate"><span class="pre">movement</span></code>’s native netCDF format
-(<code class="docutils literal notranslate"><span class="pre">.nc</span></code>). Otherwise, one of the
-<a class="reference internal" href="../user_guide/input_output.html#target-supported-formats"><span class="std std-ref">supported third-party formats</span></a>.</p></li>
+depends on <code class="docutils literal notranslate"><span class="pre">target_software</span></code>.</p></li>
+<li><p><strong>target_software</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<span class="highlight sphinx_autodoc_typehints-value"><code class="docutils literal notranslate"><span class="s1"><span class="pre">'movement'</span></span></code></span>, <span class="highlight sphinx_autodoc_typehints-value"><code class="docutils literal notranslate"><span class="s1"><span class="pre">'DeepLabCut'</span></span></code></span>, <span class="highlight sphinx_autodoc_typehints-value"><code class="docutils literal notranslate"><span class="s1"><span class="pre">'SLEAP'</span></span></code></span>, <span class="highlight sphinx_autodoc_typehints-value"><code class="docutils literal notranslate"><span class="s1"><span class="pre">'LightningPose'</span></span></code></span>, <span class="highlight sphinx_autodoc_typehints-value"><code class="docutils literal notranslate"><span class="s1"><span class="pre">'NWB'</span></span></code></span>, <span class="highlight sphinx_autodoc_typehints-value"><code class="docutils literal notranslate"><span class="s1"><span class="pre">'VIA-tracks'</span></span></code></span>]</span>) – The format to save the dataset in, one of the
+<a class="reference internal" href="../user_guide/input_output.html#target-supported-formats"><span class="std std-ref">supported formats</span></a>.
+Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;movement&quot;</span></code>, which saves the dataset in
+<code class="docutils literal notranslate"><span class="pre">movement</span></code>’s native netCDF format (<code class="docutils literal notranslate"><span class="pre">.nc</span></code>).
+Use <a class="reference internal" href="movement.io.save.get_supported_target_software.html#movement.io.save.get_supported_target_software" title="movement.io.save.get_supported_target_software"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_supported_target_software()</span></code></a> to list all registered
+target software names and their supported file suffixes.</p></li>
 <li><p><strong>**kwargs</strong> – Additional keyword arguments passed to the format-specific writer
-(e.g. <code class="docutils literal notranslate"><span class="pre">split_individuals</span></code> for DeepLabCut, <code class="docutils literal notranslate"><span class="pre">config</span></code> for NWB, or any
-<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.to_netcdf.html#xarray.Dataset.to_netcdf" title="(in xarray v2026.9.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.to_netcdf()</span></code></a> argument for movement-netCDF).</p></li>
+in <a class="reference internal" href="movement.io.save_poses.html#module-movement.io.save_poses" title="movement.io.save_poses"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.save_poses</span></code></a> or <a class="reference internal" href="movement.io.save_bboxes.html#module-movement.io.save_bboxes" title="movement.io.save_bboxes"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.save_bboxes</span></code></a>,
+or to <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.to_netcdf.html#xarray.Dataset.to_netcdf" title="(in xarray v2026.9.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.to_netcdf()</span></code></a> for <code class="docutils literal notranslate"><span class="pre">movement</span></code> netCDF files.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -735,7 +738,10 @@ which saves the dataset in <code class="docutils literal notranslate"><span clas
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><a class="reference internal" href="movement.io.save_poses.html#module-movement.io.save_poses" title="movement.io.save_poses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.save_poses</span></code></a>, <a class="reference internal" href="movement.io.save_bboxes.html#module-movement.io.save_bboxes" title="movement.io.save_bboxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.save_bboxes</span></code></a></p>
+<dl class="simple">
+<dt><a class="reference internal" href="movement.io.load.load_dataset.html#movement.io.load.load_dataset" title="movement.io.load.load_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.load.load_dataset</span></code></a></dt><dd><p>Load a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset from a file.</p>
+</dd>
+</dl>
 </div>
 <p class="rubric">Notes</p>
 <p>For NWB, each individual is written to a separate file (as required by the

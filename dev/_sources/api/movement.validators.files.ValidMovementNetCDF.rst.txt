@@ -1,0 +1,23 @@
+ValidMovementNetCDF
+===================
+
+.. currentmodule:: movement.validators.files
+
+.. autoclass:: ValidMovementNetCDF
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   
+
+   
+   
+   
+   
+
+   
+   
+
+.. minigallery:: movement.validators.files.ValidMovementNetCDF
+   :add-heading: Examples using ``ValidMovementNetCDF``

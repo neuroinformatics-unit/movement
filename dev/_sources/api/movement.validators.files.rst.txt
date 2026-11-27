@@ -26,6 +26,8 @@
     
     ValidFile
     
+    ValidMovementNetCDF
+    
     ValidNWBFile
     
     ValidROICollectionGeoJSON

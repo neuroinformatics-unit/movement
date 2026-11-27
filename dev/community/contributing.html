@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=175edb20"></script>
+    <script src="../_static/documentation_options.js?v=b3265f39"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.18.1.dev6</p>
+    <p class="title logo__title">movement v0.18.1.dev7</p>
   
 </a></div>
     
@@ -899,7 +899,21 @@ The <code class="docutils literal notranslate"><span class="pre">file</span></co
 <h5>Implement format-specific validation<a class="headerlink" href="#implement-format-specific-validation" title="Link to this heading">#</a></h5>
 <p>Most formats often require custom validation logic beyond basic file checks.
 In the current example, the <code class="docutils literal notranslate"><span class="pre">_file_contains_expected_header</span></code> method uses the <code class="docutils literal notranslate"><span class="pre">file</span></code> attribute’s validator method as a decorator (<code class="docutils literal notranslate"><span class="pre">&#64;file.validator</span></code>) to check that the first line of the CSV file matches the expected header row for MySoftware output files.</p>
-<div class="admonition seealso">
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header sd-bg-success sd-bg-text-success">
+<span class="sd-summary-icon"><svg version="1.1" width="1.0em" height="1.0em" class="sd-octicon sd-octicon-light-bulb" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"></path></svg></span><span class="sd-summary-text">Passing loader arguments to the validator</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text">If validation depends on arguments passed to the loader, declare them as fields on the validator class.
+The <a class="reference internal" href="../api/movement.io.load.register_loader.html#movement.io.load.register_loader" title="movement.io.load.register_loader"><code class="xref py py-func docutils literal notranslate"><span class="pre">&#64;register_loader()</span></code></a> decorator forwards any loader keyword argument whose name matches an <code class="docutils literal notranslate"><span class="pre">__init__</span></code> field of the selected validator.
+For example, <a class="reference internal" href="../api/movement.validators.files.ValidVIATracksCSV.html#movement.validators.files.ValidVIATracksCSV" title="movement.validators.files.ValidVIATracksCSV"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValidVIATracksCSV</span></code></a> declares a <code class="docutils literal notranslate"><span class="pre">frame_regexp</span></code> field, so <code class="docutils literal notranslate"><span class="pre">frame_regexp</span></code> passed to the VIA-tracks loader is also used during validation.</p>
+<p class="sd-card-text">Validators may occasionally need to call a function that accepts arbitrary keyword arguments.
+For these, declare an <code class="docutils literal notranslate"><span class="pre">extra_kwargs</span></code> field on the validator: the decorator collects <em>all</em> loader keyword arguments that do not match a named field into it as a dict, which the validator can then forward to that function.
+<a class="reference internal" href="../api/movement.validators.files.ValidMovementNetCDF.html#movement.validators.files.ValidMovementNetCDF" title="movement.validators.files.ValidMovementNetCDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValidMovementNetCDF</span></code></a> follows this pattern, passing <code class="docutils literal notranslate"><span class="pre">extra_kwargs</span></code> to <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.open_dataset.html#xarray.open_dataset" title="(in xarray v2026.9.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">xarray.open_dataset()</span></code></a> so that arguments like <code class="docutils literal notranslate"><span class="pre">group</span></code> or <code class="docutils literal notranslate"><span class="pre">drop_variables</span></code> are taken into account during validation.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">extra_kwargs</span></code> also receives any keyword arguments the loader handles itself, so make sure unsupported arguments are handled: either rely on the function to reject them (e.g. <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.open_dataset.html#xarray.open_dataset" title="(in xarray v2026.9.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">xarray.open_dataset()</span></code></a> raises a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code>), or check them explicitly in the validator.</p>
+</div>
+</div>
+</details><div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://www.attrs.org/en/stable/examples.html" title="(in attrs v26.1)"><span>attrs by Example</span></a>: Overview of writing <code class="docutils literal notranslate"><span class="pre">attrs</span></code> classes.</p></li>
@@ -1027,7 +1041,7 @@ file path and <code class="docutils literal notranslate"><span class="pre">fps</
 </section>
 <section id="update-the-input-output-guide">
 <span id="update-the-inputoutput-guide"></span><h4>Update the Input/Output guide<a class="headerlink" href="#update-the-input-output-guide" title="Link to this heading">#</a></h4>
-<p>Finally, update the <a class="reference internal" href="../user_guide/input_output.html#target-io"><span class="std std-ref">Input/Output</span></a> guide by adding the new format to the <a class="reference internal" href="../user_guide/input_output.html#target-supported-formats"><span class="std std-ref">Supported third-party formats</span></a> table and documenting it in the <a class="reference internal" href="../user_guide/input_output.html#target-loading-pose-tracks"><span class="std std-ref">Loading pose tracks</span></a> and/or <a class="reference internal" href="../user_guide/input_output.html#target-loading-bbox-tracks"><span class="std std-ref">Loading bounding box tracks</span></a> section(s) with usage examples.</p>
+<p>Finally, update the <a class="reference internal" href="../user_guide/input_output.html#target-io"><span class="std std-ref">Input/Output</span></a> guide by adding the new format to the <a class="reference internal" href="../user_guide/input_output.html#target-supported-formats"><span class="std std-ref">Supported formats</span></a> table and adding a dropdown with usage examples under <a class="reference internal" href="../user_guide/input_output.html#target-format-specific"><span class="std std-ref">Format-specific options</span></a>.</p>
 </section>
 </section>
 <section id="implementing-new-writers">
@@ -1105,7 +1119,7 @@ When adding a new writer, update this type alias to include the new software nam
 </section>
 <section id="id1">
 <span id="update-the-inputoutput-guide-1"></span><h4>Update the Input/Output guide<a class="headerlink" href="#id1" title="Link to this heading">#</a></h4>
-<p>Finally, update the <a class="reference internal" href="../user_guide/input_output.html#target-io"><span class="std std-ref">Input/Output</span></a> guide by adding the new format to the <a class="reference internal" href="../user_guide/input_output.html#target-supported-formats"><span class="std std-ref">Supported third-party formats</span></a> table and documenting it in the <a class="reference internal" href="../user_guide/input_output.html#target-saving-pose-tracks"><span class="std std-ref">Saving pose tracks</span></a> and/or <a class="reference internal" href="../user_guide/input_output.html#target-saving-bboxes-tracks"><span class="std std-ref">Saving bounding box tracks</span></a> section(s) with usage examples.</p>
+<p>Finally, update the <a class="reference internal" href="../user_guide/input_output.html#target-io"><span class="std std-ref">Input/Output</span></a> guide by adding the new format to the <a class="reference internal" href="../user_guide/input_output.html#target-supported-formats"><span class="std std-ref">Supported formats</span></a> table and adding usage examples to the corresponding dropdown under <a class="reference internal" href="../user_guide/input_output.html#target-format-specific"><span class="std std-ref">Format-specific options</span></a>.</p>
 </section>
 </section>
 <section id="developing-the-cli">

@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=175edb20"></script>
+    <script src="../_static/documentation_options.js?v=b3265f39"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.18.1.dev6</p>
+    <p class="title logo__title">movement v0.18.1.dev7</p>
   
 </a></div>
     
@@ -612,7 +612,7 @@ or from a <a class="reference internal" href="input_output.html#target-netcdf"><
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
 <summary class="sd-summary-title sd-card-header sd-bg-info sd-bg-text-info">
 <span class="sd-summary-icon"><svg version="1.1" width="1.0em" height="1.0em" class="sd-octicon sd-octicon-info" viewBox="0 0 16 16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg></span><span class="sd-summary-text">netCDF files compatible with the GUI</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<p class="sd-card-text" id="target-gui-compatible-netcdf">Only netCDF files that store a valid
+<p class="sd-card-text" id="target-gui-compatible-netcdf">Only netCDF files that store a valid, 2D, single-view
 <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement dataset</span></a> can be opened in the GUI.
 Practically, this means:</p>
 <ul class="simple">
@@ -620,10 +620,14 @@ Practically, this means:</p>
 <li><p>The data variables, dimensions, and coordinates must satisfy the
 <a class="reference internal" href="movement_dataset.html#target-dataset-structure"><span class="std std-ref">dataset structure requirements</span></a> for that <code class="docutils literal notranslate"><span class="pre">ds_type</span></code>.
 For example, a <code class="docutils literal notranslate"><span class="pre">poses</span></code> dataset must provide both <code class="docutils literal notranslate"><span class="pre">position</span></code> and <code class="docutils literal notranslate"><span class="pre">confidence</span></code>.</p></li>
+<li><p>The data must be 2D, i.e. the <code class="docutils literal notranslate"><span class="pre">space</span></code> coordinates must be <code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code>.</p></li>
+<li><p>The required data variables (<code class="docutils literal notranslate"><span class="pre">position</span></code>, <code class="docutils literal notranslate"><span class="pre">confidence</span></code>, and <code class="docutils literal notranslate"><span class="pre">shape</span></code>
+for <code class="docutils literal notranslate"><span class="pre">bboxes</span></code>) must only have the dimensions <code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">space</span></code>, <code class="docutils literal notranslate"><span class="pre">individual</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">keypoint</span></code> for <code class="docutils literal notranslate"><span class="pre">poses</span></code>.</p></li>
 </ul>
 <p class="sd-card-text">Below is a small example showing how to save a GUI-compatible
 netCDF file with <code class="docutils literal notranslate"><span class="pre">movement</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dataset</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dataset</span><span class="p">,</span> <span class="n">save_dataset</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.filtering</span><span class="w"> </span><span class="kn">import</span> <span class="n">rolling_filter</span>
 
 <span class="n">ds_orig</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span>
@@ -640,7 +644,7 @@ netCDF file with <code class="docutils literal notranslate"><span class="pre">mo
 <span class="p">)</span>
 
 <span class="c1"># Save the processed dataset to a netCDF file</span>
-<span class="n">ds_new</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="s2">"my_data_processed.nc"</span><span class="p">)</span>
+<span class="n">save_dataset</span><span class="p">(</span><span class="n">ds_new</span><span class="p">,</span> <span class="s2">"my_data_processed.nc"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p class="sd-card-text">Because <code class="docutils literal notranslate"><span class="pre">ds_new</span></code> is copied from the original dataset, it retains all required
@@ -649,9 +653,9 @@ after processing, as expected.</p>
 </div>
 </details><p>To load tracked data in <code class="docutils literal notranslate"><span class="pre">napari</span></code>:</p>
 <ol class="arabic simple">
-<li><p>From the <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">software</span></code> dropdown menu select the name of the tracking software you used to generate the data (e.g. “DeepLabCut”), or choose “movement (netCDF)”.</p></li>
+<li><p>From the <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">software</span></code> dropdown menu select the name of the tracking software you used to generate the data (e.g. “DeepLabCut”), or choose “movement” if you are loading a <code class="docutils literal notranslate"><span class="pre">movement</span></code> netCDF file.</p></li>
 <li><p>Set the <code class="docutils literal notranslate"><span class="pre">fps</span></code> (frames per second) of the video the data refers to. This only changes the time units shown when you hover over a keypoint. An unknown <code class="docutils literal notranslate"><span class="pre">fps</span></code> can be set to <code class="docutils literal notranslate"><span class="pre">1</span></code>, which makes the displayed time equal to the frame index.
-The <code class="docutils literal notranslate"><span class="pre">fps</span></code> option is disabled when loading a netCDF file because the <code class="docutils literal notranslate"><span class="pre">fps</span></code> is directly read from the file’s attributes.</p></li>
+The <code class="docutils literal notranslate"><span class="pre">fps</span></code> option is disabled when loading a <code class="docutils literal notranslate"><span class="pre">movement</span></code> netCDF file, because the <code class="docutils literal notranslate"><span class="pre">fps</span></code> is read from the file’s attributes and shown in the box once the file is loaded.</p></li>
 <li><p>Specify the file containing the tracked data. You can paste the path to the file directly in the text box, or click <code class="docutils literal notranslate"><span class="pre">Browse</span></code> to use the file browser.</p></li>
 <li><p>Click <code class="docutils literal notranslate"><span class="pre">Load</span></code>.</p></li>
 </ol>
@@ -923,12 +927,18 @@ is kept, with <code class="docutils literal notranslate"><span class="pre">NaN</
 <p>To resume editing later, <a class="reference internal" href="#target-load-tracked-data"><span class="std std-ref">load</span></a> the saved
 <code class="docutils literal notranslate"><span class="pre">.nc</span></code> file in the GUI: all previous edits are restored, so you can pick
 up exactly where you left off.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Only the data variables listed above are saved. Any other data variables in
+the loaded file (e.g. derived quantities such as speed) are not carried over.
+To avoid losing them, save to a new file rather than overwriting the original.</p>
+</div>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>Because the edits are saved in the <code class="docutils literal notranslate"><span class="pre">edited</span></code> variable, you can use them in
 your analysis, for example to report how many keypoints were corrected by
 hand, or to compare results with and without the corrected frames.
-See <a class="reference internal" href="input_output.html#target-netcdf"><span class="std std-ref">Native saving and loading with netCDF</span></a> for how to load the file in Python.</p>
+See <a class="reference internal" href="input_output.html#target-netcdf"><span class="std std-ref">Working with netCDF</span></a> for how to load the file in Python.</p>
 </div>
 </section>
 </section>

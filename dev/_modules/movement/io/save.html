@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=175edb20"></script>
+    <script src="../../../_static/documentation_options.js?v=b3265f39"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -142,7 +142,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.18.1.dev6</p>
+    <p class="title logo__title">movement v0.18.1.dev7</p>
   
 </a></div>
     
@@ -684,16 +684,18 @@
 <span class="sd">        The ``movement`` dataset to save.</span>
 <span class="sd">    file</span>
 <span class="sd">        Path to the file to save the dataset to. The required file extension</span>
-<span class="sd">        depends on the target format.</span>
+<span class="sd">        depends on ``target_software``.</span>
 <span class="sd">    target_software</span>
-<span class="sd">        The format to save the dataset in. Defaults to ``"movement"``,</span>
-<span class="sd">        which saves the dataset in ``movement``'s native netCDF format</span>
-<span class="sd">        (``.nc``). Otherwise, one of the</span>
-<span class="sd">        :ref:`supported third-party formats &lt;target-supported-formats&gt;`.</span>
+<span class="sd">        The format to save the dataset in, one of the</span>
+<span class="sd">        :ref:`supported formats &lt;target-supported-formats&gt;`.</span>
+<span class="sd">        Defaults to ``"movement"``, which saves the dataset in</span>
+<span class="sd">        ``movement``'s native netCDF format (``.nc``).</span>
+<span class="sd">        Use :func:`get_supported_target_software` to list all registered</span>
+<span class="sd">        target software names and their supported file suffixes.</span>
 <span class="sd">    **kwargs</span>
 <span class="sd">        Additional keyword arguments passed to the format-specific writer</span>
-<span class="sd">        (e.g. ``split_individuals`` for DeepLabCut, ``config`` for NWB, or any</span>
-<span class="sd">        :meth:`xarray.Dataset.to_netcdf` argument for movement-netCDF).</span>
+<span class="sd">        in :mod:`movement.io.save_poses` or :mod:`movement.io.save_bboxes`,</span>
+<span class="sd">        or to :meth:`xarray.Dataset.to_netcdf` for ``movement`` netCDF files.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -710,8 +712,7 @@
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
-<span class="sd">    movement.io.save_poses</span>
-<span class="sd">    movement.io.save_bboxes</span>
+<span class="sd">    movement.io.load.load_dataset : Load a ``movement`` dataset from a file.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>

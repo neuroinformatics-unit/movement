@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=175edb20"></script>
+    <script src="../_static/documentation_options.js?v=b3265f39"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -145,7 +145,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.18.1.dev6</p>
+    <p class="title logo__title">movement v0.18.1.dev7</p>
   
 </a></div>
     
@@ -630,6 +630,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidDeepLabCutCSV.html">ValidDeepLabCutCSV</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidDeepLabCutH5.html">ValidDeepLabCutH5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidFile.html">ValidFile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidMovementNetCDF.html">ValidMovementNetCDF</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidNWBFile.html">ValidNWBFile</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidROICollectionGeoJSON.html">ValidROICollectionGeoJSON</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidSleapAnalysis.html">ValidSleapAnalysis</a></li>
@@ -722,19 +723,22 @@
 <tr class="row-even"><td><p><a class="reference internal" href="movement.validators.files.ValidFile.html#movement.validators.files.ValidFile" title="movement.validators.files.ValidFile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ValidFile</span></code></a></p></td>
 <td><p>Protocol for file validation classes.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="movement.validators.files.ValidNWBFile.html#movement.validators.files.ValidNWBFile" title="movement.validators.files.ValidNWBFile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ValidNWBFile</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="movement.validators.files.ValidMovementNetCDF.html#movement.validators.files.ValidMovementNetCDF" title="movement.validators.files.ValidMovementNetCDF"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ValidMovementNetCDF</span></code></a></p></td>
+<td><p>Class for validating movement netCDF (.nc) files.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="movement.validators.files.ValidNWBFile.html#movement.validators.files.ValidNWBFile" title="movement.validators.files.ValidNWBFile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ValidNWBFile</span></code></a></p></td>
 <td><p>Class for validating NWB files.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="movement.validators.files.ValidROICollectionGeoJSON.html#movement.validators.files.ValidROICollectionGeoJSON" title="movement.validators.files.ValidROICollectionGeoJSON"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ValidROICollectionGeoJSON</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="movement.validators.files.ValidROICollectionGeoJSON.html#movement.validators.files.ValidROICollectionGeoJSON" title="movement.validators.files.ValidROICollectionGeoJSON"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ValidROICollectionGeoJSON</span></code></a></p></td>
 <td><p>Class for validating GeoJSON FeatureCollection files.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="movement.validators.files.ValidSleapAnalysis.html#movement.validators.files.ValidSleapAnalysis" title="movement.validators.files.ValidSleapAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ValidSleapAnalysis</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="movement.validators.files.ValidSleapAnalysis.html#movement.validators.files.ValidSleapAnalysis" title="movement.validators.files.ValidSleapAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ValidSleapAnalysis</span></code></a></p></td>
 <td><p>Class for validating SLEAP analysis (.h5) files.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="movement.validators.files.ValidSleapLabels.html#movement.validators.files.ValidSleapLabels" title="movement.validators.files.ValidSleapLabels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ValidSleapLabels</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="movement.validators.files.ValidSleapLabels.html#movement.validators.files.ValidSleapLabels" title="movement.validators.files.ValidSleapLabels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ValidSleapLabels</span></code></a></p></td>
 <td><p>Class for validating SLEAP labels (.slp) files.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="movement.validators.files.ValidVIATracksCSV.html#movement.validators.files.ValidVIATracksCSV" title="movement.validators.files.ValidVIATracksCSV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ValidVIATracksCSV</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="movement.validators.files.ValidVIATracksCSV.html#movement.validators.files.ValidVIATracksCSV" title="movement.validators.files.ValidVIATracksCSV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ValidVIATracksCSV</span></code></a></p></td>
 <td><p>Class for validating VIA tracks .csv files.</p></td>
 </tr>
 </tbody>

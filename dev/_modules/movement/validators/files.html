@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=175edb20"></script>
+    <script src="../../../_static/documentation_options.js?v=b3265f39"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -142,7 +142,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.18.1.dev6</p>
+    <p class="title logo__title">movement v0.18.1.dev7</p>
   
 </a></div>
     
@@ -492,6 +492,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">orjson</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">attrs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Attribute</span><span class="p">,</span> <span class="n">converters</span><span class="p">,</span> <span class="n">define</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">validators</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pynwb</span><span class="w"> </span><span class="kn">import</span> <span class="n">NWBFile</span>
 
@@ -502,6 +503,7 @@
     <span class="n">ROI_COLLECTION_SCHEMA</span><span class="p">,</span>
     <span class="n">ROI_TYPE_TO_GEOMETRY</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">DS_TYPE_VALIDATORS</span>
 
 <span class="n">DEFAULT_FRAME_REGEXP</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"(0\d*)\.\w+$"</span>
 <span class="n">JSON_SUFFIX</span> <span class="o">=</span> <span class="s2">".json"</span>
@@ -1732,6 +1734,72 @@
 
     <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
 <span class="w">    </span><span class="sd">"""Parsed JSON data from the file, available after validation."""</span></div>
+
+
+
+<div class="viewcode-block" id="ValidMovementNetCDF">
+<a class="viewcode-back" href="../../../api/movement.validators.files.ValidMovementNetCDF.html#movement.validators.files.ValidMovementNetCDF">[docs]</a>
+<span class="nd">@define</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ValidMovementNetCDF</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Class for validating movement netCDF (.nc) files.</span>
+
+<span class="sd">    The validator ensures that:</span>
+
+<span class="sd">    - the file is a valid netCDF (.nc) file, and</span>
+<span class="sd">    - the dataset contains the expected dimensions and variables for a</span>
+<span class="sd">      ``movement`` dataset.</span>
+
+<span class="sd">    Because validation is performed on the dataset opened with</span>
+<span class="sd">    ``extra_kwargs``, any kwargs that change what is read (e.g.</span>
+<span class="sd">    ``drop_variables`` or ``group``) are taken into account.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the file is not a valid netCDF file or does not match the expected</span>
+<span class="sd">        structure for a ``movement`` dataset.</span>
+
+<span class="sd">    """</span>
+
+    <span class="n">suffixes</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">".nc"</span><span class="p">}</span>
+<span class="w">    </span><span class="sd">"""Expected suffix(es) for the file."""</span>
+
+    <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">converter</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">validator</span><span class="o">=</span><span class="n">_file_validator</span><span class="p">(</span><span class="n">permission</span><span class="o">=</span><span class="s2">"r"</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="n">suffixes</span><span class="p">),</span>
+    <span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Path to the movement netCDF (.nc) file to validate."""</span>
+
+    <span class="n">extra_kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Extra keyword arguments forwarded from the loader and passed to</span>
+<span class="sd">    :func:`xarray.open_dataset`."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__attrs_post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Validate the dimensions and variables of the dataset."""</span>
+        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_kwargs</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="c1"># Datasets saved with movement &lt; 0.17.0 used plural dim names</span>
+            <span class="n">legacy_dims</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"keypoints"</span><span class="p">,</span> <span class="s2">"individuals"</span><span class="p">}</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">legacy_dims</span><span class="p">:</span>
+                <span class="n">rename_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">dim</span><span class="p">:</span> <span class="n">dim</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">legacy_dims</span><span class="p">)}</span>
+                <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">"The netCDF file uses legacy dimension names "</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">legacy_dims</span><span class="p">)</span><span class="si">}</span><span class="s2"> from movement &lt; 0.17.0. "</span>
+                        <span class="s2">"To convert it, open it with xarray.load_dataset, "</span>
+                        <span class="sa">f</span><span class="s2">"rename the dimensions with ds.rename(</span><span class="si">{</span><span class="n">rename_map</span><span class="si">}</span><span class="s2">), "</span>
+                        <span class="s2">"and save it again with "</span>
+                        <span class="s2">"movement.io.save.save_dataset."</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">ds_type</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ds_type"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ds_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">DS_TYPE_VALIDATORS</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">"The netCDF file has an unknown 'ds_type' "</span>
+                        <span class="sa">f</span><span class="s2">"attribute: </span><span class="si">{</span><span class="n">ds_type</span><span class="si">}</span><span class="s2">."</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">DS_TYPE_VALIDATORS</span><span class="p">[</span><span class="n">ds_type</span><span class="p">]</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span></div>
 
 </pre></div>
 <div class="section ablog__blog_comments">

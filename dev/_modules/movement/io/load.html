@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=175edb20"></script>
+    <script src="../../../_static/documentation_options.js?v=b3265f39"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -142,7 +142,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.18.1.dev6</p>
+    <p class="title logo__title">movement v0.18.1.dev7</p>
   
 </a></div>
     
@@ -499,7 +499,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">attrs</span><span class="w"> </span><span class="kn">import</span> <span class="n">field</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">frozen</span><span class="p">,</span> <span class="n">validators</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.files</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.files</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidFile</span><span class="p">,</span> <span class="n">ValidMovementNetCDF</span>
 
 <span class="n">TInputFile</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"TInputFile"</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">pynwb</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">NWBFile</span><span class="p">)</span>
 <span class="n">P</span> <span class="o">=</span> <span class="n">ParamSpec</span><span class="p">(</span><span class="s2">"P"</span><span class="p">)</span>
@@ -511,8 +511,14 @@
     <span class="s2">"NWB"</span><span class="p">,</span>
     <span class="s2">"VIA-tracks"</span><span class="p">,</span>
     <span class="s2">"COCO"</span><span class="p">,</span>
+    <span class="s2">"movement"</span><span class="p">,</span>
 <span class="p">]</span>
 <span class="n">AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="s2">"DeepLabCut/LightningPose"</span>
+<span class="c1"># Source software whose frame rate is read or estimated from the file</span>
+<span class="c1"># itself, so a user-provided ``fps`` is ignored</span>
+<span class="n">FPS_FROM_FILE_SOURCE_SOFTWARE</span><span class="p">:</span> <span class="n">Final</span><span class="p">[</span><span class="nb">frozenset</span><span class="p">[</span><span class="n">SourceSoftware</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="p">{</span><span class="s2">"NWB"</span><span class="p">,</span> <span class="s2">"movement"</span><span class="p">}</span>
+<span class="p">)</span>
 
 <span class="nb">type</span> <span class="n">InferredSourceSoftware</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">SourceSoftware</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"DeepLabCut/LightningPose"</span><span class="p">]</span>
@@ -702,16 +708,31 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">loader_kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Extract the relevant kwargs for a given validator class."""</span>
-    <span class="c1"># Only extract fields that are used in the validator's __init__</span>
+<span class="w">    </span><span class="sd">"""Extract the relevant kwargs for a given validator class.</span>
+
+<span class="sd">    Loader kwargs matching the validator's ``__init__`` fields are</span>
+<span class="sd">    forwarded to those fields. If the validator also has an</span>
+<span class="sd">    ``extra_kwargs`` field, all remaining loader kwargs are collected</span>
+<span class="sd">    into it as a dict. This allows loaders to pass ``**kwargs`` through</span>
+<span class="sd">    to validators that need them to call an underlying function (e.g.</span>
+<span class="sd">    :func:`xarray.open_dataset`).</span>
+<span class="sd">    """</span>
     <span class="n">validator_fields</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="n">validator_cls</span><span class="p">)</span> <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">init</span>
     <span class="p">}</span>
-    <span class="k">return</span> <span class="p">{</span>
-        <span class="n">field_name</span><span class="p">:</span> <span class="n">loader_kwargs</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="n">validator_fields</span>
-        <span class="k">if</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="n">loader_kwargs</span>
+    <span class="n">named_fields</span> <span class="o">=</span> <span class="n">validator_fields</span> <span class="o">-</span> <span class="p">{</span><span class="s2">"extra_kwargs"</span><span class="p">}</span>
+    <span class="n">validator_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">value</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">loader_kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">named_fields</span>
     <span class="p">}</span>
+    <span class="k">if</span> <span class="s2">"extra_kwargs"</span> <span class="ow">in</span> <span class="n">validator_fields</span><span class="p">:</span>
+        <span class="n">validator_kwargs</span><span class="p">[</span><span class="s2">"extra_kwargs"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">value</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">loader_kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">named_fields</span>
+        <span class="p">}</span>
+    <span class="k">return</span> <span class="n">validator_kwargs</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_build_suffix_map</span><span class="p">(</span>
@@ -866,19 +887,15 @@
     <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Create a ``movement`` dataset from any supported third-party file.</span>
+<span class="w">    </span><span class="sd">"""Create a ``movement`` dataset from any supported file format.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    file</span>
-<span class="sd">        Path to the file containing predicted poses or tracked bounding boxes.</span>
-<span class="sd">        If ``source software`` is "NWB", this can also be a</span>
+<span class="sd">        Path to a file containing pose or bounding box tracks, in one of the</span>
+<span class="sd">        :ref:`supported formats &lt;target-supported-formats&gt;`.</span>
+<span class="sd">        If ``source_software`` is "NWB", this can also be a</span>
 <span class="sd">        :class:`pynwb.file.NWBFile` object.</span>
-<span class="sd">        The file format must be among those supported by the</span>
-<span class="sd">        :mod:`movement.io.load_poses` or</span>
-<span class="sd">        :mod:`movement.io.load_bboxes` modules. Based on</span>
-<span class="sd">        the value of ``source_software``, the appropriate loading function</span>
-<span class="sd">        will be called.</span>
 <span class="sd">    source_software</span>
 <span class="sd">        The source software of the file. If set to ``"auto"`` (default),</span>
 <span class="sd">        it is inferred from the file format via :func:`infer_source_software`.</span>
@@ -887,12 +904,13 @@
 <span class="sd">    fps</span>
 <span class="sd">        The number of frames per second in the video. If None (default),</span>
 <span class="sd">        the ``time`` coordinates will be in frame numbers.</span>
-<span class="sd">        This argument is ignored when ``source_software`` is "NWB", as the</span>
-<span class="sd">        frame rate will be directly read or estimated from metadata in</span>
-<span class="sd">        the NWB file.</span>
+<span class="sd">        This argument is ignored when ``source_software`` is "NWB" or</span>
+<span class="sd">        "movement", as the frame rate will be directly read or estimated</span>
+<span class="sd">        from metadata in the file.</span>
 <span class="sd">    **kwargs</span>
-<span class="sd">        Additional keyword arguments to pass to the software-specific</span>
-<span class="sd">        loading functions in modules listed under "See Also".</span>
+<span class="sd">        Additional keyword arguments passed to the format-specific loader</span>
+<span class="sd">        in :mod:`movement.io.load_poses` or :mod:`movement.io.load_bboxes`,</span>
+<span class="sd">        or to :func:`xarray.load_dataset` for ``movement`` netCDF files.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -900,11 +918,10 @@
 <span class="sd">        ``movement`` dataset containing the pose or bounding box tracks,</span>
 <span class="sd">        confidence scores, and associated metadata.</span>
 
-
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
-<span class="sd">    movement.io.load_poses</span>
-<span class="sd">    movement.io.load_bboxes</span>
+<span class="sd">    load_multiview_dataset : Load and merge data from multiple views.</span>
+<span class="sd">    movement.io.save.save_dataset : Save a ``movement`` dataset to a file.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -931,12 +948,12 @@
             <span class="p">)</span>
         <span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">source_software</span> <span class="o">==</span> <span class="s2">"NWB"</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">source_software</span> <span class="ow">in</span> <span class="n">FPS_FROM_FILE_SOURCE_SOFTWARE</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">fps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">"The fps argument is ignored when loading from an NWB file. "</span>
-                <span class="s2">"The frame rate will be directly read or estimated from "</span>
-                <span class="s2">"metadata in the file."</span><span class="p">,</span>
+                <span class="s2">"The fps argument is ignored when loading from an NWB or "</span>
+                <span class="s2">"movement netCDF file. The frame rate will be directly read "</span>
+                <span class="s2">"or estimated from metadata in the file."</span><span class="p">,</span>
                 <span class="ne">UserWarning</span><span class="p">,</span>
                 <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
             <span class="p">)</span>
@@ -968,12 +985,13 @@
 <span class="sd">    fps</span>
 <span class="sd">        The number of frames per second in the video. If None (default),</span>
 <span class="sd">        the ``time`` coordinates will be in frame numbers.</span>
-<span class="sd">        This argument is ignored when ``source_software`` is "NWB", as the</span>
-<span class="sd">        frame rate will be directly read or estimated from metadata in</span>
-<span class="sd">        the NWB file.</span>
+<span class="sd">        This argument is ignored when ``source_software`` is "NWB" or</span>
+<span class="sd">        "movement", as the frame rate will be directly read or estimated from</span>
+<span class="sd">        metadata in the file.</span>
 <span class="sd">    **kwargs</span>
-<span class="sd">        Additional keyword arguments to pass to the software-specific</span>
-<span class="sd">        loading functions in modules listed under "See Also".</span>
+<span class="sd">        Additional keyword arguments passed to the format-specific loader</span>
+<span class="sd">        in :mod:`movement.io.load_poses` or :mod:`movement.io.load_bboxes`,</span>
+<span class="sd">        or to :func:`xarray.load_dataset` for ``movement`` netCDF files.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -983,8 +1001,7 @@
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
-<span class="sd">    movement.io.load_poses</span>
-<span class="sd">    movement.io.load_bboxes</span>
+<span class="sd">    load_dataset : Load data from a single file.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -1041,7 +1058,7 @@
 
 <span class="sd">    &gt;&gt;&gt; import xarray as xr</span>
 <span class="sd">    &gt;&gt;&gt; from movement.io.load import rename_legacy_dimensions</span>
-<span class="sd">    &gt;&gt;&gt; ds = xr.open_dataset("old_dataset.nc")</span>
+<span class="sd">    &gt;&gt;&gt; ds = xr.load_dataset("old_dataset.nc")</span>
 <span class="sd">    &gt;&gt;&gt; ds = rename_legacy_dimensions(ds)</span>
 <span class="sd">    &gt;&gt;&gt; ds.to_netcdf("new_dataset.nc")</span>
 
@@ -1069,6 +1086,30 @@
         <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rename_map</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ds</span></div>
 
+
+
+<span class="nd">@register_loader</span><span class="p">(</span><span class="s2">"movement"</span><span class="p">,</span> <span class="n">file_validators</span><span class="o">=</span><span class="p">[</span><span class="n">ValidMovementNetCDF</span><span class="p">])</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_from_netcdf_file</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Load a ``movement`` dataset from a movement netCDF (.nc) file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file</span>
+<span class="sd">        Path to the netCDF file containing the ``movement`` dataset.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Additional keyword arguments passed to :func:`xarray.load_dataset`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        ``movement`` dataset containing pose tracks or bounding box tracks,</span>
+<span class="sd">        confidence scores, and associated metadata.</span>
+<span class="sd">    """</span>
+    <span class="n">valid_file</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"ValidMovementNetCDF"</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">valid_file</span><span class="o">.</span><span class="n">file</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Loaded dataset from </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="si">{</span><span class="n">ds</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds</span>
 </pre></div>
 <div class="section ablog__blog_comments">
    

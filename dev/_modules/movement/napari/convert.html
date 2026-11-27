@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=175edb20"></script>
+    <script src="../../../_static/documentation_options.js?v=b3265f39"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -142,7 +142,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.18.1.dev6</p>
+    <p class="title logo__title">movement v0.18.1.dev7</p>
   
 </a></div>
     
@@ -487,6 +487,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">DS_TYPE_VALIDATORS</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_construct_properties_dataframe</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
@@ -509,20 +510,72 @@
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">desired_order</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_construct_track_and_time_cols</span><span class="p">(</span>
-    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Compute napari track_id and time columns from a ``movement`` dataset."""</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_construct_track_and_time_cols</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Compute napari track_id and time columns from a ``movement`` dataset.</span>
+
+<span class="sd">    Returns an (N, 2) array with columns (track_id, time), where</span>
+<span class="sd">    N is n_individuals * n_keypoints * n_frames.</span>
+<span class="sd">    """</span>
     <span class="n">n_frames</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span>
     <span class="n">n_individuals</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"individual"</span><span class="p">]</span>
     <span class="n">n_keypoints</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"keypoint"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">n_tracks</span> <span class="o">=</span> <span class="n">n_individuals</span> <span class="o">*</span> <span class="n">n_keypoints</span>
 
     <span class="c1"># Each keypoint of each individual is a separate track</span>
-    <span class="n">track_id_col</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_tracks</span><span class="p">),</span> <span class="n">n_frames</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">time_col</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_frames</span><span class="p">),</span> <span class="p">(</span><span class="n">n_tracks</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">track_id_col</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_tracks</span><span class="p">),</span> <span class="n">n_frames</span><span class="p">)</span>
+    <span class="n">time_col</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_frames</span><span class="p">),</span> <span class="n">n_tracks</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">track_id_col</span><span class="p">,</span> <span class="n">time_col</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">track_id_col</span><span class="p">,</span> <span class="n">time_col</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_ds_for_napari</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Check that a ``movement`` dataset can be shown as napari layers.</span>
+
+<span class="sd">    The dataset must be 2D, with ``space`` coordinates ``x`` and ``y``.</span>
+<span class="sd">    The variables used for the napari layers (``position``, ``shape``,</span>
+<span class="sd">    ``confidence`` and ``edited``) must not have dimensions beyond</span>
+<span class="sd">    ``time``, ``space``, ``individual`` and (for poses) ``keypoint``.</span>
+<span class="sd">    Other data variables and dimensions used by them are ignored.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the dataset is not 2D or the variables used for the napari</span>
+<span class="sd">        layers have extra dimensions (e.g. ``view`` in multi-view data).</span>
+
+<span class="sd">    """</span>
+    <span class="n">space_coords</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">space_coords</span><span class="p">)</span> <span class="o">!=</span> <span class="p">{</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">}:</span>
+        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">"Only 2D data with 'space' coordinates ['x', 'y'] is "</span>
+                <span class="sa">f</span><span class="s2">"supported, but got </span><span class="si">{</span><span class="n">space_coords</span><span class="si">}</span><span class="s2">."</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="n">validator</span> <span class="o">=</span> <span class="n">DS_TYPE_VALIDATORS</span><span class="p">[</span><span class="n">ds</span><span class="o">.</span><span class="n">ds_type</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="p">(</span><span class="o">*</span><span class="n">validator</span><span class="o">.</span><span class="n">VAR_NAMES</span><span class="p">,</span> <span class="s2">"edited"</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">var_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">extra_dims</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">dim</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span> <span class="k">if</span> <span class="n">dim</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">validator</span><span class="o">.</span><span class="n">DIM_NAMES</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">extra_dims</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"Unsupported dimension(s) </span><span class="si">{</span><span class="n">extra_dims</span><span class="si">}</span><span class="s2"> in "</span>
+                    <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s2">'. Select a single value along each "</span>
+                    <span class="sa">f</span><span class="s2">"dimension first, e.g. ds.sel(</span><span class="si">{</span><span class="n">extra_dims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">=...)."</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_flatten_to_yx</span><span class="p">(</span><span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">row_dims</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Flatten a spatial DataArray into an (N, 2) array of (y, x) coords."""</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">da</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="p">[</span><span class="s2">"y"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">row_dims</span><span class="p">,</span> <span class="s2">"space"</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="p">)</span>
 
 
 <div class="viewcode-block" id="ds_to_napari_layers">
@@ -573,72 +626,44 @@
 <span class="sd">    .. [2] https://napari.org/stable/howtos/layers/points.html</span>
 
 <span class="sd">    """</span>
+    <span class="n">_validate_ds_for_napari</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
     <span class="c1"># Construct the track_ID and time columns for the napari Tracks array</span>
-    <span class="n">track_id_col</span><span class="p">,</span> <span class="n">time_col</span> <span class="o">=</span> <span class="n">_construct_track_and_time_cols</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+    <span class="n">track_id_and_time</span> <span class="o">=</span> <span class="n">_construct_track_and_time_cols</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
 
-    <span class="c1"># Reorder axes to (individual, keypoint, frames, xy)</span>
-    <span class="n">axes_reordering</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># Order rows by (individual, keypoint, time) to match the track_id and</span>
+    <span class="c1"># time columns</span>
+    <span class="n">row_dims</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"individual"</span><span class="p">,</span> <span class="s2">"time"</span><span class="p">)</span>
     <span class="k">if</span> <span class="s2">"keypoint"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">:</span>
-        <span class="n">axes_reordering</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,)</span> <span class="o">+</span> <span class="n">axes_reordering</span>
-    <span class="n">yx_cols</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>  <span class="c1"># from: frames, xy, keypoint, individual</span>
-        <span class="n">axes_reordering</span><span class="p">,</span>  <span class="c1"># to: individual, keypoint, frames, xy</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)[:,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>  <span class="c1"># swap x and y columns</span>
+        <span class="n">row_dims</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"individual"</span><span class="p">,</span> <span class="s2">"keypoint"</span><span class="p">,</span> <span class="s2">"time"</span><span class="p">)</span>
+    <span class="n">yx_cols</span> <span class="o">=</span> <span class="n">_flatten_to_yx</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">row_dims</span><span class="p">)</span>
 
-    <span class="n">points_as_napari</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">track_id_col</span><span class="p">,</span> <span class="n">time_col</span><span class="p">,</span> <span class="n">yx_cols</span><span class="p">))</span>
+    <span class="n">points_as_napari</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">track_id_and_time</span><span class="p">,</span> <span class="n">yx_cols</span><span class="p">))</span>
     <span class="n">bboxes_as_napari</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="c1"># Construct the napari Shapes array if the input dataset is a</span>
     <span class="c1"># bounding boxes one</span>
     <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">ds_type</span> <span class="o">==</span> <span class="s2">"bboxes"</span><span class="p">:</span>
-        <span class="c1"># Compute bbox corners</span>
-        <span class="n">xmin_ymin</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span> <span class="o">-</span> <span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">shape</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="n">xmax_ymax</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span> <span class="o">+</span> <span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">shape</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
-
-        <span class="c1"># initialise xmax, ymin corner as xmin, ymin</span>
-        <span class="n">xmax_ymin</span> <span class="o">=</span> <span class="n">xmin_ymin</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="c1"># overwrite its x coordinate to xmax</span>
-        <span class="n">xmax_ymin</span><span class="o">.</span><span class="n">loc</span><span class="p">[{</span><span class="s2">"space"</span><span class="p">:</span> <span class="s2">"x"</span><span class="p">}]</span> <span class="o">=</span> <span class="n">xmax_ymax</span><span class="o">.</span><span class="n">loc</span><span class="p">[{</span><span class="s2">"space"</span><span class="p">:</span> <span class="s2">"x"</span><span class="p">}]</span>
-
-        <span class="c1"># initialise xmin, ymin corner as xmin, ymin</span>
-        <span class="n">xmin_ymax</span> <span class="o">=</span> <span class="n">xmin_ymin</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="c1"># overwrite its y coordinate to ymax</span>
-        <span class="n">xmin_ymax</span><span class="o">.</span><span class="n">loc</span><span class="p">[{</span><span class="s2">"space"</span><span class="p">:</span> <span class="s2">"y"</span><span class="p">}]</span> <span class="o">=</span> <span class="n">xmax_ymax</span><span class="o">.</span><span class="n">loc</span><span class="p">[{</span><span class="s2">"space"</span><span class="p">:</span> <span class="s2">"y"</span><span class="p">}]</span>
-
-        <span class="c1"># Add track_id and time columns to each corner array</span>
-        <span class="n">corner_arrays_with_track_id_and_time</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span>
-                <span class="n">track_id_col</span><span class="p">,</span>
-                <span class="n">time_col</span><span class="p">,</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">corner</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">axes_reordering</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
-            <span class="p">]</span>
-            <span class="k">for</span> <span class="n">corner</span> <span class="ow">in</span> <span class="p">[</span><span class="n">xmin_ymin</span><span class="p">,</span> <span class="n">xmin_ymax</span><span class="p">,</span> <span class="n">xmax_ymax</span><span class="p">,</span> <span class="n">xmax_ymin</span><span class="p">]</span>
-        <span class="p">]</span>
-
-        <span class="c1"># Concatenate corner arrays along columns</span>
-        <span class="n">corners_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
-            <span class="n">corner_arrays_with_track_id_and_time</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="c1"># Corners as centre +/- half the bbox size, in (y, x) order</span>
+        <span class="c1"># and counterclockwise from xmin_ymin in image coordinates:</span>
+        <span class="c1"># xmin_ymin, xmin_ymax, xmax_ymax, xmax_ymin</span>
+        <span class="n">half_size</span> <span class="o">=</span> <span class="n">_flatten_to_yx</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">row_dims</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">corner_signs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">half_size</span><span class="o">.</span><span class="n">dtype</span>
+        <span class="p">)</span>
+        <span class="n">corners</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">yx_cols</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">+</span> <span class="n">corner_signs</span> <span class="o">*</span> <span class="n">half_size</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="p">)</span>  <span class="c1"># (N, 4, 2)</span>
+        <span class="c1"># Repeat the track_id and time columns for each corner</span>
+        <span class="n">corner_track_id_and_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span>
+            <span class="n">track_id_and_time</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">corners</span><span class="p">),</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="c1"># last dimension: track_id, time, y, x</span>
+        <span class="n">bboxes_as_napari</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">corner_track_id_and_time</span><span class="p">,</span> <span class="n">corners</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span>
         <span class="p">)</span>
 
-        <span class="c1"># Reshape to napari expected format</span>
-        <span class="c1"># goes through corners counterclockwise from xmin_ymin</span>
-        <span class="c1"># in image coordinates</span>
-        <span class="n">corners_array</span> <span class="o">=</span> <span class="n">corners_array</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
-            <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span>
-        <span class="p">)</span>  <span class="c1"># last dimension: track_id, time, x, y</span>
-        <span class="n">bboxes_as_napari</span> <span class="o">=</span> <span class="n">corners_array</span><span class="p">[</span>
-            <span class="p">:,</span> <span class="p">:,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
-        <span class="p">]</span>  <span class="c1"># swap x and y columns</span>
-
     <span class="c1"># Construct the properties DataFrame</span>
-    <span class="c1"># Stack individual, time and keypoint (if present) dimensions</span>
-    <span class="c1"># into a new single dimension named "tracks"</span>
-    <span class="n">dimensions_to_stack</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"individual"</span><span class="p">,</span> <span class="s2">"time"</span><span class="p">)</span>
-    <span class="k">if</span> <span class="s2">"keypoint"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">:</span>
-        <span class="n">dimensions_to_stack</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">"keypoint"</span><span class="p">,)</span>  <span class="c1"># add last</span>
-    <span class="n">ds_</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">tracks</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">dimensions_to_stack</span><span class="p">))</span>
-
-    <span class="n">properties</span> <span class="o">=</span> <span class="n">_construct_properties_dataframe</span><span class="p">(</span><span class="n">ds_</span><span class="p">)</span>
+    <span class="n">properties</span> <span class="o">=</span> <span class="n">_construct_properties_dataframe</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">tracks</span><span class="o">=</span><span class="n">row_dims</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">points_as_napari</span><span class="p">,</span> <span class="n">bboxes_as_napari</span><span class="p">,</span> <span class="n">properties</span></div>
 
