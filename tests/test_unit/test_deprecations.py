@@ -3,20 +3,13 @@
 from contextlib import nullcontext
 
 import pytest
-import xarray as xr
 
-from movement.io import load, save_poses
+from movement.io import save_poses
 
 
 @pytest.mark.parametrize(
     "deprecated_callable, mocked_inputs, patch_context, check_in_message",
     [
-        (
-            load.rename_legacy_dimensions,
-            lambda request: {"ds": xr.Dataset()},
-            nullcontext(),
-            r"`rename_legacy_dimensions` is deprecated",
-        ),
         (
             save_poses.to_nwb_file,
             lambda request: {
