@@ -16,6 +16,10 @@ Two functions cover most use cases:
 
 Among the supported formats, `movement`'s native [netCDF](target-netcdf) format preserves all variables and metadata. **This is the recommended way to save your analysis state**, allowing your `movement`-powered workflows to resume exactly where they left off.
 
+To analyse `movement` data alongside neural recordings, you can
+convert it to [pynapple](https://pynapple.org/) objects.
+Expand the ["pynapple" dropdown](target-format-pynapple) for details.
+
 You are also welcome to try `movement` by loading some [sample data](target-sample-data) included with the package.
 
 (target-supported-formats)=
@@ -35,11 +39,14 @@ and can be [loaded from](target-load-data) and [saved to](target-save-data) the 
 | [COCO](coco:)                                                               | COCO         | COCO keypoint detection [results](coco:format-results) .json file, optionally with a COCO [annotations](coco:format-data) .json file | Pose        | Load                 |
 | [VGG Image Annotator](via:)                                                 | VIA          | .csv file for [tracks annotation](via:docs/face_track_annotation.html)                                                    | Bounding box         | Load & Save          |
 | [Neurodata Without Borders](https://nwb-overview.readthedocs.io/en/latest/) | NWB          | .nwb file or NWBFile object with the [ndx-pose extension](https://github.com/rly/ndx-pose)                                | Pose                 | Load & Save          |
+| [pynapple](https://pynapple.org/)                                           |              | {class}`~pynapple.TsdFrame` object                                                                                             | Pose or Bounding box | Save\*\*\*            |
 | Any                                                                         |              | NumPy arrays                                                                                                              | Pose or Bounding box | Load & Save\*\*      |
 
 \*SLEAP files can only be saved in the analysis .h5 format.
 
 \*\*Exporting any `movement` DataArray to a NumPy array is as simple as calling {meth}`xarray.DataArray.to_numpy`, so no specialised "Export/Save As" function is needed, see [xarray's documentation](xarray:user-guide/duckarrays.html) for more details.
+
+\*\*\*`movement` data can be converted to `pynapple` objects in memory, but not saved through {func}`~movement.io.save.save_dataset`, see [](target-format-pynapple).
 
 :::{tip}
 Use {func}`~movement.io.load.get_supported_source_software` and {func}`~movement.io.save.get_supported_target_software` to list the software and file suffixes that `movement` supports **loading from** and **saving to**, respectively.
@@ -523,6 +530,50 @@ nwb_files = save_poses.to_nwb_file_object(ds)
 for file in nwb_files:
     with NWBHDF5IO(f"{file.identifier}.nwb", "w") as io:
         io.write(file)
+```
+::::
+
+::::{dropdown} pynapple
+:name: target-format-pynapple
+
+[pynapple](https://pynapple.org/) is a toolbox for analysing neural data.
+Converting `movement` data to `pynapple` objects lets you analyse behaviour
+alongside neural recordings from the same session,
+e.g. to compute tuning curves of neurons to an animal's position or speed.
+This requires the optional `pynapple` dependency, which you can install
+with `pip install "movement[pynapple]"`.
+
+**Load**
+
+Not supported.
+
+**Save** (in memory)
+
+To convert a `movement` DataArray to a {class}`~pynapple.TsdFrame`,
+use {func}`~movement.io.to_pynapple.to_pynapple_tsdframe`.
+Only one individual can be converted at a time, and time must be in seconds:
+
+```python
+from movement.io import load_dataset, to_pynapple_tsdframe
+
+ds = load_dataset("/path/to/file.h5", source_software="SLEAP", fps=30)
+position = to_pynapple_tsdframe(ds.position.sel(individual="mouse1"))
+```
+
+Derived variables, such as those computed with {mod}`movement.kinematics`,
+can be converted in the same way.
+See {func}`~movement.io.to_pynapple.to_pynapple_tsdframe` for how columns
+are named, what metadata they carry, and how to handle missing values.
+
+To save the TsdFrame to disk, use `pynapple`'s own
+{meth}`~pynapple.TsdFrame.save` method, and load it back with
+{func}`~pynapple.io.misc.load_file`:
+
+```python
+import pynapple as nap
+
+position.save("/path/to/position.npz")
+position = nap.load_file("/path/to/position.npz")
 ```
 ::::
 
