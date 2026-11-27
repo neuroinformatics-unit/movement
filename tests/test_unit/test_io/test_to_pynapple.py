@@ -49,6 +49,12 @@ def assert_tsdframe_matches(tsdframe, da):
             id="poses confidence",
         ),
         pytest.param(
+            "valid_poses_dataset_with_nan",
+            "position",
+            ["keypoint", "space", "individual"],
+            id="poses position with NaNs",
+        ),
+        pytest.param(
             "valid_poses_dataset_3d",
             "position",
             ["keypoint", "space", "individual"],
@@ -65,6 +71,12 @@ def assert_tsdframe_matches(tsdframe, da):
             "shape",
             ["space", "individual"],
             id="bboxes shape",
+        ),
+        pytest.param(
+            "valid_bboxes_dataset_with_nan",
+            "position",
+            ["space", "individual"],
+            id="bboxes position with NaNs",
         ),
     ],
 )

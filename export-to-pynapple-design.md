@@ -175,7 +175,13 @@ Bounding boxes work the same way. `position`, `shape` and `confidence` each beco
 
   A proper fix (storing the time unit in the array's attrs) is planned separately in movement. Once it lands, the exporter can read and check it.
 - The time support is `[t[0], t[-1]]`, which is pynapple's default when building objects from timestamps.
-- NaNs pass through unchanged.
+- NaNs pass through unchanged. pynapple allows them (they survive `save`/`load_file`), but some operations don't skip them (checked on pynapple 0.11.4 with the octagon sample):
+  - `compute_tuning_curves`, the main use case, raises `ValueError: autodetected range of [nan, nan] is not finite` unless `range=` is given;
+  - `.smooth()` spreads NaNs across its window (392 NaNs became 15,908);
+  - `.bin_average()` makes a bin NaN if it contains any NaN;
+  - `.dropna()` drops a timepoint if *any* column is NaN, and by default excludes the gaps from the time support.
+
+  We don't drop or fill NaNs during conversion: that would make frames irregular and drop timepoints for every column because of one missing keypoint, and the right choice depends on the analysis. The docstring's "Missing values" note explains the tuning-curve error and the remedies: interpolate short gaps in movement before converting (`interpolate_over_time`), or select the needed columns and `.dropna()` after.
 
 **Attributes.** pynapple objects have no free-form attrs, so `ds.attrs` (`source_software`, `fps`, `log`, ...) are not carried over. This is documented. Preserving them on disk is a question for the follow-up writer (section 7).
 
@@ -215,7 +221,7 @@ Bounding boxes work the same way. `position`, `shape` and `confidence` each beco
   There's no ephys data in this PR, so no new public dataset is needed.
 
 **Tests:**
-- Mapping (`to_pynapple_tsdframe`, done): poses and bboxes, 2D and 3D. A shared helper checks every column's values, timestamps, name (`_`-joined labels), metadata (including single labels) and attribute access to metadata fields.
+- Mapping (`to_pynapple_tsdframe`, done): poses and bboxes, 2D and 3D, with and without NaNs. A shared helper checks every column's values, timestamps, name (`_`-joined labels), metadata (including single labels) and attribute access to metadata fields.
 - Derived variables covering each combination of `keypoint`/`space` dimensions: velocity, speed, head direction vector, forward vector angle (time-only).
 - Time-only arrays: named after the DataArray, or `Unnamed`.
 - Single labels: a single keypoint label (`x`, `y` columns), a size-1 keypoint dimension (`left_x`, `left_y`), and a size-1 `individual` dimension (same result as selecting it).

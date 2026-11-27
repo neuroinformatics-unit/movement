@@ -143,6 +143,16 @@ def to_pynapple_tsdframe(da: xr.DataArray) -> nap.TsdFrame:
     (e.g. ``tsdframe.keypoint``). Columns can be selected by metadata as
     well as by name (see Examples).
 
+    **Missing values.** NaNs are kept as they are, even though they are
+    not supported by all ``pynapple`` functions. Most notably,
+    ``pynapple.compute_tuning_curves`` raises an error if the features
+    contain NaNs and no ``range`` is given. To avoid this, either fill
+    gaps with :func:`movement.filtering.interpolate_over_time` before
+    converting, or use ``dropna()`` on the desired TsdFrame columns
+    afterwards:
+
+    >>> nose = tsdframe[["snout_x", "snout_y"]].dropna()
+
     Examples
     --------
     Load a sample dataset of two mice, labelled ``"1"`` and ``"2"``, in an
