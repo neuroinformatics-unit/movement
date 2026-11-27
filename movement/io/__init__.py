@@ -9,9 +9,11 @@ from .load import (
     load_multiview_dataset,
 )
 from .save import save_dataset
+from .to_pynapple import to_pynapple_tsdframe
 
 __all__ = [
     "load_dataset",
     "load_multiview_dataset",
     "save_dataset",
+    "to_pynapple_tsdframe",
 ]

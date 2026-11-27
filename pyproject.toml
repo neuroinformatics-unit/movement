@@ -153,6 +153,7 @@ module = [
   "pytest.*",
   "loguru.*",
   "qt_niu.*",
+  "pynapple.*",
 ]
 ignore_missing_imports = true
 

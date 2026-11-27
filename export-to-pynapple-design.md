@@ -2,7 +2,7 @@
 
 - **Issue:** [movement#1098](https://github.com/neuroinformatics-unit/movement/issues/1098)
 - **Branch:** `export-to-pynapple` (based on `main`)
-- **Status:** in-memory export agreed, implementation not started (2026-11-27). Saving to disk deferred to a follow-up PR (section 7).
+- **Status:** in-memory export agreed; `to_pynapple_tsdframe` implemented, `to_pynapple_dict` next (2026-11-27). Saving to disk deferred to a follow-up PR (section 7).
 - **Working notes / exploration history:** `export-to-pynapple.md`
 
 ## 1. Summary
@@ -12,7 +12,7 @@ This PR adds a direct, **in-memory** `movement` → `pynapple` export, owned by 
 - `to_pynapple_tsdframe(da)` converts one `xr.DataArray` to one `TsdFrame`.
 - `to_pynapple_dict(ds, variables=None)` converts an `xr.Dataset` to `{variable_name: TsdFrame}` by calling `to_pynapple_tsdframe` on each eligible variable.
 
-All non-time dimensions (individuals, keypoints, spatial components, ...) are stacked as columns. Each column carries one metadata field per stacked dimension, so no labels are lost. pynapple is an optional dependency (`movement[pynapple]`).
+**One individual is converted at a time**, matching the main use case: analysing an animal's behaviour alongside its neural recordings, which almost always come from a single animal per session. Each data variable becomes its own `TsdFrame`. The `keypoint` and `space` dimensions are stacked as columns named `<keypoint>_<space>` (e.g. `snout_x`), and each column also carries `keypoint` / `space` metadata, plus the individual's label. The conversion is generic over movement's canonical dimensions, so **derived variables** (speed, head direction, ...) convert as readily as tracked positions. Section 3 opens with why we chose this design. pynapple is an optional dependency (`movement[pynapple]`).
 
 Writing to disk (a `save_dataset(..., target_software="pynapple")` writer) is **not** part of this PR. Users save with pynapple's own `obj.save()`, as SpikeInterface users do. The on-disk layout will be settled in a follow-up, after discussion with the pynapple devs and movement co-maintainers (section 7).
 
@@ -23,7 +23,7 @@ Writing to disk (a `save_dataset(..., target_software="pynapple")` writer) is **
 There is already an indirect route (`to_nwb_file_object()` → `nap.NWBFile`), but it has limitations:
 
 - Confidence scores are lost.
-- It supports only one individual per file (an NWB constraint).
+- One individual per file (an NWB constraint). We keep the same one-individual scope (D-3), but by choice, as it matches the use case.
 - It doesn't support bounding boxes.
 - Extra variables (e.g. `head_direction`) don't survive.
 - Each keypoint becomes a separate `TsdFrame`.
@@ -43,7 +43,7 @@ Agreed with the pynapple devs (gviejo) in [pynapple#617](https://github.com/pyna
 - **One segment per call** (`segment_index=`). Users concatenate in pynapple.
 - **Optional dependency**, checked at call time, with an `ImportError` hint. Listed in the `spikeinterface[exporters]` extra.
 
-Our design follows the same shape: in-memory, returning stock pynapple objects, labels carried as metadata, slicing left to the user.
+Our design follows the same shape: in-memory, returning stock pynapple objects, labels carried as metadata, one unit of data (here, one individual) per call.
 
 ### 2.3 pynapple conventions
 
@@ -57,12 +57,34 @@ This supports one `TsdFrame` per variable (D-2) rather than one frame holding ev
 
 ### 2.4 Related work
 
-- [pynapple#617](https://github.com/pynapple-org/pynapple/pull/617) prototypes `nap.from_movement()` on the pynapple side. It returns a `MovementDataset(UserDict)` with an `NWBFile`-style summary repr, lazy building and per-individual nesting. It handles only `position`/`confidence`/`shape` and has no column metadata.
+- [pynapple#617](https://github.com/pynapple-org/pynapple/pull/617) prototypes `nap.from_movement()` on the pynapple side. It returns a `MovementDataset(UserDict)` with an `NWBFile`-style summary repr, lazy building and per-individual nesting. It handles only `position`/`confidence`/`shape` and has no column metadata. Its per-individual column names (`f"{kp}_{sp}"`, e.g. `nose_x`) are the same as ours.
 - [pynaviz#118](https://github.com/pynapple-org/pynaviz/pull/118) prototypes skeleton plotting. It expects a `TsdFrame` with `<kp>_x`/`<kp>_y` column pairs, plus optional per-column `parent` metadata for edges.
 - [pynapple#689](https://github.com/pynapple-org/pynapple/issues/689) proposes `TsdFrame.sel(individual=..., keypoint=...)` over column metadata, motivated by movement data. Our data model fits it directly.
 - [movement#1127](https://github.com/neuroinformatics-unit/movement/pull/1127) is an earlier community attempt (a single `TsdFrame` holding all variables, numpy-written, no metadata). We are not building on its data model.
 
 ## 3. Design (this PR)
+
+### Why one individual and one variable per `TsdFrame`
+
+A `TsdFrame` is a 2D table: time × columns, with optional per-column metadata. A movement data variable has up to three non-time dimensions (`individual`, `keypoint`, `space`), and a dataset holds several variables. Putting more than one individual, or more than one variable, into pynapple objects leaves three options, each with a real cost:
+
+1. **Encode everything in column names**, e.g. `mouse1_snout_x` or `position_mouse1_snout_x`. Names get long and are **not automatically parseable**: labels can themselves contain `_` (`tail_base`, `mouse_1`), so `mouse_1_tail_base_x` can't be split back into its parts. Users would have to rely on metadata for any reliable selection, and only the first two metadata fields show when printing a frame.
+2. **A tidy-like layout**, where the individual (or variable) is just another label to filter on, e.g. an `individual` metadata field that differs across columns. Every analysis then needs a selection step first: `compute_tuning_curves` treats every column as a feature, so a frame mixing individuals (or position with confidence and speed) is never usable as is. Mixing variables also mixes units and dtypes in one object.
+3. **Nested outputs**, e.g. `{individual: {variable: TsdFrame}}` (as in pynapple#617's `MovementDataset`) or a list of objects per individual (as `to_nwb_file_object` returns). The return type then depends on how many individuals there are or on an option, which makes the API harder to use and to type.
+
+Restricting each `TsdFrame` to **one individual and one variable** avoids all three:
+- Column names are short, unique and parseable (`<keypoint>_<space>`), even when labels contain `_`.
+- Metadata only holds what tells columns apart (`keypoint`, `space`), plus single labels such as the individual, with the same value in every column.
+- The return type is fixed: one `TsdFrame` per DataArray. `to_pynapple_dict` is a convenience over that: always a flat dict keyed by variable name, never nested by individual.
+
+Converting several individuals or variables stays a one-line comprehension over `.sel()` or data variables (see 3.3), so nothing is lost; it's just explicit.
+
+**Derived variables are first-class.** The behavioural variables most often related to neural activity are usually *derived* from tracking, not the raw keypoints: head direction (head-direction cells), speed (speed cells), a centroid position (place and grid cells), angular velocity, distance to a partner animal. So the conversion must not be limited to `position`/`confidence`. It works on any DataArray with movement's canonical dimensions, whichever of `keypoint`/`space` it has. That's why the core function takes a DataArray (D-4): kinematics outputs convert directly, without adding them to a dataset first. The tests cover one derived variable per combination of dimensions (velocity, speed, head direction vector, forward vector angle). By contrast, the NWB route and pynapple#617 only carry `position`/`confidence`/`shape` (2.1, 2.4).
+
+This also matches what pynapple users expect:
+- **pynapple#617** already makes one frame per individual, with the same `<keypoint>_<space>` column names (`nose_x`).
+- **pynapple's own loaders** give one object per signal, with columns as its components (2.3).
+- **The main use case** is co-analysing an animal's behaviour with its neural recordings, which almost always come from one animal per session.
 
 ### 3.1 Public API
 
@@ -84,25 +106,28 @@ def to_pynapple_dict(
 - `to_pynapple_dict` is a thin loop: select eligible variables, warn about skipped ones, and call `to_pynapple_tsdframe` on each.
 - Naming follows the "suffix = return type" pattern: `to_dlc_style_df`, `to_nwb_file_object` (movement), `to_pynapple_tsgroup` (SpikeInterface).
 - pynapple is imported lazily inside the functions. If it's missing, they raise an informative `ImportError` (`pip install movement[pynapple]`).
-- Nothing is registered with `save_dataset`, so `movement/io/__init__.py` doesn't need to import the module.
+- Both functions are re-exported from `movement.io` (next to `load_dataset` and `save_dataset`), so users write `from movement.io import to_pynapple_tsdframe`. Importing `movement.io` does not import pynapple (tested). Nothing is registered with `save_dataset` in this PR.
 
 Usage:
 
 ```python
 import pynapple as nap
-from movement.io.to_pynapple import to_pynapple_dict, to_pynapple_tsdframe
+from movement.io import to_pynapple_dict, to_pynapple_tsdframe
 from movement.kinematics import compute_speed
 
 # {"position": TsdFrame, "confidence": TsdFrame, ...}
-objs = to_pynapple_dict(ds)
+objs = to_pynapple_dict(ds.sel(individual="mouse1"))
 pos = objs["position"]
-pos[:, (pos.individual == "mouse1") & (pos.keypoint == "snout")]
+pos[["snout_x", "snout_y"]]  # by name
+pos[:, pos.keypoint == "snout"]  # or via metadata
 
 # no need to add speed to ds first
-speed = to_pynapple_tsdframe(compute_speed(ds.position))
+speed = to_pynapple_tsdframe(
+    compute_speed(ds.position.sel(individual="mouse1"))
+)
 
-# per individual: select first (see 3.3)
-mouse1 = to_pynapple_dict(ds.sel(individual="mouse1"))
+# single-animal datasets (individual dim of size 1) need no selection
+objs = to_pynapple_dict(ds_single)
 
 # saving is pynapple's job
 for name, obj in objs.items():
@@ -111,30 +136,35 @@ for name, obj in objs.items():
 
 ### 3.2 Mapping a DataArray to a `TsdFrame`
 
+**Accepted input.** Only movement's canonical dimensions (`time`, `space`, `keypoint`, `individual`, from `ValidPosesInputs.DIM_NAMES`), with:
+- a `time` dimension (required);
+- at most one individual: a size-1 `individual` dimension is dropped automatically (single-animal datasets need no selection); more than one raises, pointing to `.sel(individual=...)`;
+- no other dimensions (e.g. `view`): they raise, asking the user to select a single label first.
+
 **Object type.** Always a `TsdFrame` of shape `(n_time, n_columns)`.
-- The non-time dimensions are stacked into columns.
-- A time-only array (e.g. `head_direction.sel(individual="mouse1")`) becomes a single-column `TsdFrame`, with the column named after `da.name`.
+- The `keypoint` and `space` dimensions (whichever are present) are stacked into columns.
+- A time-only array (e.g. `head_direction.sel(individual="mouse1")`) becomes a single-column `TsdFrame`, with the column named after `da.name` (or `Unnamed`).
 - `Tsd` is not used, so the return type never depends on the input shape.
 - `TsdTensor` is not used either (no metadata support, so labels would be lost).
 
-**Column order** is individual → keypoint → space, with `space` innermost, so consecutive columns form `x`, `y` (, `z`) pairs.
+**Column order** is keypoint → space, with `space` innermost, so consecutive columns form `x`, `y` (, `z`) pairs. The order is derived from `ValidPosesInputs.DIM_NAMES` (reversed); bboxes dims are a subset in the same order.
 
-**Column metadata (source of truth):** one metadata field per stacked dimension (`individual`, `keypoint`, `space`), with string values.
+**Column names** are `<keypoint>_<space>` (e.g. `snout_x`), or the single stacked label (`snout` for confidence, `x` for bboxes position). They are always **unique and parseable**, even for keypoints containing `_` (`tail_base_x`): keypoint labels are unique and the space label is the last `_`-separated part. So users can select by name (`pos[["snout_x", "snout_y"]]`).
 
-**Column names:** the labels of the stacked dimensions joined with `_`. Names are for display. Code should select via metadata, because names can be ambiguous when labels contain `_` (e.g. `tail_base`).
+**Column metadata:** one field per stacked dimension (`keypoint`, `space`), holding each column's labels, followed by one field per canonical dimension with a **single label**, with the same value in every column: `individual` (from a size-1 dimension or `.sel(individual="mouse1")`), or e.g. `keypoint` after `.sel(keypoint="snout")`. So the individual's label is always kept. Single labels of non-canonical dimensions (e.g. `view` after `.sel(view="cam0")`) are not carried over. All values are strings. Fields are accessible as attributes (`pos.keypoint`), used for selection via `pos[:, pos.keypoint == "snout"]`, and fit pynapple#689-style `.sel`. The fields that vary across columns come first because pynapple's repr only shows the first two fields; the others are always available in `.metadata`. A size-1 `keypoint` *dimension* (from `.sel(keypoint=["snout"])`) stays a column dimension (`snout_x`), unlike `individual`.
 
-Example: a 2D poses dataset with individuals `mouse1`, `mouse2` and keypoints `snout`, `tail_base`, plus a user-added `speed` (dims `time, keypoint, individual`).
+Example: a 2D poses dataset with keypoints `snout`, `tail_base`, plus a user-added `speed` (dims `time, keypoint, individual`), for one individual:
 
-| Variable | `to_pynapple_dict(ds)` | `to_pynapple_dict(ds.sel(individual="mouse1"))` |
-|---|---|---|
-| `position` | 8 cols: `mouse1_snout_x`, `mouse1_snout_y`, `mouse1_tail_base_x`, ... | 4 cols: `snout_x`, `snout_y`, `tail_base_x`, `tail_base_y` |
-| `confidence` | 4 cols: `mouse1_snout`, `mouse1_tail_base`, ... | 2 cols: `snout`, `tail_base` |
-| `speed` | 4 cols (as confidence) | 2 cols |
-| `head_direction` (time, individual) | 2 cols: `mouse1`, `mouse2` | 1 col: `head_direction` |
+| Variable | `to_pynapple_dict(ds.sel(individual="mouse1"))` |
+|---|---|
+| `position` | 4 cols: `snout_x`, `snout_y`, `tail_base_x`, `tail_base_y` |
+| `confidence` | 2 cols: `snout`, `tail_base` |
+| `speed` | 2 cols (as confidence) |
+| `head_direction` (time, individual) | 1 col: `head_direction` |
 
 Bounding boxes work the same way. `position`, `shape` and `confidence` each become one frame, and `shape` keeps movement's `space` labels (`x`/`y`), not `width`/`height`.
 
-The naming scheme is the same for one or many individuals, so the schema never depends on the individual count. After a scalar `.sel(individual=...)`, `position` frames have exactly the `<kp>_x`/`<kp>_y` layout that the pynaviz skeleton mode parses today.
+`position` frames always have the `<kp>_x`/`<kp>_y` layout that the pynaviz skeleton mode parses today, and match the per-individual frames of pynapple#617.
 
 **Time.**
 - pynapple interprets timestamps as seconds. The functions **assume** the `time` coordinate is in seconds and don't check it. Both docstrings document this, with the conversion recipe:
@@ -154,16 +184,13 @@ The naming scheme is the same for one or many individuals, so the schema never d
 - **Which variables.** By default, every data variable that is numeric and has a `time` dimension. Each one becomes one entry, keyed by the variable name. Ineligible variables are skipped with a warning. `variables=[...]` selects a subset and raises if a requested variable is ineligible.
 - **Return type.** A plain `dict[str, TsdFrame]`, always flat.
   - No wrapper class (unlike `MovementDataset` in pynapple#617): a summary repr is a pynapple-side concern, next to `NWBFile`/`Folder`. Lazy building gains nothing for in-memory xarray data. A plain dict works directly with `obj.save()` loops and the future writer. See D-6 and Q8.5.
-- **Per-individual export** uses xarray selection instead of a `split_individuals` parameter (D-3). Docstrings document the recipe:
+- **One individual per dataset**, by the same rule as for DataArrays: a size-1 `individual` dimension is dropped, and more than one raises once (checked up front, not per variable), pointing to `.sel(individual=...)`. Docstrings document the recipe for converting several:
 
   ```python
-  # one individual
-  to_pynapple_dict(ds.sel(individual="mouse1"))
-  # all individuals, split
   {ind: to_pynapple_dict(ds.sel(individual=ind)) for ind in ds.individual.values}
   ```
 
-  Note the scalar `.sel()`: `.sel(individual=["mouse1"])` with a list keeps the dimension, so the columns keep the individual prefix and metadata. The same selection approach covers keypoint subsets and time windows.
+  Inter-individual measures (e.g. `compute_pairwise_distances(..., "individual", ...)`) are already reduced to `time`-only arrays, so they convert fine. Add them to the selected dataset, or convert them directly with `to_pynapple_tsdframe`.
 
 ### 3.4 Packaging
 
@@ -176,23 +203,25 @@ The naming scheme is the same for one or many individuals, so the schema never d
 **Docs:**
 - API reference for the new module (automatic).
 - IO guide: a short "Exporting to pynapple" section (in-memory conversion, then `obj.save()`).
-- Docstrings: the seconds assumption with the `assign_coords` recipe, and the per-individual `.sel()` recipe.
+- Docstrings: the seconds assumption with the `assign_coords` recipe, the one-individual rule, and the recipe for converting several individuals.
 - A **small gallery example** covering:
   - `to_pynapple_dict` and `to_pynapple_tsdframe`, the latter on a derived variable (e.g. speed)
   - `variables=`
-  - per-individual export via `.sel()`
-  - metadata-based column selection
+  - selecting an individual via `.sel()`, and converting several
+  - name-based and metadata-based column selection
   - saving with `obj.save()` and loading back with `nap.load_folder`
   - the `set_info(parent=...)` recipe for pynaviz skeletons
 
   There's no ephys data in this PR, so no new public dataset is needed.
 
 **Tests:**
-- Mapping: shapes, column names/order, metadata, single-column frames for time-only arrays.
-- Poses and bboxes, 2D and 3D, single and multiple individuals.
-- Scalar `.sel()` drops the individual from names and metadata.
+- Mapping (`to_pynapple_tsdframe`, done): poses and bboxes, 2D and 3D. A shared helper checks every column's values, timestamps, name (`_`-joined labels), metadata (including single labels) and attribute access to metadata fields.
+- Derived variables covering each combination of `keypoint`/`space` dimensions: velocity, speed, head direction vector, forward vector angle (time-only).
+- Time-only arrays: named after the DataArray, or `Unnamed`.
+- Single labels: a single keypoint label (`x`, `y` columns), a size-1 keypoint dimension (`left_x`, `left_y`), and a size-1 `individual` dimension (same result as selecting it).
+- Errors: no `time` dimension, more than one individual, non-canonical dims (e.g. `view`).
 - `variables=`, including errors and skip warnings.
-- `ImportError` when pynapple is missing (monkeypatched).
+- `ImportError` when pynapple is missing (monkeypatched), and importing `movement.io` doesn't import pynapple (in a subprocess).
 
 ## 4. Decisions (this PR)
 
@@ -201,9 +230,9 @@ The naming scheme is the same for one or many individuals, so the schema never d
 | # | Decision | Rationale | Status |
 |---|---|---|---|
 | D-1 | In-memory export only, building objects with pynapple as an **optional**, lazily imported dependency. Saving is left to pynapple's `obj.save()`. | Matches the SpikeInterface precedent. pynapple validates its own objects. Defers the folder-vs-file question (section 7) without blocking the export. | Firm |
-| D-2 | **One `TsdFrame` per data variable**, with all non-time dims stacked as columns and labelled via column metadata. | Matches pynapple's one-object-per-signal convention (2.3). Lossless. Schema independent of individual count. Units not mixed within an object. Matches pynapple#689. | Firm |
-| D-3 | No `split_individuals` parameter. Per-individual export = `.sel(individual=...)` first, documented as a recipe. | Same result as the flag, with no duplicated mechanism and no flag-dependent nested return type. Also covers keypoint/time subsets. May come back in the writer, where it would decide the on-disk layout. | Firm |
-| D-4 | Two functions: `to_pynapple_tsdframe(da)` as the core, `to_pynapple_dict(ds, variables=None)` as a loop over it. Not one function with an input-dependent return type. | DataArray input fits movement's pipeline style (kinematics/filtering return DataArrays). Two names are clearer than `@overload`s. | Firm |
+| D-2 | **One `TsdFrame` per data variable**, with `keypoint`/`space` stacked as columns and labelled via column metadata. | Avoids long, unparsable names, a tidy layout needing selection first, or nested outputs (see "Why one individual and one variable per `TsdFrame`"). Matches pynapple's one-object-per-signal convention (2.3). Units not mixed within an object. Matches pynapple#689. | Firm |
+| D-3 | **One individual at a time.** A size-1 `individual` dim is dropped (its label kept in metadata); more than one raises, pointing to `.sel(individual=...)`. No `split_individuals` parameter; converting several is a documented one-line recipe. | Same reasoning as D-2 (see "Why one individual and one variable per `TsdFrame`"). Matches pynapple#617's per-individual frames and pynapple users' expectations. The integration's purpose is co-analysing behaviour with neural data, recorded from one animal per session in almost all cases. Short, unique names; pynaviz-ready frames; schema never depends on individual count. Relaxing later is non-breaking, restricting later would be breaking. Inter-individual measures are `time`-only and convert fine. Cost: a partner animal's trajectory needs its own frame. | Firm for v1 |
+| D-4 | Two functions: `to_pynapple_tsdframe(da)` as the core, `to_pynapple_dict(ds, variables=None)` as a loop over it. Not one function with an input-dependent return type. | Derived variables (speed, head direction, ...) are what's most often compared to neural data, and kinematics/filtering functions return DataArrays, so they convert directly (see "Derived variables are first-class"). Two names are clearer than `@overload`s. | Firm |
 | D-5 | Always `TsdFrame`, never `Tsd`. Time-only arrays become a single column named after `da.name`. | The return type matches the function name and never depends on input shape. | Firm |
 | D-6 | `to_pynapple_dict` returns a plain `dict`, not a container class. | A pynapple-style session view belongs in pynapple. A movement copy would drift and add a dependency. | Firm |
 | D-7 | Time is assumed to be in seconds, documented, not checked. | DataArrays don't carry `time_unit` today. Proper fix planned separately (time unit in array attrs). | Firm for v1 |
@@ -211,15 +240,18 @@ The naming scheme is the same for one or many individuals, so the schema never d
 | D-9 | Convert all eligible variables by default, with an optional `variables=` filter. | Preserves derived variables (a stated limitation of the NWB route) while letting users opt out. | Firm |
 | D-10 | Skeletons out of scope for v1. Document the `set_info(parent=...)` recipe. | movement datasets don't store skeletons, and the pynaviz representation isn't settled (pynaviz#118 open). | Firm for v1 |
 | D-11 | `pynapple>=0.8`. | Column metadata was introduced in 0.8.0. Save/load round-trip verified on 0.8.0, 0.8.5, 0.9.0 and 0.11.4, and on Python 3.14. CI only tests the latest version. | Firm |
-| D-12 | Column naming: labels of stacked dimensions joined by `_`. | Consistent schema. Metadata is the source of truth. | **Provisional:** revisit with pynaviz |
+| D-12 | Column names `<keypoint>_<space>` (or the single stacked label), plus `keypoint`/`space` metadata. Non-canonical dims (e.g. `view`) raise. | Names are unique and parseable even when keypoints contain `_`, so both name- and metadata-based selection are reliable. Same as pynapple#617 and the pynaviz layout. | Firm |
 | D-13 | Bboxes `shape` keeps `x`/`y` labels. | One generic rule, faithful to movement's data model. | **Provisional** |
-| D-14 | Module `movement/io/to_pynapple.py`. | Mirrors SpikeInterface's `exporters/to_pynapple.py`. Avoids clashing with the `pynapple` package name. The follow-up writer can live in the same module. | **Provisional** |
+| D-14 | Module `movement/io/to_pynapple.py`, with both functions re-exported from `movement.io`. | `from movement.io import to_pynapple_tsdframe` is the short public path, next to the other entry points (`load_dataset`, `save_dataset`); these functions are pynapple's entry point while no `save_dataset` writer exists. Not in `movement.io.save`: that module is the file-saving machinery (`save_dataset`, writer registry), and this conversion doesn't save. Not in `save_poses`: it works for bboxes too. Module not named `pynapple.py` (like `nwb.py`): `from movement.io import pynapple`, the IO guide's import pattern, would shadow the pynapple package in users' scripts. The module name mirrors SpikeInterface's `exporters/to_pynapple.py`; the follow-up writer can live in it too. | Firm |
 
 ## 5. Alternatives considered
 
 - **numpy-only `.npz` writer** (originally agreed first pass, also PR 1127): needs no dependency, but means hand-writing pynapple's format and gets no validation at write time. Superseded by D-1.
 - **A single `TsdFrame` for everything** (PR 1127): works technically (verified: 14 columns with a `variable` metadata field, round-trips through `save`/`load_file`), but goes against pynapple's one-object-per-signal convention, mixes units and dtypes, and always needs a `variable` filter. Revisited for the on-disk format in section 7.
-- **`split_individuals=` parameter / per-(individual, variable) frames as the default** (pynapple#617): replaced by `.sel()` (D-3).
+- **Stacking all individuals (and other dims, e.g. `view`) in one frame**, with names like `mouse1_snout_x`: lossless for multi-animal data, but names get long and can't be parsed automatically for labels containing `_`, metadata grows beyond what pynapple's repr shows, and frames don't match the pynaviz layout. Rejected in favour of one individual at a time (D-3, D-12).
+- **A tidy-like layout**, with the individual (or variable) as a metadata field that varies across columns: every analysis would need a selection step first, and mixing variables mixes units and dtypes. Rejected for the same reasons (see "Why one individual and one variable per `TsdFrame`").
+- **`split_individuals=` parameter** (pynapple#617 nests per individual): redundant with `.sel()` and gives a flag-dependent return type (D-3).
+- **Auto-splitting like `to_nwb_file_object`**, which returns one `NWBFile` per individual (a list, or a single file for one individual): needed there because NWB holds one subject per file. Here it would mean a nested, count-dependent return type. An explicit error plus a one-line recipe is simpler.
 - **One function accepting Dataset or DataArray:** the return type would depend on the input type. Replaced by two functions (D-4).
 - **`MovementDataset`-style container** (pynapple#617): see D-6.
 - **`TsdTensor` per variable:** keeps the n-D shape but loses all labels.
@@ -227,11 +259,13 @@ The naming scheme is the same for one or many individuals, so the schema never d
 
 ## 6. Open questions (this PR, to settle during implementation)
 
-1. **Extra dimensions** (e.g. `view` in multi-view datasets, or user-defined dims). Should they be stacked as additional metadata fields (generic, lossless), or should variables with them be skipped? Proposed: stack them, ordered after `individual` and before `keypoint`, `space`.
-2. **Boolean variables** (e.g. RoI "inside" results): `np.issubdtype(bool, np.number)` is `False`. Export them as-is, cast them, or skip them?
-3. **Duplicate column names** from labels containing `_`: warn, raise, or accept, given that metadata disambiguates?
-4. **Unnamed time-only DataArrays** (`da.name is None`): what to call the single column?
-5. **Scalar coordinates** left by `.sel()` (e.g. `individual="mouse1"`): turn them into constant metadata columns, so frames record which animal they're from? Default: no.
+1. **Boolean variables** (e.g. RoI "inside" results): `np.issubdtype(bool, np.number)` is `False`. Export them as-is, cast them, or skip them?
+
+Settled during implementation:
+- **Extra dimensions** (e.g. `view`, user-defined dims) raise; users select a single label first (D-12).
+- **Duplicate or ambiguous column names** can't occur: with only `keypoint`/`space` stacked, names are unique and parseable (D-12).
+- **Unnamed time-only DataArrays** get a column named `Unnamed`. Users rename first (`da.rename("speed")`), since pynapple reserves `columns` after creation. Most `movement.kinematics` outputs are named; `compute_kinetic_energy` (returns `None`) and `compute_time_derivative`/`compute_norm` (keep the input name) should be fixed separately.
+- **Scalar coordinates** of canonical dims (e.g. `individual="mouse1"` after `.sel()`, or a squeezed size-1 `individual` dim) become constant metadata fields. Non-canonical ones are not carried over.
 
 ## 7. Follow-up PR: saving to disk
 
@@ -269,8 +303,8 @@ Not in this PR. To be settled with gviejo and the movement co-maintainers first.
 ## 8. Questions for pynapple devs
 
 1. **Dependency.** The export builds objects with pynapple (optional dependency) instead of a numpy-only `.npz`. OK with you? Is there any timeline for pynapple on conda-forge?
-2. **Data model.** Does one wide `TsdFrame` per variable, with `individual`/`keypoint`/`space` column metadata, match how you'd want users to work in pynapple? Would your users expect one frame per variable, or one frame for everything? Any plans for pynapple#689 (`.sel`-style selection on metadata)?
-3. **pynaviz.** Could skeleton mode resolve keypoints, individuals and spatial components from **column metadata** rather than parsing `_x`/`_y` column names? That would make it work with multi-individual frames and 3D, and make our column-naming choice (D-12) irrelevant.
+2. **Data model.** Does one `TsdFrame` per variable, for one individual at a time, with `<keypoint>_<space>` columns and `keypoint`/`space` metadata, match how you'd want users to work in pynapple? Is one individual at a time right for your users (we assume neural data comes from one animal per session)? Any plans for pynapple#689 (`.sel`-style selection on metadata)?
+3. **pynaviz.** Our `position` frames match the `<kp>_x`/`<kp>_y` layout skeleton mode parses today. Could it also use the `keypoint`/`space` **column metadata**, which would make it robust to naming and support 3D (`_z`)?
 4. **Skeleton representation.** Is per-column `parent` metadata the long-term choice, or an edge list (which can also express non-tree graphs)? Where should it live (metadata, sidecar, separate object)? We'd like to add a `skeleton=` option once this is settled.
 5. **`nap.from_movement` (pynapple#617).** Proposal: movement owns the conversion (`to_pynapple_tsdframe` / `to_pynapple_dict`). If pynapple wants a container with a summary repr (like `MovementDataset`), `nap.from_movement` becomes a thin wrapper around `to_pynapple_dict`. One set of conversion rules, each side owning what it's good at. Does that work for you?
 6. **Saving (for the follow-up PR).** Is a folder of `.npz` + `.json` sidecars idiomatic? Are arbitrary string keys in the sidecar fine, beyond `time`/`info`? Would you prefer sibling files or a single file instead (section 7)?
@@ -284,6 +318,7 @@ Not in this PR. To be settled with gviejo and the movement co-maintainers first.
 - NWB route improvements: pynapple reading `ndx-pose` (pynapple#650), and movement storing extra variables in NWB.
 - Exporting RoI events/occupancy as `IntervalSet`.
 - Re-checking pynapple's conda-forge availability (for an eventual non-optional integration).
+- **Open question:** should `to_nwb_file_object` also be re-exported from `movement.io`, for symmetry with `to_pynapple_tsdframe`? Today it is only reachable as `movement.io.save_poses.to_nwb_file_object`. Separate change, not in this PR.
 
 ## 10. Process notes
 
