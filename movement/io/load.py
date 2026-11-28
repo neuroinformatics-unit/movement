@@ -19,7 +19,7 @@ import xarray as xr
 from attrs import field, fields, frozen, validators
 
 from movement.utils.logging import logger
-from movement.validators.files import ValidFile
+from movement.validators.files import ValidFile, ValidMovementNetCDF
 
 TInputFile = TypeVar("TInputFile", Path, str, pynwb.file.NWBFile)
 P = ParamSpec("P")
@@ -31,8 +31,14 @@ type SourceSoftware = Literal[
     "NWB",
     "VIA-tracks",
     "COCO",
+    "movement",
 ]
 AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE: Final = "DeepLabCut/LightningPose"
+# Source software whose frame rate is read or estimated from the file
+# itself, so a user-provided ``fps`` is ignored
+FPS_FROM_FILE_SOURCE_SOFTWARE: Final[frozenset[SourceSoftware]] = frozenset(
+    {"NWB", "movement"}
+)
 
 type InferredSourceSoftware = (
     SourceSoftware | Literal["DeepLabCut/LightningPose"]
@@ -210,16 +216,31 @@ def _get_validator_kwargs(
     *,
     loader_kwargs: dict,
 ) -> dict:
-    """Extract the relevant kwargs for a given validator class."""
-    # Only extract fields that are used in the validator's __init__
+    """Extract the relevant kwargs for a given validator class.
+
+    Loader kwargs matching the validator's ``__init__`` fields are
+    forwarded to those fields. If the validator also has an
+    ``extra_kwargs`` field, all remaining loader kwargs are collected
+    into it as a dict. This allows loaders to pass ``**kwargs`` through
+    to validators that need them to call an underlying function (e.g.
+    :func:`xarray.open_dataset`).
+    """
     validator_fields = {
         field.name for field in fields(validator_cls) if field.init
     }
-    return {
-        field_name: loader_kwargs[field_name]
-        for field_name in validator_fields
-        if field_name in loader_kwargs
+    named_fields = validator_fields - {"extra_kwargs"}
+    validator_kwargs = {
+        name: value
+        for name, value in loader_kwargs.items()
+        if name in named_fields
     }
+    if "extra_kwargs" in validator_fields:
+        validator_kwargs["extra_kwargs"] = {
+            name: value
+            for name, value in loader_kwargs.items()
+            if name not in named_fields
+        }
+    return validator_kwargs
 
 
 def _build_suffix_map(
@@ -369,19 +390,15 @@ def load_dataset(
     fps: float | None = None,
     **kwargs,
 ) -> xr.Dataset:
-    """Create a ``movement`` dataset from any supported third-party file.
+    """Create a ``movement`` dataset from any supported file format.
 
     Parameters
     ----------
     file
-        Path to the file containing predicted poses or tracked bounding boxes.
-        If ``source software`` is "NWB", this can also be a
+        Path to a file containing pose or bounding box tracks, in one of the
+        :ref:`supported formats <target-supported-formats>`.
+        If ``source_software`` is "NWB", this can also be a
         :class:`pynwb.file.NWBFile` object.
-        The file format must be among those supported by the
-        :mod:`movement.io.load_poses` or
-        :mod:`movement.io.load_bboxes` modules. Based on
-        the value of ``source_software``, the appropriate loading function
-        will be called.
     source_software
         The source software of the file. If set to ``"auto"`` (default),
         it is inferred from the file format via :func:`infer_source_software`.
@@ -390,12 +407,13 @@ def load_dataset(
     fps
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
-        This argument is ignored when ``source_software`` is "NWB", as the
-        frame rate will be directly read or estimated from metadata in
-        the NWB file.
+        This argument is ignored when ``source_software`` is "NWB" or
+        "movement", as the frame rate will be directly read or estimated
+        from metadata in the file.
     **kwargs
-        Additional keyword arguments to pass to the software-specific
-        loading functions in modules listed under "See Also".
+        Additional keyword arguments passed to the format-specific loader
+        in :mod:`movement.io.load_poses` or :mod:`movement.io.load_bboxes`,
+        or to :func:`xarray.load_dataset` for ``movement`` netCDF files.
 
     Returns
     -------
@@ -403,11 +421,10 @@ def load_dataset(
         ``movement`` dataset containing the pose or bounding box tracks,
         confidence scores, and associated metadata.
 
-
     See Also
     --------
-    movement.io.load_poses
-    movement.io.load_bboxes
+    load_multiview_dataset : Load and merge data from multiple views.
+    movement.io.save.save_dataset : Save a ``movement`` dataset to a file.
 
     Examples
     --------
@@ -434,12 +451,12 @@ def load_dataset(
             )
         )
 
-    if source_software == "NWB":
+    if source_software in FPS_FROM_FILE_SOURCE_SOFTWARE:
         if fps is not None:
             warnings.warn(
-                "The fps argument is ignored when loading from an NWB file. "
-                "The frame rate will be directly read or estimated from "
-                "metadata in the file.",
+                "The fps argument is ignored when loading from an NWB or "
+                "movement netCDF file. The frame rate will be directly read "
+                "or estimated from metadata in the file.",
                 UserWarning,
                 stacklevel=2,
             )
@@ -468,12 +485,13 @@ def load_multiview_dataset(
     fps
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
-        This argument is ignored when ``source_software`` is "NWB", as the
-        frame rate will be directly read or estimated from metadata in
-        the NWB file.
+        This argument is ignored when ``source_software`` is "NWB" or
+        "movement", as the frame rate will be directly read or estimated from
+        metadata in the file.
     **kwargs
-        Additional keyword arguments to pass to the software-specific
-        loading functions in modules listed under "See Also".
+        Additional keyword arguments passed to the format-specific loader
+        in :mod:`movement.io.load_poses` or :mod:`movement.io.load_bboxes`,
+        or to :func:`xarray.load_dataset` for ``movement`` netCDF files.
 
     Returns
     -------
@@ -483,8 +501,7 @@ def load_multiview_dataset(
 
     See Also
     --------
-    movement.io.load_poses
-    movement.io.load_bboxes
+    load_dataset : Load data from a single file.
 
     Notes
     -----
@@ -538,7 +555,7 @@ def rename_legacy_dimensions(ds: xr.Dataset) -> xr.Dataset:
 
     >>> import xarray as xr
     >>> from movement.io.load import rename_legacy_dimensions
-    >>> ds = xr.open_dataset("old_dataset.nc")
+    >>> ds = xr.load_dataset("old_dataset.nc")
     >>> ds = rename_legacy_dimensions(ds)
     >>> ds.to_netcdf("new_dataset.nc")
 
@@ -564,4 +581,28 @@ def rename_legacy_dimensions(ds: xr.Dataset) -> xr.Dataset:
             f"{list(rename_map.values())}"
         )
         ds = ds.rename(rename_map)
+    return ds
+
+
+@register_loader("movement", file_validators=[ValidMovementNetCDF])
+def _from_netcdf_file(file: str | Path, **kwargs) -> xr.Dataset:
+    """Load a ``movement`` dataset from a movement netCDF (.nc) file.
+
+    Parameters
+    ----------
+    file
+        Path to the netCDF file containing the ``movement`` dataset.
+    **kwargs
+        Additional keyword arguments passed to :func:`xarray.load_dataset`.
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` dataset containing pose tracks or bounding box tracks,
+        confidence scores, and associated metadata.
+    """
+    valid_file = cast("ValidMovementNetCDF", file)
+    file_path = valid_file.file
+    ds = xr.load_dataset(file_path, **kwargs)
+    logger.info(f"Loaded dataset from {file_path}:\n{ds}")
     return ds

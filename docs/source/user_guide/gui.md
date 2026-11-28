@@ -137,7 +137,7 @@ or from a [netCDF file](target-netcdf) saved with `movement`
 
 (target-gui-compatible-netcdf)=
 
-Only netCDF files that store a valid
+Only netCDF files that store a valid, 2D, single-view
 [movement dataset](target-poses-and-bboxes-dataset) can be opened in the GUI.
 Practically, this means:
 
@@ -145,13 +145,17 @@ Practically, this means:
 - The data variables, dimensions, and coordinates must satisfy the
   [dataset structure requirements](target-dataset-structure) for that `ds_type`.
   For example, a `poses` dataset must provide both `position` and `confidence`.
+- The data must be 2D, i.e. the `space` coordinates must be `x` and `y`.
+- The required data variables (`position`, `confidence`, and `shape`
+  for `bboxes`) must only have the dimensions `time`, `space`, `individual`,
+  and `keypoint` for `poses`.
 
 
 Below is a small example showing how to save a GUI-compatible
 netCDF file with `movement`:
 
 ```python
-from movement.io import load_dataset
+from movement.io import load_dataset, save_dataset
 from movement.filtering import rolling_filter
 
 ds_orig = load_dataset(
@@ -168,7 +172,7 @@ ds_new["position"] = rolling_filter(
 )
 
 # Save the processed dataset to a netCDF file
-ds_new.to_netcdf("my_data_processed.nc")
+save_dataset(ds_new, "my_data_processed.nc")
 ```
 
 Because `ds_new` is copied from the original dataset, it retains all required
@@ -179,9 +183,9 @@ after processing, as expected.
 
 To load tracked data in `napari`:
 
-1. From the `source software` dropdown menu select the name of the tracking software you used to generate the data (e.g. "DeepLabCut"), or choose "movement (netCDF)".
+1. From the `source software` dropdown menu select the name of the tracking software you used to generate the data (e.g. "DeepLabCut"), or choose "movement" if you are loading a `movement` netCDF file.
 2. Set the `fps` (frames per second) of the video the data refers to. This only changes the time units shown when you hover over a keypoint. An unknown `fps` can be set to `1`, which makes the displayed time equal to the frame index.
-The `fps` option is disabled when loading a netCDF file because the `fps` is directly read from the file's attributes.
+The `fps` option is disabled when loading a `movement` netCDF file, because the `fps` is read from the file's attributes and shown in the box once the file is loaded.
 3. Specify the file containing the tracked data. You can paste the path to the file directly in the text box, or click `Browse` to use the file browser.
 4. Click `Load`.
 
@@ -492,6 +496,12 @@ is kept, with `NaN` values.
 To resume editing later, [load](target-load-tracked-data) the saved
 `.nc` file in the GUI: all previous edits are restored, so you can pick
 up exactly where you left off.
+
+:::{warning}
+Only the data variables listed above are saved. Any other data variables in
+the loaded file (e.g. derived quantities such as speed) are not carried over.
+To avoid losing them, save to a new file rather than overwriting the original.
+:::
 
 :::{tip}
 Because the edits are saved in the `edited` variable, you can use them in

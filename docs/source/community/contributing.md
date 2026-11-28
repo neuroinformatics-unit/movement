@@ -423,6 +423,23 @@ class ValidDeepLabCutH5:
 Most formats often require custom validation logic beyond basic file checks.
 In the current example, the `_file_contains_expected_header` method uses the `file` attribute's validator method as a decorator (`@file.validator`) to check that the first line of the CSV file matches the expected header row for MySoftware output files.
 
+::::{dropdown} Passing loader arguments to the validator
+:color: success
+:icon: light-bulb
+
+If validation depends on arguments passed to the loader, declare them as fields on the validator class.
+The {func}`@register_loader()<movement.io.load.register_loader>` decorator forwards any loader keyword argument whose name matches an `__init__` field of the selected validator.
+For example, {class}`~movement.validators.files.ValidVIATracksCSV` declares a `frame_regexp` field, so `frame_regexp` passed to the VIA-tracks loader is also used during validation.
+
+Validators may occasionally need to call a function that accepts arbitrary keyword arguments.
+For these, declare an `extra_kwargs` field on the validator: the decorator collects *all* loader keyword arguments that do not match a named field into it as a dict, which the validator can then forward to that function.
+{class}`~movement.validators.files.ValidMovementNetCDF` follows this pattern, passing `extra_kwargs` to {func}`xarray.open_dataset` so that arguments like `group` or `drop_variables` are taken into account during validation.
+
+:::{note}
+`extra_kwargs` also receives any keyword arguments the loader handles itself, so make sure unsupported arguments are handled: either rely on the function to reject them (e.g. {func}`xarray.open_dataset` raises a `TypeError`), or check them explicitly in the validator.
+:::
+::::
+
 :::{seealso}
 - {external+attrs:std:doc}`examples`: Overview of writing `attrs` classes.
 - {ref}`attrs Validators<attrs:validators>`: Details on writing custom validators for attributes.
@@ -556,7 +573,7 @@ GUI_UNSUPPORTED_SOURCE_SOFTWARE = {
 
 #### Update the Input/Output guide
 
-Finally, update the [](target-io) guide by adding the new format to the [](target-supported-formats) table and documenting it in the [](target-loading-pose-tracks) and/or [](target-loading-bbox-tracks) section(s) with usage examples.
+Finally, update the [](target-io) guide by adding the new format to the [](target-supported-formats) table and adding a dropdown with usage examples under [](target-format-specific).
 
 ### Implementing new writers
 
@@ -642,7 +659,7 @@ type TargetSoftware = Literal[
 
 #### Update the Input/Output guide
 
-Finally, update the [](target-io) guide by adding the new format to the [](target-supported-formats) table and documenting it in the [](target-saving-pose-tracks) and/or [](target-saving-bboxes-tracks) section(s) with usage examples.
+Finally, update the [](target-io) guide by adding the new format to the [](target-supported-formats) table and adding usage examples to the corresponding dropdown under [](target-format-specific).
 
 ### Developing the CLI
 
