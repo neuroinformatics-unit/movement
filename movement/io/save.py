@@ -163,8 +163,12 @@ def register_writer(
             ds: xr.Dataset, file: str | Path, *args: P.args, **kwargs: P.kwargs
         ) -> None:
             _validate_ds_type(ds, target_software)
+            # The writer validates overwrite behavior on its actual output
+            # paths, which may differ from the input path for split writers.
             valid_file = validate_file_path(
-                file, permission="w", suffixes=suffixes
+                file,
+                permission="w",
+                suffixes=suffixes,
             )
             return writer_fn(ds, valid_file, *args, **kwargs)
 

@@ -27,6 +27,8 @@ type ROICollection = Sequence[BaseRegionOfInterest]
 def save_rois(
     rois: ROICollection,
     file: str | Path,
+    *,
+    overwrite: bool = True,
 ) -> None:
     """Save a collection of regions of interest (RoIs) to a GeoJSON file.
 
@@ -41,6 +43,16 @@ def save_rois(
     file
         Path to the output file.
         Should have a ``.geojson`` or a ``.json`` extension.
+    overwrite : bool, default True
+        Whether to overwrite an existing writable target file. If False, a
+        ``FileExistsError`` is raised if the target file already exists.
+
+    Raises
+    ------
+    FileExistsError
+        If the target file exists and ``overwrite=False``.
+    PermissionError
+        If the target file exists, ``overwrite=True``, but is not writable.
 
     See Also
     --------
@@ -59,7 +71,10 @@ def save_rois(
 
     """
     valid_path = validate_file_path(
-        file, permission="w", suffixes=ValidROICollectionGeoJSON.suffixes
+        file,
+        permission="w",
+        overwrite=overwrite,
+        suffixes=ValidROICollectionGeoJSON.suffixes,
     )
 
     features = [

@@ -135,6 +135,21 @@ def test_to_via_tracks_file_valid_dataset(
     xr.testing.assert_equal(ds, input_dataset)
 
 
+def test_to_via_tracks_file_overwrite_behavior(valid_bboxes_dataset, tmp_path):
+    output_path = tmp_path / "tracks.csv"
+    output_path.write_text("existing contents")
+
+    save_bboxes.to_via_tracks_file(valid_bboxes_dataset, output_path)
+    assert output_path.read_text() != "existing contents"
+
+    output_path.write_text("preserve these contents")
+    with pytest.raises(FileExistsError):
+        save_bboxes.to_via_tracks_file(
+            valid_bboxes_dataset, output_path, overwrite=False
+        )
+    assert output_path.read_text() == "preserve these contents"
+
+
 @pytest.mark.parametrize(
     "image_file_prefix",
     [None, "test_video"],

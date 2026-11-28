@@ -89,11 +89,10 @@ def _save_dlc_df(filepath: Path, df: pd.DataFrame) -> None:
         Pandas Dataframe to save
 
     """
-    validate_file_path(filepath, permission="w", suffixes={".csv", ".h5"})
     if filepath.suffix == ".csv":
         df.to_csv(filepath, sep=",")
     else:  # at this point it can only be .h5 (because of validation)
-        df.to_hdf(filepath, key="df_with_missing")
+        df.to_hdf(filepath, key="df_with_missing", mode="w")
 
 
 @overload
@@ -187,6 +186,8 @@ def to_dlc_file(
     ds: xr.Dataset,
     file: str | Path,
     split_individuals: bool | Literal["auto"] = "auto",
+    *,
+    overwrite: bool = True,
 ) -> None:
     """Save a ``movement`` dataset to DeepLabCut file(s).
 
@@ -201,6 +202,19 @@ def to_dlc_file(
     split_individuals
         Whether to save individuals to separate files or to the same file
         (see Notes). Defaults to "auto".
+    overwrite : bool, default True
+        Whether to overwrite existing writable target files. If False, a
+        ``FileExistsError`` is raised if any target file already exists.
+        When ``split_individuals=True``, all derived paths are validated
+        before any file is written, so the operation fails atomically rather
+        than partially overwriting.
+
+    Raises
+    ------
+    FileExistsError
+        If a target file exists and ``overwrite=False``.
+    PermissionError
+        If a target file exists, ``overwrite=True``, but is not writable.
 
     See Also
     --------
@@ -210,15 +224,13 @@ def to_dlc_file(
     -----
     If ``split_individuals`` is True, each individual will be saved to a
     separate file, formatted as in a single-animal DeepLabCut project
-    (without the "individuals" column level). If the dataset contains more
-    than one individual, the individual's name will be appended to the file
-    path, just before the file extension, e.g.
-    "/path/to/filename_individual1.h5". If it contains only one individual,
-    the given file path is used as is. If False, all individuals will be
-    saved to the same file, formatted as in a multi-animal DeepLabCut project
-    (with the "individuals" column level). The file path will not be modified.
-    If "auto", the argument's value is determined based on the number of
-    individuals in the dataset: True if there is only one, False otherwise.
+    (without the "individuals" column level). For multiple individuals,
+    each name is appended to the filename stem. For a
+    single individual, the requested file path is used as is.
+    If ``split_individuals`` is False, all individuals are saved to one
+    multi-animal file with an ``individuals`` column level. If set to
+    ``"auto"``, splitting is enabled only when the dataset contains one
+    individual.
 
     Examples
     --------
@@ -228,7 +240,6 @@ def to_dlc_file(
 
     """
     valid_path = Path(file)
-    # Sets default behaviour for the function
     if split_individuals == "auto":
         split_individuals = ds.individual.size == 1
     elif not isinstance(split_individuals, bool):
@@ -238,13 +249,15 @@ def to_dlc_file(
                 f"but got {type(split_individuals)}."
             )
         )
+
     assert isinstance(split_individuals, bool)
     df_all = to_dlc_style_df(ds, split_individuals=split_individuals)
     if isinstance(df_all, pd.DataFrame):
         df_all = {"": df_all}
-    for individual, df in df_all.items():
-        # a single individual is always saved to the given path as is;
-        # multiple individuals get their name appended to the path
+
+    # Validate all output paths before saving any files.
+    filepaths = {}
+    for individual in df_all:
         filepath = (
             valid_path
             if len(df_all) == 1
@@ -252,6 +265,18 @@ def to_dlc_file(
                 f"{valid_path.with_suffix('')}_{individual}{valid_path.suffix}"
             )
         )
+
+        validate_file_path(
+            filepath,
+            permission="w",
+            overwrite=overwrite,
+            suffixes={".csv", ".h5"},
+        )
+        filepaths[individual] = filepath
+
+    # Save each individual.
+    for individual, df in df_all.items():
+        filepath = filepaths[individual]
         _save_dlc_df(filepath, df)
         logger.info(f"Saved poses dataset to {filepath}.")
 
@@ -260,6 +285,8 @@ def to_dlc_file(
 def to_lp_file(
     ds: xr.Dataset,
     file: str | Path,
+    *,
+    overwrite: bool = True,
 ) -> None:
     """Save a ``movement`` dataset to a LightningPose file.
 
@@ -269,7 +296,19 @@ def to_lp_file(
         ``movement`` dataset containing pose tracks, confidence scores,
         and associated metadata.
     file
-        Path to the file to save the poses to. File extension must be .csv.
+        Path to the output CSV file. For datasets with multiple individuals,
+        each individual's name is appended to the filename stem and a
+        separate CSV file is written per individual.
+    overwrite : bool, default True
+        Whether to overwrite existing writable output files. If False, a
+        ``FileExistsError`` is raised if any target file already exists.
+
+    Raises
+    ------
+    FileExistsError
+        If an output file exists and ``overwrite=False``.
+    PermissionError
+        If an existing output file is not writable.
 
     See Also
     --------
@@ -287,11 +326,16 @@ def to_lp_file(
     If it contains only one individual, the given file path is used as is.
 
     """
-    to_dlc_file(ds, file, split_individuals=True)
+    to_dlc_file(ds, file, split_individuals=True, overwrite=overwrite)
 
 
 @register_writer("SLEAP", ds_type="poses", suffixes={".h5"})
-def to_sleap_analysis_file(ds: xr.Dataset, file: str | Path) -> None:
+def to_sleap_analysis_file(
+    ds: xr.Dataset,
+    file: str | Path,
+    *,
+    overwrite: bool = True,
+) -> None:
     """Save a ``movement`` dataset to a SLEAP analysis file.
 
     Parameters
@@ -301,6 +345,16 @@ def to_sleap_analysis_file(ds: xr.Dataset, file: str | Path) -> None:
         and associated metadata.
     file
         Path to the file to save the poses to. File extension must be .h5.
+    overwrite : bool, default True
+        Whether to overwrite an existing writable target file. If False, a
+        ``FileExistsError`` is raised if the target file already exists.
+
+    Raises
+    ------
+    FileExistsError
+        If the target file exists and ``overwrite=False``.
+    PermissionError
+        If the target file exists, ``overwrite=True``, but is not writable.
 
     Notes
     -----
@@ -338,6 +392,13 @@ def to_sleap_analysis_file(ds: xr.Dataset, file: str | Path) -> None:
     ... )
 
     """
+    file_path = Path(file)
+
+    # Validate before doing any work
+    validate_file_path(
+        file_path, permission="w", overwrite=overwrite, suffixes={".h5"}
+    )
+
     ds = _remove_unoccupied_tracks(ds)
     # Target shapes:
     # "track_occupancy"     n_frames * n_individuals
@@ -390,7 +451,7 @@ def to_sleap_analysis_file(ds: xr.Dataset, file: str | Path) -> None:
         video_ind=0,
         provenance="{}",
     )
-    with h5py.File(file, "w") as f:
+    with h5py.File(file_path, "w") as f:
         for key, val in data_dict.items():
             if isinstance(val, np.ndarray):
                 f.create_dataset(
@@ -401,7 +462,7 @@ def to_sleap_analysis_file(ds: xr.Dataset, file: str | Path) -> None:
                 )
             else:
                 f.create_dataset(key, data=val)
-    logger.info(f"Saved poses dataset to {file}.")
+    logger.info(f"Saved poses dataset to {file_path}.")
 
 
 def to_nwb_file_object(
@@ -690,7 +751,10 @@ def _write_nwb_file(ds: xr.Dataset, file: str | Path, **kwargs) -> None:
                 f"{valid_path.stem}_{nwb_file.identifier}{valid_path.suffix}"
             )
             individual_path = validate_file_path(
-                individual_path, permission="w", suffixes={".nwb"}
+                individual_path,
+                permission="w",
+                overwrite=True,
+                suffixes={".nwb"},
             )
             _write_nwb_to_disk(nwb_file, individual_path)
 
