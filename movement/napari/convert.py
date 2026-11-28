@@ -183,10 +183,10 @@ def ds_to_napari_layers(
     # Construct the properties DataFrame
     # Stack individual, time and keypoint (if present) dimensions
     # into a new single dimension named "tracks"
-    dimensions_to_stack: tuple[str, ...] = ("individual", "time")
-    if "keypoint" in ds.coords:
-        dimensions_to_stack += ("keypoint",)  # add last
-    ds_ = ds.stack(tracks=sorted(dimensions_to_stack))
+    properties = _construct_properties_dataframe(ds.stack(tracks=row_dims))
+    if ds.ds_type == "poses" and "keypoint" not in ds.confidence.dims:
+        # The loader keeps this full table in the Points layer metadata.
+        properties.attrs["individual_wise_confidence"] = True
 
     properties = _construct_properties_dataframe(ds_)
     if ds.ds_type == "poses" and "keypoint" not in ds.confidence.dims:
