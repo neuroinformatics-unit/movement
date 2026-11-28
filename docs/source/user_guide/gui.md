@@ -225,10 +225,9 @@ dataset has no keypoint dimension, the individual name is shown instead.
 Hovering with your mouse over a point
 (with the points layer selected) will
 bring up a tooltip containing the properties of that point: the individual and keypoint it represents,
-the confidence score provided by the source software,
+the point-wise confidence score (provided by the source software),
 and the time in seconds (calculated based on the frame number and
-the `fps` value). If the source provides one score per individual, each keypoint
-initially displays the same score for that individual in that frame.
+the `fps` value).
 
 
 ![napari points tooltip](../_static/napari_points_tooltip.png)
@@ -396,7 +395,7 @@ always reflect the current keypoint positions.
 #### Move keypoints
 
 To move the selected keypoint(s), drag them to the correct position.
-Moved keypoints are shown as rings. Each moved point shows `NaN` confidence in the points layer.
+Moved keypoints are shown as rings. Their confidence is set to `NaN`, because the model's score no longer applies.
 
 Once a keypoint is moved, a boolean `edited` property is added to all points in the layer: it is `True` for moved keypoints and `False` for all others. Hover over a point to check: a moved keypoint's tooltip shows `edited: True`.
 
@@ -409,8 +408,8 @@ Once a keypoint is moved, a boolean `edited` property is added to all points in 
 
 To remove the selected keypoint(s), click the ✕ icon in the layer controls
 panel, or press `Delete`, `Backspace`, or `1`.
-Removed keypoints disappear from the viewer. Their removal is recorded when you
-[save the edits](target-save-edits).
+Removed keypoints disappear from the viewer, and their confidence scores are
+set to `NaN`.
 
 <video autoplay loop muted playsinline width="100%" aria-label="Removing selected keypoints, which then disappear from the viewer">
   <source src="../_static/napari_remove_keypoints.mp4" type="video/mp4">
@@ -484,19 +483,9 @@ The saved file contains a valid
 [movement poses dataset](target-poses-and-bboxes-dataset) with:
 
 - the corrected `position` values; removed keypoints are stored as `NaN`;
-- the `confidence` values, with the same dimensions as in the loaded dataset;
+- the `confidence` values, with all edited keypoints stored as `NaN`;
 - a boolean `edited` data variable, with dimensions
   `(time, keypoint, individual)`, storing `True` for every edited keypoint and `False` for all others.
-
-How a move or deletion affects saved confidence depends on what the source software scored:
-
-- **Point-wise confidence** `(time, keypoint, individual)`: moving or removing a keypoint
-  sets its score to `NaN` for that individual and frame.
-- **Individual-wise confidence** `(time, individual)`: moving or removing any keypoint
-  sets the individual's score to `NaN` for that frame. For example, moving a mouse's nose
-  marks the nose as edited and clears the mouse's score for that frame.
-  If you save without editing, the original individual-wise scores are preserved,
-  even for a frame where a keypoint was already missing at load.
 
 The `edited` variable is included only if at least one keypoint was edited.
 Keypoints or individuals that end up with no data in any frame
