@@ -335,6 +335,40 @@ def test_valid_poses_roundtrip_napari_layer_to_dataset(ds_dataset, request):
     )
 
 
+@pytest.mark.parametrize("edit", [None, "drag", "delete"])
+@pytest.mark.parametrize("keypoint_idx", [0, 1])
+def test_individual_confidence_round_trip(
+    valid_poses_dataset_with_individual_wise_confidence, edit, keypoint_idx
+):
+    ds = valid_poses_dataset_with_individual_wise_confidence.copy(deep=True)
+    # The loader hides this individual for one frame, but its original
+    # detection score still exists.
+    ds.position[0, :, :, 0] = np.nan
+    tracks, _, loaded = ds_to_napari_layers(ds)
+    visible = ~np.isnan(tracks).any(axis=1)
+    loaded["position_is_nan"] = ~visible
+    points = tracks[visible, 1:].copy()
+    live = loaded.loc[visible].reset_index(drop=True)
+    target = (
+        (live.time == ds.time.values[1])
+        & (live.individual == ds.individual.values[0])
+        & (live.keypoint == ds.keypoint.values[keypoint_idx])
+    )
+    expected = ds.confidence.copy(deep=True)
+    if edit == "drag":
+        points[target, 1] += 1
+        live["edited"] = target
+        live.loc[target, "confidence"] = np.nan
+    elif edit == "delete":
+        points = points[~target]
+        live = live.loc[~target]
+    if edit:
+        expected[1, 0] = np.nan
+
+    saved = napari_layers_to_ds(points, live.to_dict("list"), loaded, ds.attrs)
+    xr.testing.assert_identical(saved.confidence, expected)
+
+
 # NaN scenarios shared by the napari-layer round-trip tests below.
 # Each entry is passed to ``valid_poses_path_and_ds_with_localised_nans``
 # (or is ``None`` for the no-NaN case) to place missing data at a known
