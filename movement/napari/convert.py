@@ -188,7 +188,8 @@ def ds_to_napari_layers(
         # The loader keeps this full table in the Points layer metadata.
         properties.attrs["individual_wise_confidence"] = True
 
-    properties = _construct_properties_dataframe(ds_)
+    properties = _construct_properties_dataframe(ds.stack(tracks=row_dims))
+    
     if ds.ds_type == "poses" and "keypoint" not in ds.confidence.dims:
         # The loader keeps this full table in the Points layer metadata.
         properties.attrs["individual_wise_confidence"] = True
